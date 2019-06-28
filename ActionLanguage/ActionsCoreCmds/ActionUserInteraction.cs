@@ -511,7 +511,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("get"))
                     {
-                        string control = sp.NextWord();
+                        string control = sp.NextQuotedWord();
                         string r;
 
                         if (control != null && (r = f.Get(control)) != null)
@@ -523,7 +523,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("set"))
                     {
-                        string control = sp.NextWord(" =");
+                        string control = sp.NextQuotedWord(" =");
                         string value = sp.IsCharMoveOn('=') ? sp.NextQuotedWord() : null;
                         if (control != null && value != null)
                         {
