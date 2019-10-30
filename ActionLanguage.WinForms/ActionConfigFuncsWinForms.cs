@@ -502,5 +502,10 @@ namespace ActionLanguage
                 }
             }
         }
+
+        public override void Yield()
+        {
+            Application.DoEvents();
+        }
     }
 }

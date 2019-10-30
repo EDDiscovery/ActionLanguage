@@ -312,7 +312,7 @@ namespace ActionLanguage
                     break;
 
                 if (doevents)
-                    Application.DoEvents();     // let the application run
+                    actioncontroller.ConfigFuncs.Yield();     // let the application run
                 else
                     System.Threading.Thread.Sleep(20);
             }
