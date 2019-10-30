@@ -297,12 +297,13 @@ namespace ActionLanguage
         {
             if (progcurrent != null)
             {
+                //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Terminate program " + progcurrent.Name);
                 progcurrent.Terminated();
                 progcurrent = null;
             }
         }
 
-        public void WaitTillFinished(int timeout)           // Could be IN ANOTHER THREAD BEWARE
+        public void WaitTillFinished(int timeout, bool doevents)           // Could be IN ANOTHER THREAD BEWARE
         {
             int t = Environment.TickCount + timeout;
             while( Environment.TickCount < t )
@@ -310,7 +311,10 @@ namespace ActionLanguage
                 if (progcurrent == null)
                     break;
 
-                System.Threading.Thread.Sleep(100);
+                if (doevents)
+                    Application.DoEvents();     // let the application run
+                else
+                    System.Threading.Thread.Sleep(20);
             }
         }
     }
