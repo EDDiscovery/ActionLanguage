@@ -107,7 +107,7 @@ namespace ActionLanguage
             {
                 conditionpersistentdata.CloseAll();
                 foreach (string s in dialogs.Keys)
-                    dialogs[s].Close();
+                    dialogs[s].ReturnResult(dialogs[s].DialogResult);
 
                 dialogs.Clear();
             }
