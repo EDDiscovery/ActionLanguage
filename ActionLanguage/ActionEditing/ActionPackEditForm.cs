@@ -238,7 +238,7 @@ namespace ActionLanguage
             }
 
             buttonMore.Location = new Point(panelxmargin, y );
-            System.Diagnostics.Debug.WriteLine("More " + buttonMore.Location);
+            //System.Diagnostics.Debug.WriteLine("More " + buttonMore.Location);
 
             if (calcminsize)
             {
