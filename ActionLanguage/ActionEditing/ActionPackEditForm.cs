@@ -94,6 +94,7 @@ namespace ActionLanguage
             Group g = new Group();
 
             g.panel = new Panel();
+            g.panel.Name = name ?? (cd?.eventname + " " + cd?.ToString());
             g.panel.SuspendLayout();
 
             // We draw as it was 8.25 point then scale.
@@ -139,12 +140,12 @@ namespace ActionLanguage
 
                 g.groupnamelabel = new Label();
                 g.groupnamelabel.Name = g.groupnamelabel.Text = name;
-                g.groupnamelabel.Location = new Point(24, 2);
+                g.groupnamelabel.Location = new Point(32, 2);
                 g.groupnamepanel.Controls.Add(g.groupnamelabel);
 
                 g.groupactionscombobox = new ExtendedControls.ExtComboBox();
                 g.groupactionscombobox.Items.AddRange(new string[] { "Select Action", "Disable All", "Enable All", "Delete All"});
-                g.groupactionscombobox.Size = new Size(200, 16);
+                g.groupactionscombobox.Size = new Size(200, 20);
                 g.groupactionscombobox.Tag = g;
                 g.groupactionscombobox.SelectedIndex = 0;
                 g.groupactionscombobox.SelectedIndexChanged += Groupactionscombobox_SelectedIndexChanged;
@@ -164,9 +165,7 @@ namespace ActionLanguage
 
             if (g.groupnamepanel != null)
             {
-                g.groupnamecollapsebutton.BackColor = g.groupnamepanel.BackColor = g.groupactionscombobox.BackColor = g.groupactionscombobox.DropDownBackgroundColor = ExtendedControls.ThemeableFormsInstance.Instance.TextBlockBorderColor;
-                g.groupnamecollapsebutton.ForeColor = g.groupnamelabel.ForeColor = g.groupactionscombobox.ForeColor = ExtendedControls.ThemeableFormsInstance.Instance.TextBackColor;
-
+                g.groupnamepanel.BackColor = ExtendedControls.ThemeableFormsInstance.Instance.TextBackColor;
             }
 
             g.panel.ResumeLayout();
@@ -228,24 +227,25 @@ namespace ActionLanguage
                     }
 
                     g.panel.Visible = true;
-                    g.panel.Location = new Point(panelxmargin, y + panelVScroll.ScrollOffset);
+                    g.panel.Location = new Point(panelxmargin, y);
                     g.panel.Size = g.panel.FindMaxSubControlArea(2, 2);
 
-                    //System.Diagnostics.Debug.WriteLine("Panel " + i + " size " + g.panel.Size);
+                    //System.Diagnostics.Debug.WriteLine("Panel " + i + " " + g.panel.Name + " loc " + g.panel.Location + " size " + g.panel.Size);
                     y += g.panel.Height + Font.ScalePixels(4);
                 }
                 else
                     g.panel.Visible = false;
             }
 
-            buttonMore.Location = new Point(panelxmargin, y + panelVScroll.ScrollOffset);
+            buttonMore.Location = new Point(panelxmargin, y );
+            //System.Diagnostics.Debug.WriteLine("More " + buttonMore.Location);
 
             if (calcminsize)
             {
                 int titleHeight = RectangleToScreen(this.ClientRectangle).Top - this.Top;
                 y += buttonMore.Height + titleHeight + ((panelTop.Enabled) ? (panelTop.Height + statusStripCustom.Height) : 8) + 16 + panelOK.Height;
-                this.MinimumSize = new Size(800, y);
                 this.MaximumSize = new Size(Screen.FromControl(this).WorkingArea.Width - 100, Screen.FromControl(this).WorkingArea.Height - 100);
+                this.MinimumSize = new Size(800,Math.Min(this.MaximumSize.Height,y));
 
                 if (Bottom > Screen.FromControl(this).WorkingArea.Height)
                     Top = Screen.FromControl(this).WorkingArea.Height - Height - 50;
