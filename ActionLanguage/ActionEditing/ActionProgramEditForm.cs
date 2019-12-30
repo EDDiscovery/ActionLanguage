@@ -284,7 +284,7 @@ namespace ActionLanguage
 
                 g.up.Visible = groups.IndexOf(g) > 0;
 
-                g.panel.Location = new Point(panelleftmargin, voff + panelVScroll.ScrollOffset);
+                g.panel.Location = new Point(panelleftmargin, voff);
                 g.panel.Size = g.panel.FindMaxSubControlArea(2, 2);
 
                 g.panel.ResumeLayout();
@@ -309,7 +309,7 @@ namespace ActionLanguage
                 voff += g.panel.Height;
             }
 
-            buttonMore.Location = new Point(panelleftmargin, voff + panelVScroll.ScrollOffset);
+            buttonMore.Location = new Point(panelleftmargin, voff );
 
             Rectangle screenRectangle = RectangleToScreen(this.ClientRectangle);
             int titleHeight = screenRectangle.Top - this.Top;
@@ -319,8 +319,8 @@ namespace ActionLanguage
 
             if (calcminsize)
             {
-                this.MinimumSize = new Size(600, voff);
                 this.MaximumSize = new Size(Screen.FromControl(this).WorkingArea.Width - 100, Screen.FromControl(this).WorkingArea.Height - 100);
+                this.MinimumSize = new Size(600, Math.Min(voff,this.MaximumSize.Height));
 
                 if (Bottom > Screen.FromControl(this).WorkingArea.Height)
                     Top = Screen.FromControl(this).WorkingArea.Height - Height - 50;
