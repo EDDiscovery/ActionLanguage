@@ -71,6 +71,18 @@ namespace ActionLanguage
 
         }
 
+        public enum DialogResult
+        {
+            None = 0,
+            OK = 1,
+            Cancel = 2,
+            Abort = 3,
+            Retry = 4,
+            Ignore = 5,
+            Yes = 6,
+            No = 7
+        }
+
         public interface IConfigurableForm
         {
             string Add(string instr);
@@ -82,6 +94,8 @@ namespace ActionLanguage
             void Close();
             event Action<string, string, object> Trigger;
             Point Location { get; set; }
+            void ReturnResult(DialogResult result);
+            DialogResult DialogResult { get; }
         }
 
         public interface ITimer : IDisposable

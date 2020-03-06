@@ -98,6 +98,7 @@ namespace ActionLanguage
             public Point Location { get { return Form.Location; } set { Form.Location = value; } }
 
             public event Action<string, string, object> Trigger { add { Form.Trigger += value; } remove { Form.Trigger -= value; } }
+            public DialogResult DialogResult { get { return (DialogResult)Form.DialogResult; } }
 
             public string Add(string instr)
             {
@@ -137,6 +138,11 @@ namespace ActionLanguage
             public void Close()
             {
                 Form.Close();
+            }
+
+            public void ReturnResult(DialogResult result)
+            {
+                Form.ReturnResult((System.Windows.Forms.DialogResult)result);
             }
         }
 
