@@ -535,7 +535,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("close"))
                     {
-                        f.Close();
+                        f.ReturnResult(f.DialogResult);
                         if (inlocal)
                             ap.dialogs.Remove(handle);
                         else
