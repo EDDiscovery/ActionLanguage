@@ -402,7 +402,8 @@ namespace ActionLanguage
                             cd.Init(new System.Drawing.Point(x.Value, y.Value),
                                             ap.actioncontroller.Icon,
                                             exp[1],
-                                            exp[0], new List<Object>() { ap, IsModalDialog() }  // logical name and tag
+                                            exp[0], new List<Object>() { ap, IsModalDialog() },  // logical name and tag
+                                            closeicon: true
                                             );
                         }
                         else
@@ -410,7 +411,8 @@ namespace ActionLanguage
                             cd.InitCentred(ap.actioncontroller.Form,
                                             ap.actioncontroller.Icon,
                                             exp[1],
-                                            exp[0], new List<Object>() { ap, IsModalDialog() }  // logical name and tag
+                                            exp[0], new List<Object>() { ap, IsModalDialog() }, // logical name and tag
+                                            closeicon: true
                                             );
                         }
 
@@ -432,6 +434,9 @@ namespace ActionLanguage
 
         static private void Cd_Trigger(string lname, string controlname, Object tag)
         {
+            if (controlname == "Close")     // put in backwards compatibility - close is the same as cancel for action programs
+                controlname = "Cancel";
+
             List<Object> tags = tag as List<Object>;        // object is a list of objects! lovely
 
             ActionProgramRun apr = tags[0] as ActionProgramRun;
