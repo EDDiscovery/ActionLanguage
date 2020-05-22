@@ -61,12 +61,12 @@ namespace ActionLanguage
             public List<Condition> passed;   // list of passed events after condition checked.
         }
 
-        // any with refresh flag set?
-        public bool IsConditionFlagSet(string flagstart)
+        // any with this variable defined?
+        public bool IsActionVarDefined(string flagstart)
         {
             foreach (ActionFile af in actionfiles)
             {
-                if (af.actioneventlist.IsConditionFlagSet(flagstart))
+                if (af.actioneventlist.IsActionVarDefined(flagstart))
                     return true;
             }
             return false;
@@ -146,12 +146,7 @@ namespace ActionLanguage
 
                     if (ap != null)     // program got,
                     {
-                        Variables adparas = new Variables();
-                        string flags;
-                        adparas.FromActionDataString(fe.actiondata, out flags);
-
-                        inputparas.Add(adparas);
-
+                        inputparas.Add(fe.actionvars);
                         run.Run(now, ap.Item1, ap.Item2, inputparas);
                     }
                 }
