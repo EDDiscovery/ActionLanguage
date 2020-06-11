@@ -94,7 +94,7 @@ namespace ActionLanguage
             toolTip.SetToolTip(progedit, "Edit associated program");
 
             paras = new ExtendedControls.ExtTextBox();
-            paras.Text = (cd.actiondata != null) ? cd.actiondata : "";
+            paras.Text = cd.actionvars.ToString();
             paras.Location = new Point(progedit.Right + 8, panelymargin );
             paras.Size = new Size(pwidth,24);     
             paras.ReadOnly = true;
@@ -129,7 +129,8 @@ namespace ActionLanguage
         public void ChangedCondition(ActionProgram.ProgramConditionClass cls)  // upper swapped out condition.. brand new clean one
         {
             classifier = cls;
-            cd.action = cd.actiondata = "";
+            cd.action = "";
+            cd.actionvars = new Variables();
             UpdateControls();
         }
 
@@ -146,7 +147,7 @@ namespace ActionLanguage
                 proglist.SelectedIndex = 0;
             proglist.Enabled = true;
 
-            paras.Text = cd.actiondata.Alt("");
+            paras.Text = cd.actionvars.ToString();
 
             buttonKeys.Text = "Enter Key";
             buttonSay.Text = "Enter Speech";
@@ -252,20 +253,15 @@ namespace ActionLanguage
 
         private void Paras_Click(object sender, EventArgs e)        // FULL
         {
-            Variables cond = new Variables();
-            string flag = "";
-
-            if (paras.Text.Length > 0)
-            {
-                cond.FromActionDataString(paras.Text, out flag);
-            }
+            Variables cond = new Variables(paras.Text,Variables.FromMode.MultiEntryComma);
 
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Input parameters and flags to pass to program on run", this.Icon, cond, showatleastoneentry: true, showrunatrefreshcheckbox: true, setrunatrefreshcheckboxstate: flag.Equals(Variables.flagRunAtRefresh));
+            avf.Init("Input parameters to pass to program on run", this.Icon, cond, showatleastoneentry: true, showrunatrefreshcheckbox: true);
 
             if (avf.ShowDialog(FindForm()) == DialogResult.OK)
             {
-                cd.actiondata = paras.Text = avf.result.ToActionDataString(avf.result_refresh ? Variables.flagRunAtRefresh : "");
+                paras.Text = avf.result.ToString();
+                cd.actionvars = avf.result;
             }
         }
 
@@ -280,7 +276,10 @@ namespace ActionLanguage
                 {
                     // to not full with prog class being full, need to clear, not in correct form
                     if (newcls != ActionProgram.ProgramConditionClass.Full && p.progclass == ActionProgram.ProgramConditionClass.Full)
-                        cd.action = cd.actiondata = "";     // only change these
+                    {
+                        cd.action = "";
+                        cd.actionvars = new Variables();
+                    }
                     else if (newcls == ActionProgram.ProgramConditionClass.Key) // key, make sure no say
                         p.SetKeySayProgram(p.keyuserdata, null);
                     else if (newcls == ActionProgram.ProgramConditionClass.Say) //say, make sure no key
@@ -303,7 +302,8 @@ namespace ActionLanguage
                 if (p == null)
                     p = new ActionProgram(GetSuggestedName());
 
-                paras.Text = cd.actiondata = "";
+                paras.Text = "";
+                cd.actionvars = new Variables();
                 p.SetKeySayProgram(ud, p.sayuserdata);
                 UpdateProgram(p);
             }
@@ -320,7 +320,8 @@ namespace ActionLanguage
                 if (p == null)
                     p = new ActionProgram(GetSuggestedName());
 
-                paras.Text = cd.actiondata = "";
+                paras.Text = "";
+                cd.actionvars = new Variables();
                 p.SetKeySayProgram(p.keyuserdata,ud);
                 UpdateProgram(p);
             }

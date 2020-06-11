@@ -369,8 +369,8 @@ namespace ActionLanguage
                                         e += "?(" + c.ToString() + ")";
                                     }
 
-                                    if (c.actiondata.Length > 0)
-                                        e += "(" + c.actiondata + ")";
+                                    if (c.actionvars.Count > 0)
+                                        e += "(" + c.actionvars.ToString() + ")";
 
                                     e += ", ";
 
