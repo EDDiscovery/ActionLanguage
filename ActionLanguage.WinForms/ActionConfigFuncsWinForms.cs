@@ -120,14 +120,14 @@ namespace ActionLanguage
                 Form.Dispose();
             }
 
-            public void InitCentred(Icon icon, string caption, string lname = null, Object callertag = null)
+            public void InitCentred(Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false)
             {
-                Form.InitCentred(ParentForm, icon, caption, lname, callertag);
+                Form.InitCentred(ParentForm, icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
             }
 
-            public void Init(Point pos, Icon icon, string caption, string lname = null, Object callertag = null)
+            public void Init(Point pos, Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false)
             {
-                Form.Init(pos, icon, caption, lname, callertag);
+                Form.Init(pos, icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
             }
 
             public void Show()
@@ -393,15 +393,15 @@ namespace ActionLanguage
             };
         }
 
-        public override bool SetVariables(string t, Icon ic, Variables vbs, Dictionary<string, string> altops = null, bool showatleastoneentry = false, bool showrunatrefreshcheckbox = false, bool setrunatrefreshcheckboxstate = false, bool allowadd = false, bool allownoexpand = false, bool allowmultipleentries = true, Action<Variables, Dictionary<string, string>, bool> resultact = null)
+        public override bool SetVariables(string t, Icon ic, Variables vbs, Dictionary<string, string> altops = null, bool showatleastoneentry = false, bool showrunatrefreshcheckbox = false, bool setrunatrefreshcheckboxstate = false, bool allowadd = false, bool allownoexpand = false, bool allowmultipleentries = true, Action<Variables, Dictionary<string, string>> resultact = null)
         {
             var form = new ExtendedConditionsForms.VariablesForm();
-            form.Init(t, ic, vbs, altops, showatleastoneentry, showrunatrefreshcheckbox, setrunatrefreshcheckboxstate, allowadd, allownoexpand, allowmultipleentries);
+            form.Init(t, ic, vbs, altops, showatleastoneentry, showrunatrefreshcheckbox, allowadd, allownoexpand, allowmultipleentries);
             var result = form.ShowDialog(ParentForm);
 
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                resultact?.Invoke(form.result, form.result_altops, form.result_refresh);
+                resultact?.Invoke(form.result, form.result_altops);
                 return true;
             }
             else

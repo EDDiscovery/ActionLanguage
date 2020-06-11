@@ -83,13 +83,21 @@ namespace ActionLanguage
             No = 7
         }
 
+        public enum AutoScaleMode
+        {
+            None = 0,
+            Font = 1,
+            Dpi = 2,
+            Inherit = 3
+        }
+
         public interface IConfigurableForm
         {
             string Add(string instr);
             string Get(string control);
             bool Set(string control, string value);
-            void InitCentred(Icon icon, string caption, string lname = null, Object callertag = null);
-            void Init(Point pos, Icon icon, string caption, string lname = null, Object callertag = null);
+            void InitCentred(Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false);
+            void Init(Point pos, Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false);
             void Show();
             void Close();
             event Action<string, string, object> Trigger;
@@ -140,7 +148,7 @@ namespace ActionLanguage
         public abstract string MessageBox(string text, string caption = null, string buttons = "OK", string icon = "None", Icon windowicon = null);
         public abstract void InfoBox(string title, Icon ic, string info, int[] array = null, float pointsize = -1, Action<Object> acknowledgeaction = null, Object acknowledgedata = null);
         public abstract IConfigurableForm CreateConfigurableForm();
-        public abstract bool SetVariables(string t, Icon ic, Variables vbs, Dictionary<string, string> altops = null, bool showatleastoneentry = false, bool showrunatrefreshcheckbox = false, bool setrunatrefreshcheckboxstate = false, bool allowadd = false, bool allownoexpand = false, bool allowmultipleentries = true, Action<Variables, Dictionary<string, string>, bool> resultact = null);
+        public abstract bool SetVariables(string t, Icon ic, Variables vbs, Dictionary<string, string> altops = null, bool showatleastoneentry = false, bool showrunatrefreshcheckbox = false, bool setrunatrefreshcheckboxstate = false, bool allowadd = false, bool allownoexpand = false, bool allowmultipleentries = true, Action<Variables, Dictionary<string, string>> resultact = null);
         public abstract ITimer CreateTimer(int interval, EventHandler callback);
         public abstract bool EditProgram(string t, Icon ic, ActionCoreController cp, string appfolder, List<TypeHelpers.PropertyNameInfo> vbs, string pfilesetname, ActionProgram prog = null, string[] defprogs = null, string suggestedname = null, bool edittext = false, Action<string> callback = null, Action<ActionProgram> resultcb = null);
         public abstract bool FilterConditions(List<TypeHelpers.PropertyNameInfo> eventvars, string t, Icon ic, ref ConditionLists jf);

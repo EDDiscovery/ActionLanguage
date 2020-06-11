@@ -495,7 +495,7 @@ namespace ActionLanguage
             string promptValue = configFuncs.PromptSingleLine("Program to call (use set::prog if req)", progname, "Configure Call Command", cp.Icon);
             if (promptValue != null)
             {
-                return configFuncs.SetVariables("Variables to pass into called program", cp.Icon, cond, showatleastoneentry: true, allownoexpand: true, altops: altops, resultact: (v, a, r) =>
+                return configFuncs.SetVariables("Variables to pass into called program", cp.Icon, cond, showatleastoneentry: true, allownoexpand: true, altops: altops, resultact: (v, a) =>
                 {
                     userdata = ToString(promptValue, v, a);
                 });

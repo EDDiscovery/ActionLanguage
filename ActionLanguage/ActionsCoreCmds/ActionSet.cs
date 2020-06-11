@@ -40,7 +40,7 @@ namespace ActionLanguage
             Dictionary<string, string> operations;
             FromString(userdata, out av, out operations);
 
-            return configFuncs.SetVariables("Define Variable:", cp.Icon, av, showatleastoneentry: true, allowadd: allowaddv, allownoexpand: allownoexpandv, altops: operations, allowmultipleentries: false, resultact: (v, a, r) =>
+            return configFuncs.SetVariables("Define Variable:", cp.Icon, av, showatleastoneentry: true, allowadd: allowaddv, allownoexpand: allownoexpandv, altops: operations, allowmultipleentries: false, resultact: (v, a) =>
             {
                 userdata = ToString(v, a);
             });
