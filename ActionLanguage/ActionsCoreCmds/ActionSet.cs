@@ -61,9 +61,6 @@ namespace ActionLanguage
 
             System.Diagnostics.Debug.Assert(ok == false || operations.Count == av.Count);
 
-            if ( ok )
-                userdata = ToString(av,operations);        // normalise them..
-
             return ok ? null : "Variable command not in correct format";
         }
 
