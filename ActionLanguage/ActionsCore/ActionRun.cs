@@ -13,13 +13,11 @@
  * 
  * EDDiscovery is not affiliated with Frontier Developments plc.
  */
+using BaseUtils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using BaseUtils;
 
 namespace ActionLanguage
 {
@@ -156,7 +154,7 @@ namespace ActionLanguage
 
                 ActionBase ac = progcurrent.GetNextStep();      // get the step. move PC on.
 
-                //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " @ " + progcurrent.Location +" Lv " + progcurrent.ExecLevel + " e " + (progcurrent.IsExecuteOn ? "1" : "0") + " up " + ac.LevelUp + " " + progcurrent.PushPos + " " + ac.Name);
+            //    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " " + timetaken.ElapsedMilliseconds + " @ " + progcurrent.Location + " Lv " + progcurrent.ExecLevel + " e " + (progcurrent.IsExecuteOn ? "1" : "0") + " up " + ac.LevelUp + " " + progcurrent.PushPos + " " + ac.Name);
 
                 if (ac.LevelUp > 0 && progcurrent.LevelUp(ac.LevelUp, ac) )        // level up..
                 {
@@ -222,7 +220,7 @@ namespace ActionLanguage
 
                 if (AsyncMode && timetaken.ElapsedMilliseconds > 150)  // no more than ms per go to stop the main thread being blocked
                 {
-                    //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND");
+                    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND Actions at " + timetaken.ElapsedMilliseconds);
                     restarttick.Start();
                     break;
                 }
@@ -234,7 +232,7 @@ namespace ActionLanguage
         private void Tick_Tick(object sender, EventArgs e) // used when async
         {
             restarttick.Stop();
-            //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** RESUME");
+            System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** RESUME Action Program");
             Execute();
         }
 
