@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2020 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -13,12 +13,10 @@
  * 
  * EDDiscovery is not affiliated with Frontier Developments plc.
  */
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ActionLanguage
 {
@@ -111,44 +109,6 @@ namespace ActionLanguage
         }
 
         #region Read
-
-        public string Read(JObject j)       // empty string if ok
-        {
-            string errlist = "";
-
-            string progname = (string)j["Name"];
-            JArray steps = (JArray)j["Steps"];
-
-            if (steps != null)
-            {
-                Name = progname;
-                programsteps = new List<ActionBase>();
-
-                int lineno = 1;
-
-                foreach (JObject js in steps)
-                {
-                    string stepname = (string)js["StepName"];
-                    string stepUC = (string)js["StepUC"];
-                    int stepLU = js["StepLevelUp"].Int(0);                // optional
-                    int whitespace = js["StepWhitespace"].Int(0);        // was not in earlier version, optional
-                    string comment = js["StepComment"].Str("");    // was not in earlier version, optional
-
-                    ActionBase cmd = ActionBase.CreateAction(stepname, stepUC, comment, stepLU, whitespace);
-
-                    if (cmd != null && cmd.VerifyActionCorrect() == null)                  // throw away ones with bad names
-                    {
-                        cmd.LineNumber = lineno++;
-                        lineno += cmd.Whitespace;
-                        programsteps.Add(cmd);
-                    }
-                    else
-                        errlist += "Failed to create " + progname + " step: " + stepname + ":" + stepUC + Environment.NewLine;
-                }
-            }
-
-            return errlist;
-        }
 
         public string Read(System.IO.TextReader sr, ref int lineno, string prenamed = "")         // read from stream. At this lineno, plus it may already be named
         {
@@ -305,33 +265,6 @@ namespace ActionLanguage
         #endregion
 
         #region Write
-
-        public JObject WriteJSONObject()                         // write to JSON the program..
-        {
-            JObject prog = new JObject();
-            prog["Name"] = Name;
-
-            JArray jf = new JArray();
-
-            foreach (ActionBase ac in programsteps)
-            {
-                JObject step = new JObject();
-                step["StepName"] = ac.Name;
-                step["StepUC"] = ac.UserData;
-                if (ac.LevelUp != 0)                      // reduces file size
-                    step["StepLevelUp"] = ac.LevelUp;
-                if (ac.Whitespace != 0)
-                    step["StepWhitespace"] = ac.Whitespace;
-                if (ac.Comment.Length > 0)
-                    step["StepComment"] = ac.Comment;
-
-                jf.Add(step);
-            }
-
-            prog["Steps"] = jf;
-
-            return prog;
-        }
 
         public override string ToString()
         {

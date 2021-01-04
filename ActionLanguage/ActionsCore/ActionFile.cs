@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2020 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -13,14 +13,11 @@
  * 
  * EDDiscovery is not affiliated with Frontier Developments plc.
  */
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BaseUtils;
 
 // A file holds a set of conditions and programs associated with them
@@ -92,59 +89,6 @@ namespace ActionLanguage
             filevariables.DeleteWildcard(n);
         }
 
-        public string Read(JObject jo , out bool readenable)            // KEEP JSON reader for backwards compatibility.
-        {
-            string errlist = "";
-            readenable = false;
-
-            try
-            {
-                JArray ivarja = (JArray)jo["Install"];
-
-                if (!ivarja.Empty())
-                {
-                    installationvariables.FromJSONObject(ivarja);
-                }
-
-                JObject jcond = (JObject)jo["Conditions"];
-
-                if (jcond != null)
-                    actioneventlist.FromJSON(jcond);
-
-                JObject jprog = (JObject)jo["Programs"];
-
-                if (jprog != null)
-                {
-                    JArray jf = (JArray)jprog["ProgramSet"];
-
-                    foreach (JObject j in jf)
-                    {
-                        ActionProgram ap = new ActionProgram();
-                        string lerr = ap.Read(j);
-
-                        if (lerr.Length == 0)         // if can't load, we can't trust the pack, so indicate error so we can let the user manually sort it out
-                            actionprogramlist.Add(ap);
-                        else
-                            errlist += lerr;
-                    }
-                }
-
-                if (jo["Enabled"] != null)
-                {
-                    enabled = (bool)jo["Enabled"];
-                    readenable = true;
-                }
-
-                //System.Diagnostics.Debug.WriteLine("JSON read enable " + enabled);
-
-                return errlist;
-            }
-            catch
-            {
-                return errlist + " Also Missing JSON fields";
-            }
-        }
-
         public string ReadFile(string filename, out bool readenable)     // string, empty if no errors
         {
             readenable = false;
@@ -167,18 +111,7 @@ namespace ActionLanguage
 
                     if (firstline == "{")
                     {
-                        string json = firstline + Environment.NewLine + sr.ReadToEnd();
-                        sr.Close();
-
-                        try
-                        {
-                            JObject jo = JObject.Parse(json);
-                            return Read(jo, out readenable);
-                        }
-                        catch
-                        {
-                            return "Invalid JSON" + Environment.NewLine;
-                        }
+                        return "JSON Not supported" + Environment.NewLine;
                     }
                     else if (firstline == "ACTIONFILE V4")
                     {
@@ -279,30 +212,6 @@ namespace ActionLanguage
             {
                 return filename + " Not readable" + Environment.NewLine + " " + e.Message;
             }
-        }
-
-        public void WriteJSON(StreamWriter sr)          // kept for reference and debugging..  files are now written in ASCII
-        {
-            JObject jo = new JObject();
-            jo["Conditions"] = actioneventlist.GetJSONObject();
-
-            JObject evt = new JObject();
-            JArray jf = new JArray();
-
-            ActionProgram ap = null;
-            for (int i = 0; (ap = actionprogramlist.Get(i)) != null; i++)
-            {
-                JObject j1 = ap.WriteJSONObject();
-                jf.Add(j1);
-            }
-
-            evt["ProgramSet"] = jf;
-            jo["Programs"] = evt;
-            jo["Enabled"] = enabled;
-            jo["Install"] = installationvariables.ToJSONObject();
-
-            string json = jo.ToString(Formatting.Indented);
-            sr.Write(json);
         }
 
         public bool WriteFile()

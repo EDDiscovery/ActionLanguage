@@ -157,5 +157,6 @@ namespace ActionLanguage
         public abstract string SendKeyToProcess(string keys, int keydelay, int shiftdelay, int updelay, string pname, IAdditionalKeyParser additionalkeyparser = null);
         public abstract bool ConfigureKeys(Icon i, bool showprocess, string separ = " ", string keystring = "", string process = "", int defdelay = 50, bool allowkeysedit = false, List<string> additionalkeys = null, IAdditionalKeyParser parser = null, Action<IKeySettings> resultcb = null);
         public abstract void Yield();
+        public abstract void Invoke(Action act);
     }
 }

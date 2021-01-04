@@ -122,12 +122,12 @@ namespace ActionLanguage
 
             public void InitCentred(Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false)
             {
-                Form.InitCentred(ParentForm, icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
+                Form.InitCentred(ParentForm, new Size(1, 1), new Size(50000, 50000), icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
             }
 
             public void Init(Point pos, Icon icon, string caption, string lname = null, Object callertag = null, AutoScaleMode asm = AutoScaleMode.Font, bool closeicon = false)
             {
-                Form.Init(pos, icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
+                Form.Init(new Size(1, 1), new Size(50000, 50000), pos, icon, caption, lname, callertag, (System.Windows.Forms.AutoScaleMode)asm, closeicon);
             }
 
             public void Show()
@@ -512,6 +512,11 @@ namespace ActionLanguage
         public override void Yield()
         {
             Application.DoEvents();
+        }
+
+        public override void Invoke(Action act)
+        {
+            ParentForm.Invoke(act);
         }
     }
 }
