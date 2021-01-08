@@ -79,7 +79,7 @@ namespace ActionLanguage
 
                 if (keyname.Contains("%"))      // if its an expansion, got for expansion
                 {
-                    if (ap.functions.ExpandString(key, out keyname) == Functions.ExpandResult.Failed)
+                    if (ap.Functions.ExpandString(key, out keyname) == Functions.ExpandResult.Failed)
                     {
                         ap.ReportError(keyname);
                         break;
@@ -92,7 +92,7 @@ namespace ActionLanguage
 
                 if (operations[key].Contains("$"))
                     res = av[key];
-                else if (ap.functions.ExpandString(av[key], out res) == Functions.ExpandResult.Failed)       //Expand out.. and if no errors
+                else if (ap.Functions.ExpandString(av[key], out res) == Functions.ExpandResult.Failed)       //Expand out.. and if no errors
                 {
                     ap.ReportError(res);
                     break;
@@ -124,13 +124,13 @@ namespace ActionLanguage
                 ap[keyname] = res;
 
                 if (globalit)
-                    ap.actioncontroller.SetNonPersistentGlobal(keyname, res);
+                    ap.ActionController.SetNonPersistentGlobal(keyname, res);
 
                 if (persistentit )
-                    ap.actioncontroller.SetPeristentGlobal(keyname, res);
+                    ap.ActionController.SetPeristentGlobal(keyname, res);
 
                 if (staticit )
-                    ap.actionfile.SetFileVariable(keyname, res);
+                    ap.ActionFile.SetFileVariable(keyname, res);
             }
 
             if (av.Count == 0)
@@ -250,7 +250,7 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string res;
-            if (ap.functions.ExpandString(UserData,  out res) != Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData,  out res) != Functions.ExpandResult.Failed)
             {
                 StringParser p = new StringParser(res);
 
@@ -258,8 +258,8 @@ namespace ActionLanguage
                 while ((v = p.NextWord(", ")) != null)
                 {
                     v = ap.variables.Qualify(v);
-                    ap.actioncontroller.DeleteVariableWildcard(v);
-                    ap.actionfile.DeleteFileVariableWildcard(v);
+                    ap.ActionController.DeleteVariableWildcard(v);
+                    ap.ActionFile.DeleteFileVariableWildcard(v);
                     ap.DeleteVariableWildcard(v);
                     p.IsCharMoveOn(',');
                 }
@@ -289,7 +289,7 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string res;
-            if (ap.functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
             {
                 ap["Result"] = res;
             }

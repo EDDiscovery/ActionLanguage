@@ -147,12 +147,12 @@ namespace ActionLanguage
                 string ctrl = ap.VarExist("SpeechDebug") ? ap["SpeechDebug"] : "";
 
                 string errlist = null;
-                Variables vars = ap.functions.ExpandVars(statementvars, out errlist);
+                Variables vars = ap.Functions.ExpandVars(statementvars, out errlist);
 
                 if (ctrl.Contains("SayLine"))
                 {
-                    ap.actioncontroller.LogLine("Say Command: " + userdata);
-                    ap.actioncontroller.LogLine("Say Vars: " + vars.ToString(separ: Environment.NewLine));
+                    ap.ActionController.LogLine("Say Command: " + userdata);
+                    ap.ActionController.LogLine("Say Vars: " + vars.ToString(separ: Environment.NewLine));
                     System.Diagnostics.Debug.WriteLine("Say Vars: " + vars.ToString(separ: Environment.NewLine));
                 }
 
@@ -191,7 +191,7 @@ namespace ActionLanguage
 
                     if (queuelimitms > 0)
                     {
-                        int queue = ap.actioncontroller.AudioQueueSpeech.InQueuems();
+                        int queue = ap.ActionController.AudioQueueSpeech.InQueuems();
 
                         if (queue >= queuelimitms)
                         {
@@ -202,7 +202,7 @@ namespace ActionLanguage
                     }
 
                     string expsay;
-                    if (ap.functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
+                    if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
                     {
                         System.Diagnostics.Debug.WriteLine("Say wait {0}, vol {1}, rate {2}, queue {3}, priority {4}, culture {5}, literal {6}, dontspeak {7} , prefix {8}, postfix {9}, mix {10} starte {11}, finishe {12} , voice {13}, text {14}",
                                         wait, vol, rate, queuelimitms, priority, culture, literal, dontspeak, prefixsoundpath, postfixsoundpath, mixsoundpath, start, finish, voice, expsay);
@@ -218,12 +218,12 @@ namespace ActionLanguage
 
                         if (ctrl.Contains("Global"))
                         {
-                            ap.actioncontroller.SetPeristentGlobal("GlobalSaySaid", expsay);
+                            ap.ActionController.SetPeristentGlobal("GlobalSaySaid", expsay);
                         }
 
                         if (ctrl.Contains("Print"))
                         {
-                            ap.actioncontroller.LogLine("Say: " + expsay);
+                            ap.ActionController.LogLine("Say: " + expsay);
                         }
 
                         if (ctrl.Contains("Mute"))
@@ -243,7 +243,7 @@ namespace ActionLanguage
 
                         if (mixsoundpath != null)
                         {
-                            mix = ap.actioncontroller.AudioQueueSpeech.Generate(mixsoundpath);
+                            mix = ap.ActionController.AudioQueueSpeech.Generate(mixsoundpath);
 
                             if (mix == null)
                             {
@@ -254,7 +254,7 @@ namespace ActionLanguage
 
                         if (prefixsoundpath != null)
                         {
-                            prefix = ap.actioncontroller.AudioQueueSpeech.Generate(prefixsoundpath);
+                            prefix = ap.ActionController.AudioQueueSpeech.Generate(prefixsoundpath);
 
                             if (prefix == null)
                             {
@@ -266,7 +266,7 @@ namespace ActionLanguage
 
                         if (postfixsoundpath != null)
                         {
-                            postfix = ap.actioncontroller.AudioQueueSpeech.Generate(postfixsoundpath);
+                            postfix = ap.ActionController.AudioQueueSpeech.Generate(postfixsoundpath);
 
                             if (postfix == null)
                             {
@@ -277,26 +277,26 @@ namespace ActionLanguage
 
                         // we entrust it to a Speach Queue (New Dec 20) as the synth takes an inordinate time to generate speech, it then calls back
 
-                        ap.actioncontroller.SpeechSynthesizer.SpeakQueue(expsay, culture, voice, rate, (memstream) =>
+                        ap.ActionController.SpeechSynthesizer.SpeakQueue(expsay, culture, voice, rate, (memstream) =>
                         {
                             // in a thread, invoke on UI thread to complete action, since these objects are owned by that thread
 
-                            ap.actioncontroller.Form.Invoke((MethodInvoker)delegate
+                            ap.ActionController.Form.Invoke((MethodInvoker)delegate
                             {
                                 System.Diagnostics.Debug.Assert(Application.MessageLoop);       // double check!
 
-                                AudioQueue.AudioSample audio = ap.actioncontroller.AudioQueueSpeech.Generate(memstream, ses, true);
+                                AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(memstream, ses, true);
 
                                 if (audio != null)
                                 {
                                     if (mix != null)
-                                        audio = ap.actioncontroller.AudioQueueSpeech.Mix(audio, mix);     // audio in MIX format
+                                        audio = ap.ActionController.AudioQueueSpeech.Mix(audio, mix);     // audio in MIX format
 
                                     if (prefix != null)
-                                        audio = ap.actioncontroller.AudioQueueSpeech.Append(prefix, audio);        // audio in AUDIO format.
+                                        audio = ap.ActionController.AudioQueueSpeech.Append(prefix, audio);        // audio in AUDIO format.
 
                                     if (postfix != null)
-                                        audio = ap.actioncontroller.AudioQueueSpeech.Append(audio, postfix);         // Audio in P format
+                                        audio = ap.ActionController.AudioQueueSpeech.Append(audio, postfix);         // Audio in P format
 
                                     if (start != null)
                                     {
@@ -310,7 +310,7 @@ namespace ActionLanguage
                                         audio.sampleOverEvent += Audio_sampleEvent;
                                     }
 
-                                    ap.actioncontroller.AudioQueueSpeech.Submit(audio, vol, priority);
+                                    ap.ActionController.AudioQueueSpeech.Submit(audio, vol, priority);
                                 }
                             });
                         });
@@ -334,7 +334,7 @@ namespace ActionLanguage
             AudioEvent af = tag as AudioEvent;
 
             if (af.eventname != null && af.eventname.Length > 0)
-                af.apr.actioncontroller.ActionRun(af.ev, new Variables("EventName", af.eventname), now: false);    // queue at end an event
+                af.apr.ActionController.ActionRun(af.ev, new Variables("EventName", af.eventname), now: false);    // queue at end an event
 
             if (af.wait)
                 af.apr.ResumeAfterPause();

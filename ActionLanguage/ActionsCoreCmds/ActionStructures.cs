@@ -81,7 +81,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.functions.vars, out errlist, null, ap.functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, null, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -120,7 +120,7 @@ namespace ActionLanguage
                     }
 
                     string errlist;
-                    bool? condres = condition.CheckAll(ap.functions.vars, out errlist, null, ap.functions);     // may return null.. and will return errlist
+                    bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, null, ap.Functions);     // may return null.. and will return errlist
 
                     if (errlist == null)
                     {
@@ -187,7 +187,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.functions.vars, out errlist, null, ap.functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, null, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -218,7 +218,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.functions.vars, out errlist, null, ap.functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, null, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -300,7 +300,7 @@ namespace ActionLanguage
                     List<string> ctrl = FromString(UserData);
                     List<string> exp;
 
-                    if (ap.functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                    if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                     {
                         if (exp[0].InvariantParse(out loopcount))
                         {
@@ -422,7 +422,7 @@ namespace ActionLanguage
             }
 
             string errlist;
-            bool? condres = condition.CheckAll(ap.functions.vars, out errlist, null, ap.functions);     // may return null.. and will return errlist
+            bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, null, ap.Functions);     // may return null.. and will return errlist
 
             if (errlist == null)
             {
@@ -430,7 +430,7 @@ namespace ActionLanguage
 
                 if (res)
                 {
-                    if (ap.functions.ExpandString(errmsg, out string exprerr) != Functions.ExpandResult.Failed)
+                    if (ap.Functions.ExpandString(errmsg, out string exprerr) != Functions.ExpandResult.Failed)
                     {
                         ap.ReportError(exprerr);
                     }
@@ -528,7 +528,7 @@ namespace ActionLanguage
             Dictionary<string, string> altops;
             if (FromString(UserData, out progname, out vars, out altops) && progname.Length > 0)
             {
-                if (ap.functions.ExpandString(progname, out string prognameexpanded) == Functions.ExpandResult.Failed)
+                if (ap.Functions.ExpandString(progname, out string prognameexpanded) == Functions.ExpandResult.Failed)
                 {
                     ap.ReportError(prognameexpanded);
                     return true;
@@ -558,7 +558,7 @@ namespace ActionLanguage
                                 else
                                 {
                                     string res;
-                                    if (ap.functions.ExpandString(ap[jkey], out res) == Functions.ExpandResult.Failed)
+                                    if (ap.Functions.ExpandString(ap[jkey], out res) == Functions.ExpandResult.Failed)
                                     {
                                         ap.ReportError(res);
                                         return false;
@@ -582,7 +582,7 @@ namespace ActionLanguage
                     if (!noexpand)
                     {
                         string res;
-                        if (ap.functions.ExpandString(vars[k], out res) == Functions.ExpandResult.Failed)
+                        if (ap.Functions.ExpandString(vars[k], out res) == Functions.ExpandResult.Failed)
                         {
                             ap.ReportError(res);
                             return false;
@@ -667,7 +667,7 @@ namespace ActionLanguage
 
                 if (FromString(UserData, out macroname, out searchterm))
                 {
-                    if (ap.functions.ExpandString(macroname, out expmacroname) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
+                    if (ap.Functions.ExpandString(macroname, out expmacroname) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
                     {
                         ap.ReportError(expmacroname);
                         return true;
@@ -675,7 +675,7 @@ namespace ActionLanguage
 
                     string expsearchterm;
 
-                    if (ap.functions.ExpandString(searchterm, out expsearchterm) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
+                    if (ap.Functions.ExpandString(searchterm, out expsearchterm) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
                     {
                         ap.ReportError(expmacroname);
                         return true;

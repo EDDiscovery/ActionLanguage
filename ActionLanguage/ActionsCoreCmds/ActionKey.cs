@@ -126,7 +126,7 @@ namespace ActionLanguage
             if (FromString(userdata, out keys, out statementvars))
             {
                 string errlist = null;
-                Variables vars = ap.functions.ExpandVars(statementvars, out errlist);
+                Variables vars = ap.Functions.ExpandVars(statementvars, out errlist);
 
                 if (errlist == null)
                 {
@@ -144,7 +144,7 @@ namespace ActionLanguage
                         if (silentonerrors.Equals("2") || (errorsreported.Contains(res) && silentonerrors.Equals("1")))
                         {
                             System.Diagnostics.Debug.WriteLine("Swallow key error " + res);
-                            ap.actioncontroller.TerminateAll();
+                            ap.ActionController.TerminateAll();
                         }
                         else
                         {
@@ -153,9 +153,9 @@ namespace ActionLanguage
                             if (announciateonerrors.Equals("1"))
                             {
                                 string culture = ap.VarExist(ActionSay.globalvarspeechculture) ? ap[ActionSay.globalvarspeechculture] : "Default";
-                                System.IO.MemoryStream ms = ap.actioncontroller.SpeechSynthesizer.Speak("Cannot press key due to " + res, culture, "Default", 0);
-                                AudioQueue.AudioSample audio = ap.actioncontroller.AudioQueueSpeech.Generate(ms);
-                                ap.actioncontroller.AudioQueueSpeech.Submit(audio, 80, AudioQueue.Priority.Normal);
+                                System.IO.MemoryStream ms = ap.ActionController.SpeechSynthesizer.Speak("Cannot press key due to " + res, culture, "Default", 0);
+                                AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(ms);
+                                ap.ActionController.AudioQueueSpeech.Submit(audio, 80, AudioQueue.Priority.Normal);
                             }
 
                             ap.ReportError(res);

@@ -58,7 +58,7 @@ namespace ActionLanguage
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
             initialtitle = this.Text = label_index.Text = t;
 
-            ConditionLists clist = actionfile.actioneventlist;          // now load the initial conditions from the action file
+            ConditionLists clist = actionfile.EventList;          // now load the initial conditions from the action file
 
             string eventname = null;
             for (int i = 0; i < clist.Count; i++)       // for ever event, find the condition, create the group, theme
@@ -266,13 +266,13 @@ namespace ActionLanguage
         {
             comboBoxCustomEditProg.Enabled = false;
             comboBoxCustomEditProg.Items.Clear();
-            comboBoxCustomEditProg.Items.AddRange(actionfile.actionprogramlist.GetActionProgramList(true));
+            comboBoxCustomEditProg.Items.AddRange(actionfile.ProgramList.GetActionProgramList(true));
             comboBoxCustomEditProg.Enabled = true;
 
             foreach (Group g in groups)
             {
                 if (g.usercontrol != null)
-                    g.usercontrol.UpdateProgramList(actionfile.actionprogramlist.GetActionProgramList());
+                    g.usercontrol.UpdateProgramList(actionfile.ProgramList.GetActionProgramList());
             }
         }
 
@@ -387,7 +387,7 @@ namespace ActionLanguage
 
                 ActionProgram p = null;
                 if (!progname.Equals("New"))
-                    p = actionfile.actionprogramlist.Get(progname);
+                    p = actionfile.ProgramList.Get(progname);
 
                 if (p != null && p.StoredInSubFile != null)
                 {
@@ -400,21 +400,21 @@ namespace ActionLanguage
 
                     apf.Init("Action program ", this.Icon, actioncorecontroller, applicationfolder,
                                 AdditionalNames(null),        // no event associated, so just return the globals in effect
-                                actionfile.name, p,
-                                actionfile.actionprogramlist.GetActionProgramList(), "", ModifierKeys.HasFlag(Keys.Shift));
+                                actionfile.Name, p,
+                                actionfile.ProgramList.GetActionProgramList(), "", ModifierKeys.HasFlag(Keys.Shift));
 
                     DialogResult res = apf.ShowDialog(this);
 
                     if (res == DialogResult.OK)
                     {
                         ActionProgram np = apf.GetProgram();
-                        actionfile.actionprogramlist.AddOrChange(np);                // replaces or adds (if its a new name) same as rename
+                        actionfile.ProgramList.AddOrChange(np);                // replaces or adds (if its a new name) same as rename
                         Usercontrol_RefreshEvent();
                     }
                     else if (res == DialogResult.Abort)   // delete
                     {
                         ActionProgram np2 = apf.GetProgram();
-                        actionfile.actionprogramlist.Delete(np2.Name);
+                        actionfile.ProgramList.Delete(np2.Name);
                         Usercontrol_RefreshEvent();
                     }
                 }
@@ -423,14 +423,14 @@ namespace ActionLanguage
 
         private void EditProgram(string s)  // Callback by APF to ask to edit another program..
         {
-            if (!actionfile.actionprogramlist.EditProgram(s, actionfile.name, actioncorecontroller, applicationfolder))
+            if (!actionfile.ProgramList.EditProgram(s, actionfile.Name, actioncorecontroller, applicationfolder))
                 ExtendedControls.MessageBoxTheme.Show(this, "Unknown program or not in this file " + s);
         }
 
         private void buttonInstallationVars_Click(object sender, EventArgs e)
         {
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Configuration items for installation - specialist use", this.Icon, actionfile.installationvariables, showatleastoneentry: false);
+            avf.Init("Configuration items for installation - specialist use", this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
 
             if (avf.ShowDialog(this) == DialogResult.OK)
             {

@@ -48,8 +48,8 @@ namespace ActionLanguage
             
             Controls.Add(textBoxInput);
 
-            ActionProgram p = cond.action.HasChars() ? actionfile.actionprogramlist.Get(cond.action) : null;
-            ActionProgram.ProgramConditionClass classifier = p != null ? p.progclass : ActionProgram.ProgramConditionClass.KeySay;
+            ActionProgram p = cond.action.HasChars() ? actionfile.ProgramList.Get(cond.action) : null;
+            ActionProgram.ProgramConditionClass classifier = p != null ? p.ProgramClass : ActionProgram.ProgramConditionClass.KeySay;
 
             ucprog = new ActionPackEditProgram();
             ucprog.Location = new Point(textBoxInput.Right+16, 0);

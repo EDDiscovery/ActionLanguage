@@ -80,7 +80,7 @@ namespace ActionLanguage
 
             proglist = new ExtendedControls.ExtComboBox();
             proglist.Items.Add("New");
-            proglist.Items.AddRange(actionfile.actionprogramlist.GetActionProgramList());
+            proglist.Items.AddRange(actionfile.ProgramList.GetActionProgramList());
             proglist.Location = new Point(panelxmargin, panelymargin);
             proglist.Size = new Size(pwidth, 24); 
             proglist.SelectedIndexChanged += Proglist_SelectedIndexChanged;
@@ -151,11 +151,11 @@ namespace ActionLanguage
 
             buttonKeys.Text = "Enter Key";
             buttonSay.Text = "Enter Speech";
-            ActionProgram p = cd.action.HasChars() ? actionfile.actionprogramlist.Get(cd.action) : null;
+            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
             if ( p != null )
             {
-                buttonKeys.Text = StringParser.FirstQuotedWord(p.keyuserdata, " ,", buttonKeys.Text, prefix: "Key:").Left(25);
-                buttonSay.Text = StringParser.FirstQuotedWord(p.sayuserdata, " ,", buttonSay.Text, prefix:"Say:").Left(25);
+                buttonKeys.Text = StringParser.FirstQuotedWord(p.ProgramClassKeyUserData, " ,", buttonKeys.Text, prefix: "Key:").Left(25);
+                buttonSay.Text = StringParser.FirstQuotedWord(p.ProgramClassSayUserData, " ,", buttonSay.Text, prefix:"Say:").Left(25);
             }
         }
 
@@ -192,7 +192,7 @@ namespace ActionLanguage
             ActionProgram p = null;
 
             if (proglist.SelectedIndex > 0)     // exclude NEW from checking for program
-                p = actionfile.actionprogramlist.Get(proglist.Text);
+                p = actionfile.ProgramList.Get(proglist.Text);
 
             if (p != null && p.StoredInSubFile != null && shift)        // if we have a stored in sub file, but we shift hit, cancel it
             {
@@ -222,7 +222,7 @@ namespace ActionLanguage
                 ActionProgramEditForm apf = new ActionProgramEditForm();
                 apf.EditProgram += (s) =>
                 {
-                    if (!actionfile.actionprogramlist.EditProgram(s, actionfile.name, actioncorecontroller, applicationfolder))
+                    if (!actionfile.ProgramList.EditProgram(s, actionfile.Name, actioncorecontroller, applicationfolder))
                         ExtendedControls.MessageBoxTheme.Show(FindForm(), "Unknown program or not in this file " + s);
                 };
 
@@ -231,8 +231,8 @@ namespace ActionLanguage
 
                 var names = onAdditionalNames();
 
-                apf.Init("Action program ", this.Icon, actioncorecontroller, applicationfolder, names, actionfile.name, p, 
-                                actionfile.actionprogramlist.GetActionProgramList(), suggestedname, ModifierKeys.HasFlag(Keys.Shift));
+                apf.Init("Action program ", this.Icon, actioncorecontroller, applicationfolder, names, actionfile.Name, p, 
+                                actionfile.ProgramList.GetActionProgramList(), suggestedname, ModifierKeys.HasFlag(Keys.Shift));
 
                 DialogResult res = apf.ShowDialog(FindForm());
 
@@ -244,7 +244,7 @@ namespace ActionLanguage
                 else if (res == DialogResult.Abort)   // delete
                 {
                     ActionProgram np2 = apf.GetProgram();
-                    actionfile.actionprogramlist.Delete(np2.Name);
+                    actionfile.ProgramList.Delete(np2.Name);
                     cd.action = "";
                     RefreshEvent();
                 }
@@ -270,20 +270,20 @@ namespace ActionLanguage
             ActionProgram.ProgramConditionClass newcls = indextoclassifier[progmajortype.SelectedIndex];
             if (newcls != classifier)
             {
-                ActionProgram p = cd.action.HasChars() ? actionfile.actionprogramlist.Get(cd.action) : null;
+                ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
 
                 if (p != null) // if we have an existing program, may need to alter it
                 {
                     // to not full with prog class being full, need to clear, not in correct form
-                    if (newcls != ActionProgram.ProgramConditionClass.Full && p.progclass == ActionProgram.ProgramConditionClass.Full)
+                    if (newcls != ActionProgram.ProgramConditionClass.Full && p.ProgramClass == ActionProgram.ProgramConditionClass.Full)
                     {
                         cd.action = "";
                         cd.actionvars = new Variables();
                     }
                     else if (newcls == ActionProgram.ProgramConditionClass.Key) // key, make sure no say
-                        p.SetKeySayProgram(p.keyuserdata, null);
+                        p.SetKeySayProgram(p.ProgramClassKeyUserData, null);
                     else if (newcls == ActionProgram.ProgramConditionClass.Say) //say, make sure no key
-                        p.SetKeySayProgram(null, p.sayuserdata);
+                        p.SetKeySayProgram(null, p.ProgramClassSayUserData);
                 }
 
                 classifier = newcls;
@@ -293,9 +293,9 @@ namespace ActionLanguage
 
         private void Keypress_Click(object sender, EventArgs e)
         {
-            ActionProgram p = cd.action.HasChars() ? actionfile.actionprogramlist.Get(cd.action) : null;
+            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
 
-            string ud = onEditKeys(this.FindForm(), this.Icon, p != null ? p.keyuserdata.Alt("") : "");
+            string ud = onEditKeys(this.FindForm(), this.Icon, p != null ? p.ProgramClassKeyUserData.Alt("") : "");
 
             if ( ud != null )
             {
@@ -304,16 +304,16 @@ namespace ActionLanguage
 
                 paras.Text = "";
                 cd.actionvars = new Variables();
-                p.SetKeySayProgram(ud, p.sayuserdata);
+                p.SetKeySayProgram(ud, p.ProgramClassSayUserData);
                 UpdateProgram(p);
             }
         }
 
         private void Saypress_Click(object sender, EventArgs e)
         {
-            ActionProgram p = cd.action.HasChars() ? actionfile.actionprogramlist.Get(cd.action) : null;
+            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
 
-            string ud = onEditSay(this.FindForm(), p != null ? p.sayuserdata.Alt("") : "" , actioncorecontroller );
+            string ud = onEditSay(this.FindForm(), p != null ? p.ProgramClassSayUserData.Alt("") : "" , actioncorecontroller );
 
             if ( ud != null )
             {
@@ -322,14 +322,14 @@ namespace ActionLanguage
 
                 paras.Text = "";
                 cd.actionvars = new Variables();
-                p.SetKeySayProgram(p.keyuserdata,ud);
+                p.SetKeySayProgram(p.ProgramClassKeyUserData,ud);
                 UpdateProgram(p);
             }
         }
 
         void UpdateProgram(ActionProgram np)
         {
-            actionfile.actionprogramlist.AddOrChange(np);                // replaces or adds (if its a new name) same as rename
+            actionfile.ProgramList.AddOrChange(np);                // replaces or adds (if its a new name) same as rename
             cd.action = np.Name;
             RefreshEvent();
             UpdateControls();
@@ -340,7 +340,7 @@ namespace ActionLanguage
             string sroot = SuggestedName();
             string suggestedname = sroot;
             int n = 2;
-            while (actionfile.actionprogramlist.GetActionProgramList().Contains(suggestedname))
+            while (actionfile.ProgramList.GetActionProgramList().Contains(suggestedname))
             {
                 suggestedname = sroot + "_" + n.ToStringInvariant();
                 n++;

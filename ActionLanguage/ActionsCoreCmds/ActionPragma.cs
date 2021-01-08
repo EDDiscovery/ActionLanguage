@@ -37,7 +37,7 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string res;
-            if (ap.functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
             {
                 StringParser p = new StringParser(res);
 
@@ -53,7 +53,7 @@ namespace ActionLanguage
                             Variables filtered = ap.variables.FilterVars(rest);
                             foreach (string key in filtered.NameEnumuerable)
                             {
-                                ap.actioncontroller.LogLine(key + "=" + filtered[key]);
+                                ap.ActionController.LogLine(key + "=" + filtered[key]);
                             }
                         }
                         else
@@ -68,7 +68,7 @@ namespace ActionLanguage
 
                         if (rest != null)
                         {
-                            ap.actioncontroller.LogLine(rest);
+                            ap.ActionController.LogLine(rest);
                         }
                         else
                         {
@@ -83,7 +83,7 @@ namespace ActionLanguage
                         if (rest != null)
                         {
 #if DEBUG
-                            ap.actioncontroller.LogLine(rest);
+                            ap.ActionController.LogLine(rest);
 #endif
                         }
                         else
@@ -102,22 +102,22 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("disableasync"))
                     {
-                        ap.actioncontroller.AsyncMode = false;
+                        ap.ActionController.AsyncMode = false;
                     }
                     else if (cmd.Equals("enableasync"))
                     {
-                        ap.actioncontroller.AsyncMode = false;
+                        ap.ActionController.AsyncMode = false;
                     }
                     else if (cmd.Equals("enabletrace"))
                     {
                         string file = p.NextQuotedWord();
-                        ap.actioncontroller.DebugTrace(file == null, file);
+                        ap.ActionController.DebugTrace(file == null, file);
                     }
                     else if (cmd.Equals("disabletrace"))
                     {
-                        ap.actioncontroller.DebugTrace(false);
+                        ap.ActionController.DebugTrace(false);
                     }
-                    else if ( !ap.actioncontroller.Pragma(cmd) )
+                    else if ( !ap.ActionController.Pragma(cmd) )
                     {
                         ap.ReportError("Unknown pragma");
                     }

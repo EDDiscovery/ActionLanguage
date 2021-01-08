@@ -63,8 +63,8 @@ namespace ActionLanguage
 
             Controls.Add(uccond);
 
-            ActionProgram p = cond.action.HasChars() ? actionfile.actionprogramlist.Get(cond.action) : null;
-            ActionProgram.ProgramConditionClass classifier = p != null ? p.progclass : ActionProgram.ProgramConditionClass.Full;
+            ActionProgram p = cond.action.HasChars() ? actionfile.ProgramList.Get(cond.action) : null;
+            ActionProgram.ProgramConditionClass classifier = p != null ? p.ProgramClass : ActionProgram.ProgramConditionClass.Full;
             ucprog = new ActionPackEditProgram();
             ucprog.Location = new Point(uccond.Right+16, 0);
             ucprog.Size = new Size(400, 28);       // init all the panels to 0/this height, select widths

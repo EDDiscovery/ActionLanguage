@@ -40,9 +40,9 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string res;
-            if (ap.functions.ExpandString(UserData.ReplaceEscapeControlChars(), out res) != BaseUtils.Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData.ReplaceEscapeControlChars(), out res) != BaseUtils.Functions.ExpandResult.Failed)
             {
-                ap.actioncontroller.LogLine(res);
+                ap.ActionController.LogLine(res);
                 System.Diagnostics.Trace.WriteLine("PRINT " + res);
             }
             else
