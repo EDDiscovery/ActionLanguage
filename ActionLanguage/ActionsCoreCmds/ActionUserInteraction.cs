@@ -542,10 +542,45 @@ namespace ActionLanguage
                     {
                         return (inlocal) ? false : true;    // if local, pause. else just ignore
                     }
-                    else if (cmd.Equals("position"))
+                    else if (cmd.Equals("position"))    // verified 10/1/21
                     {
-                        ap["X"] = f.Location.X.ToStringInvariant();
-                        ap["Y"] = f.Location.Y.ToStringInvariant();
+                        int? x = sp.NextIntComma(",");
+                        int? y = sp.NextInt();
+
+                        if (x != null)
+                        {
+                            if (y != null)
+                                f.Location = new System.Drawing.Point(x.Value, y.Value);
+                            else
+                                ap.ReportError("Missing position in DialogControl position");
+                        }
+                        else if (sp.IsEOL)
+                        {
+                            ap["X"] = f.Location.X.ToStringInvariant();
+                            ap["Y"] = f.Location.Y.ToStringInvariant();
+                        }
+                        else
+                            ap.ReportError("Missing position in DialogControl position");
+                    }
+                    else if (cmd.Equals("size"))    // verified 10/1/21
+                    {
+                        int? w = sp.NextIntComma(",");
+                        int? h = sp.NextInt();
+
+                        if (w != null)
+                        {
+                            if (h != null)
+                                f.Size = new System.Drawing.Size(w.Value, h.Value);
+                            else
+                                ap.ReportError("Missing size in DialogControl size");
+                        }
+                        else if (sp.IsEOL)
+                        {
+                            ap["W"] = f.Size.Width.ToStringInvariant();
+                            ap["H"] = f.Size.Height.ToStringInvariant();
+                        }
+                        else
+                            ap.ReportError("Missing size in DialogControl size");
                     }
                     else if (cmd.Equals("get"))
                     {
@@ -570,6 +605,68 @@ namespace ActionLanguage
                         }
                         else
                             ap.ReportError("Missing or invalid dialog name and/or value in DialogControl set");
+                    }
+                    else if (cmd.Equals("enable") || cmd.Equals("visible"))     // verified 10/1/21
+                    {
+                        string control = sp.NextQuotedWord();
+                        Control c;
+
+                        if (control != null && (c = f.GetControl(control)) != null)
+                        {
+                            bool? r = sp.NextBoolComma();
+
+                            if (r != null)
+                            {
+                                if (cmd.Equals("enable"))
+                                    c.Enabled = r.Value;
+                                else
+                                    c.Visible = r.Value;
+                            }
+                            else if (sp.IsEOL)
+                            {
+                                if (cmd.Equals("enable"))
+                                    ap["Enabled"] = c.Enabled.ToStringIntValue();
+                                else
+                                    ap["Visible"] = c.Visible.ToStringIntValue();
+                            }
+                            else
+                                ap.ReportError("Missing or invalid " + cmd + "value in DialogControl " + cmd);
+                        }
+                        else
+                        {
+                            ap.ReportError("Missing or invalid dialog control name in DialogControl " + cmd);
+                        }
+                    }
+                    else if (cmd.Equals("controlbounds"))       // verified 10/1/21
+                    {
+                        string control = sp.NextQuotedWord();
+                        Control c;
+
+                        if (control != null && (c = f.GetControl(control)) != null)
+                        {
+                            int? x = sp.NextIntComma(",");
+                            int? y = sp.NextIntComma(",");
+                            int? w = sp.NextIntComma(",");
+                            int? h = sp.NextInt();
+
+                            if ( x != null && y != null && w != null && h != null )
+                            {
+                                c.Bounds = new System.Drawing.Rectangle(x.Value, y.Value, w.Value, h.Value);
+                            }
+                            else if ( sp.IsEOL)
+                            {
+                                ap["X"] = c.Left.ToStringInvariant();
+                                ap["Y"] = c.Top.ToStringInvariant();
+                                ap["W"] = c.Width.ToStringInvariant();
+                                ap["H"] = c.Height.ToStringInvariant();
+                            }
+                            else
+                                ap.ReportError("Missing or invalid bounds values in DialogControl controlbounds");
+                        }
+                        else
+                        {
+                            ap.ReportError("Missing or invalid dialog control name in DialogControl controlbounds");
+                        }
                     }
                     else if (cmd.Equals("close"))
                     {

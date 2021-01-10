@@ -91,6 +91,14 @@ namespace ActionLanguage
             FileVariables.DeleteWildcard(n);
         }
 
+        public void CloseDown()     // close any system stuff
+        {
+            foreach (string s in Dialogs.Keys)
+                Dialogs[s].ReturnResult(System.Windows.Forms.DialogResult.Cancel);
+
+            Dialogs.Clear();
+        }
+
         public string ReadFile(string filename, out bool readenable)     // string, empty if no errors
         {
             readenable = false;

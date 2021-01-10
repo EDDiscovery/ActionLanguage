@@ -265,7 +265,7 @@ namespace ActionLanguage
 
         public bool CheckForActionFilesChange()
         {
-            foreach( var af in actionfiles)
+            foreach (var af in actionfiles)
             {
                 if (!File.Exists(af.FilePath) || File.GetLastWriteTimeUtc(af.FilePath) > af.WriteTimeUTC)
                     return true;
@@ -273,6 +273,13 @@ namespace ActionLanguage
 
             return false;
         }
+
+        public void CloseDown()         // close any system stuff
+        {
+            foreach (var af in actionfiles)
+                af.CloseDown();
+        }
+
 
         #region special helpers
 
