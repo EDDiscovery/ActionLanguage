@@ -292,25 +292,28 @@ namespace ActionLanguage
                                     if (mix != null)
                                         audio = ap.ActionController.AudioQueueSpeech.Mix(audio, mix);     // audio in MIX format
 
-                                    if (prefix != null)
+                                    if (audio != null && prefix != null)
                                         audio = ap.ActionController.AudioQueueSpeech.Append(prefix, audio);        // audio in AUDIO format.
 
-                                    if (postfix != null)
+                                    if (audio != null && postfix != null)
                                         audio = ap.ActionController.AudioQueueSpeech.Append(audio, postfix);         // Audio in P format
 
-                                    if (start != null)
+                                    if (audio != null)      // just double checking nothing fails above
                                     {
-                                        audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
-                                        audio.sampleStartEvent += Audio_sampleEvent;
-                                    }
+                                        if (start != null)
+                                        {
+                                            audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
+                                            audio.sampleStartEvent += Audio_sampleEvent;
+                                        }
 
-                                    if (wait || finish != null)       // if waiting, or finish call
-                                    {
-                                        audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
-                                        audio.sampleOverEvent += Audio_sampleEvent;
-                                    }
+                                        if (wait || finish != null)       // if waiting, or finish call
+                                        {
+                                            audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
+                                            audio.sampleOverEvent += Audio_sampleEvent;
+                                        }
 
-                                    ap.ActionController.AudioQueueSpeech.Submit(audio, vol, priority);
+                                        ap.ActionController.AudioQueueSpeech.Submit(audio, vol, priority);
+                                    }
                                 }
                             });
                         });

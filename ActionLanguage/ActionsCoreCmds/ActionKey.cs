@@ -154,8 +154,12 @@ namespace ActionLanguage
                             {
                                 string culture = ap.VarExist(ActionSay.globalvarspeechculture) ? ap[ActionSay.globalvarspeechculture] : "Default";
                                 System.IO.MemoryStream ms = ap.ActionController.SpeechSynthesizer.Speak("Cannot press key due to " + res, culture, "Default", 0);
-                                AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(ms);
-                                ap.ActionController.AudioQueueSpeech.Submit(audio, 80, AudioQueue.Priority.Normal);
+                                if ( ms != null )
+                                {
+                                    AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(ms);
+                                    if ( audio != null )
+                                        ap.ActionController.AudioQueueSpeech.Submit(audio, 80, AudioQueue.Priority.Normal);
+                                }
                             }
 
                             ap.ReportError(res);
