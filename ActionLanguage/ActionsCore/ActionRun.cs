@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -57,7 +57,7 @@ namespace ActionLanguage
 
                 progcurrent = new ActionProgramRun(fileset, r, inputparas, this, actioncontroller);   // now we run this.. no need to push to stack
 
-                progcurrent.PrepareToRun(new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.filevariables),
+                progcurrent.PrepareToRun(new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.FileVariables),
                                                 fh == null ? new FunctionPersistentData() : fh, d == null ? new Dictionary<string, ActionConfigFuncs.IConfigurableForm>() : d, closeatend);        // if no filehandles, make them and close at end
             }
             else
@@ -130,12 +130,12 @@ namespace ActionLanguage
                     if (progcurrent.variables != null)      // if not null, its because its just been restarted after a call.. reset globals
                     {
                         progcurrent.Add(actioncontroller.Globals); // in case they have been updated...
-                        progcurrent.Add(progcurrent.actionfile.filevariables); // in case they have been updated...
+                        progcurrent.Add(progcurrent.ActionFile.FileVariables); // in case they have been updated...
                     }
                     else
                     {
                         progcurrent.PrepareToRun(
-                                new Variables(progcurrent.inputvariables, actioncontroller.Globals, progcurrent.actionfile.filevariables),
+                                new Variables(progcurrent.inputvariables, actioncontroller.Globals, progcurrent.ActionFile.FileVariables),
                                 new FunctionPersistentData(),
                                 new Dictionary<string, ActionConfigFuncs.IConfigurableForm>(), true); // with new file handles and close at end..
                     }
@@ -183,11 +183,11 @@ namespace ActionLanguage
                         {
                             //System.Diagnostics.Debug.WriteLine("Call " + prog + " with " + paravars.ToString());
 
-                            Tuple<ActionFile, ActionProgram> ap = actionfilelist.FindProgram(prog, progcurrent.actionfile);          // find program using this name, prefer this action file first
+                            Tuple<ActionFile, ActionProgram> ap = actionfilelist.FindProgram(prog, progcurrent.ActionFile);          // find program using this name, prefer this action file first
 
                             if (ap != null)
                             {
-                                Run(true,ap.Item1, ap.Item2, paravars , progcurrent.functions.persistentdata,progcurrent.dialogs, false);   // run now with these para vars
+                                Run(true,ap.Item1, ap.Item2, paravars , progcurrent.Functions.persistentdata,progcurrent.Dialogs, false);   // run now with these para vars
                             }
                             else
                                 progcurrent.ReportError("Call cannot find " + prog);

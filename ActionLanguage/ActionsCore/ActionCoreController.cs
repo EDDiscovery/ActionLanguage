@@ -141,5 +141,11 @@ namespace ActionLanguage
         {
             return false;
         }
+
+        public bool CheckForActionFilesChange()
+        {
+            return actionfiles.CheckForActionFilesChange();
+        }
+
     }
 }

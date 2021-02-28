@@ -55,7 +55,7 @@ namespace ActionLanguage
             {
                 List<string> exp;
 
-                if (ap.functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                 {
                     string caption = (exp.Count>=2) ? exp[1] : "EDDiscovery Program Message";
                     string buttons = exp.Count >= 3 ? exp[2] : "OK";
@@ -63,7 +63,7 @@ namespace ActionLanguage
 
                     try
                     {
-                        ap["DialogResult"] = ap.actioncontroller.ConfigFuncs.MessageBox(exp[1], caption, buttons, icon);
+                        ap["DialogResult"] = ap.ActionController.ConfigFuncs.MessageBox(exp[1], caption, buttons, icon);
                     }
                     catch (InvalidOperationException ex)
                     {
@@ -117,11 +117,11 @@ namespace ActionLanguage
             {
                 List<string> exp;
 
-                if (ap.functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                 {
                     string caption = (exp[1].Length>0) ? exp[1]: "EDDiscovery Program Message";
 
-                    ap.actioncontroller.ConfigFuncs.InfoBox(caption, ap.actioncontroller.Icon, exp[0]);
+                    ap.ActionController.ConfigFuncs.InfoBox(caption, ap.ActionController.Icon, exp[0]);
                 }
                 else
                     ap.ReportError(exp[0]);
@@ -151,7 +151,7 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string res;
-            if (ap.functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData, out res) != Functions.ExpandResult.Failed)
             {
                 StringParser sp = new StringParser(res);
                 string cmdname = sp.NextWordLCInvariant(", ");
@@ -174,7 +174,7 @@ namespace ActionLanguage
                     }
 
                     string fileret;
-                    bool success = ap.actioncontroller.ConfigFuncs.PromptFolder(fp =>
+                    bool success = ap.ActionController.ConfigFuncs.PromptFolder(fp =>
                     {
                         if (descr != null) fp.Description = descr;
                         if (rootfolder != null) fp.RootFolder = (Environment.SpecialFolder)rootfolder;
@@ -189,7 +189,7 @@ namespace ActionLanguage
                     try
                     {
                         string filename = null;
-                        bool success = ap.actioncontroller.ConfigFuncs.PromptOpenFile(fd =>
+                        bool success = ap.ActionController.ConfigFuncs.PromptOpenFile(fd =>
                         {
                             fd.Multiselect = false;
                             fd.CheckPathExists = true;
@@ -226,7 +226,7 @@ namespace ActionLanguage
                     try
                     {
                         string filename;
-                        bool success = ap.actioncontroller.ConfigFuncs.PromptSaveFile(fd =>
+                        bool success = ap.ActionController.ConfigFuncs.PromptSaveFile(fd =>
                         {
 
                             string rootfolder = sp.NextQuotedWordComma();
@@ -301,14 +301,14 @@ namespace ActionLanguage
             {
                 List<string> exp;
 
-                if (ap.functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                 {
                     string[] prompts = exp[1].Split(';');
                     string[] def = (exp.Count >= 3) ? exp[2].Split(';') : null;
                     bool multiline = (exp.Count >= 4) ? (exp[3].IndexOf("Multiline", StringComparison.InvariantCultureIgnoreCase) >= 0) : false;
                     string[] tooltips = (exp.Count >= 5) ? exp[4].Split(';') : null;
 
-                    List<string> r = ap.actioncontroller.ConfigFuncs.PromptMultiLine(exp[0], ap.actioncontroller.Icon,
+                    List<string> r = ap.ActionController.ConfigFuncs.PromptMultiLine(exp[0], ap.ActionController.Icon,
                                         prompts, def, multiline, tooltips);
 
                     ap["InputBoxOK"] = (r != null) ? "1" : "0";
@@ -338,7 +338,7 @@ namespace ActionLanguage
         {
             StringParser sp = new StringParser(input);
             List<string> s = sp.NextQuotedWordList();
-            return (s != null && s.Count == 4) ? s : null;
+            return (s != null && s.Count >= 4) ? s : null;
         }
 
         public override string VerifyActionCorrect()
@@ -368,11 +368,11 @@ namespace ActionLanguage
             {
                 List<string> exp;
 
-                if (ap.functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                 {
                     Variables cv = ap.variables.FilterVars(exp[3] + "*");
 
-                    var cd = ap.actioncontroller.ConfigFuncs.CreateConfigurableForm();
+                    var cd = ap.ActionController.ConfigFuncs.CreateConfigurableForm();
 
                     foreach ( string k in cv.NameList )
                     {
@@ -385,35 +385,64 @@ namespace ActionLanguage
                     int? dw = sp2.NextWordComma().InvariantParseIntNull();
                     int? dh = sp2.NextWordComma().InvariantParseIntNull();
                     int? x = sp2.NextWordComma().InvariantParseIntNull();
-                    int? y = sp2.NextWord().InvariantParseIntNull();
+                    int? y = sp2.NextWordComma().InvariantParseIntNull();
+                    int? mw = sp2.NextWordComma().InvariantParseIntNull();
+                    int? mh = sp2.NextWordComma().InvariantParseIntNull();
 
                     if (dw != null && dh != null && ((x==null)==(y==null))) // need w/h, must have either no pos or both pos
                     {
+                        bool closeicon = true, alwaysontop = false;
+
+                        for( int i = 4; i < exp.Count; i++ )
+                        {
+                            if (exp[i].Equals("AllowResize", StringComparison.InvariantCultureIgnoreCase))
+                                cd.AllowResize = true;
+                            else if (exp[i].Equals("Transparent", StringComparison.InvariantCultureIgnoreCase))
+                                cd.Transparent = true;
+                            else if (exp[i].Equals("NoCloseIcon", StringComparison.InvariantCultureIgnoreCase))
+                                closeicon = false;
+                            else if (exp[i].Equals("AlwaysOnTop", StringComparison.InvariantCultureIgnoreCase))
+                                alwaysontop = true;
+                            else if (exp[i].Equals("NoWindowsBorder", StringComparison.InvariantCultureIgnoreCase))
+                                cd.ForceNoWindowsBorder = true;
+                            else if (exp[i].Equals("NoPanelBorder", StringComparison.InvariantCultureIgnoreCase))
+                                cd.PanelBorderStyle = ActionConfigFuncs.BorderStyle.None;
+                            else
+                            {
+                                ap.ReportError("Unknown Dialog option " + exp[i]);
+                                return true;
+                            }
+                        }
+
                         if (IsModalDialog())
-                            ap.dialogs[exp[0]] = cd;
+                            ap.Dialogs[exp[0]] = cd;
                         else
-                            ap.actionfile.dialogs[exp[0]] = cd;
+                            ap.ActionFile.Dialogs[exp[0]] = cd;
 
                         cd.Trigger += Cd_Trigger;
+
+                        System.Drawing.Size minsize = new System.Drawing.Size(dw.Value, dh.Value);
+                        System.Drawing.Size maxsize = new System.Drawing.Size(mw.HasValue ? mw.Value : 50000, mh.HasValue ? mh.Value : 50000);
 
                         if (x != null && y != null)
                         {
                             cd.Init(new System.Drawing.Point(x.Value, y.Value),
-                                            ap.actioncontroller.Icon,
-                                            exp[1],
-                                            exp[0], new List<Object>() { ap, IsModalDialog() },  // logical name and tag
-                                            closeicon: true
-                                            );
+                                        ap.ActionController.Icon,
+                                        exp[1],
+                                        exp[0], new List<Object>() { ap, IsModalDialog() },  // logical name and tag
+                                        closeicon: closeicon
+                                        );
                         }
                         else
                         {
-                            cd.InitCentred(ap.actioncontroller.Icon,
+                            cd.InitCentred(ap.ActionController.Icon,
                                             exp[1],
                                             exp[0], new List<Object>() { ap, IsModalDialog() }, // logical name and tag
-                                            closeicon: true
+                                            closeicon: closeicon
                                             );
                         }
 
+                        cd.TopMost = alwaysontop;
                         cd.Show();
 
                         return !IsModalDialog();       // modal, return false, STOP.  Non modal, continue
@@ -447,7 +476,7 @@ namespace ActionLanguage
             }
             else
             {
-                apr.actioncontroller.ActionRun(ActionEvent.onNonModalDialog, new BaseUtils.Variables(new string[] { "Dialog", lname, "Control", controlname }));
+                apr.ActionController.ActionRun(ActionEvent.onNonModalDialog, new BaseUtils.Variables(new string[] { "Dialog", lname, "Control", controlname }));
             }
         }
     }
@@ -479,17 +508,17 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string exp;
-            if (ap.functions.ExpandString(UserData, out exp) != Functions.ExpandResult.Failed)
+            if (ap.Functions.ExpandString(UserData, out exp) != Functions.ExpandResult.Failed)
             {
                 StringParser sp = new StringParser(exp);
                 string handle = sp.NextWordComma();
 
                 if ( handle != null )
                 { 
-                    bool infile = ap.actionfile.dialogs.ContainsKey(handle);
-                    bool inlocal = ap.dialogs.ContainsKey(handle);
+                    bool infile = ap.ActionFile.Dialogs.ContainsKey(handle);
+                    bool inlocal = ap.Dialogs.ContainsKey(handle);
 
-                    ActionConfigFuncs.IConfigurableForm f = infile ? ap.actionfile.dialogs[handle] : (inlocal ? ap.dialogs[handle] : null);
+                    ActionConfigFuncs.IConfigurableForm f = infile ? ap.ActionFile.Dialogs[handle] : (inlocal ? ap.Dialogs[handle] : null);
 
                     string cmd = sp.NextWordLCInvariant();
 
@@ -509,10 +538,45 @@ namespace ActionLanguage
                     {
                         return (inlocal) ? false : true;    // if local, pause. else just ignore
                     }
-                    else if (cmd.Equals("position"))
+                    else if (cmd.Equals("position"))    // verified 10/1/21
                     {
-                        ap["X"] = f.Location.X.ToStringInvariant();
-                        ap["Y"] = f.Location.Y.ToStringInvariant();
+                        int? x = sp.NextIntComma(",");
+                        int? y = sp.NextInt();
+
+                        if (x != null)
+                        {
+                            if (y != null)
+                                f.Location = new System.Drawing.Point(x.Value, y.Value);
+                            else
+                                ap.ReportError("Missing position in DialogControl position");
+                        }
+                        else if (sp.IsEOL)
+                        {
+                            ap["X"] = f.Location.X.ToStringInvariant();
+                            ap["Y"] = f.Location.Y.ToStringInvariant();
+                        }
+                        else
+                            ap.ReportError("Missing position in DialogControl position");
+                    }
+                    else if (cmd.Equals("size"))    // verified 10/1/21
+                    {
+                        int? w = sp.NextIntComma(",");
+                        int? h = sp.NextInt();
+
+                        if (w != null)
+                        {
+                            if (h != null)
+                                f.Size = new System.Drawing.Size(w.Value, h.Value);
+                            else
+                                ap.ReportError("Missing size in DialogControl size");
+                        }
+                        else if (sp.IsEOL)
+                        {
+                            ap["W"] = f.Size.Width.ToStringInvariant();
+                            ap["H"] = f.Size.Height.ToStringInvariant();
+                        }
+                        else
+                            ap.ReportError("Missing size in DialogControl size");
                     }
                     else if (cmd.Equals("get"))
                     {
@@ -538,13 +602,75 @@ namespace ActionLanguage
                         else
                             ap.ReportError("Missing or invalid dialog name and/or value in DialogControl set");
                     }
+                    else if (cmd.Equals("enable") || cmd.Equals("visible"))     // verified 10/1/21
+                    {
+                        string control = sp.NextQuotedWord();
+                        ActionConfigFuncs.IControl c;
+
+                        if (control != null && (c = f.GetControl(control)) != null)
+                        {
+                            bool? r = sp.NextBoolComma();
+
+                            if (r != null)
+                            {
+                                if (cmd.Equals("enable"))
+                                    c.Enabled = r.Value;
+                                else
+                                    c.Visible = r.Value;
+                            }
+                            else if (sp.IsEOL)
+                            {
+                                if (cmd.Equals("enable"))
+                                    ap["Enabled"] = c.Enabled.ToStringIntValue();
+                                else
+                                    ap["Visible"] = c.Visible.ToStringIntValue();
+                            }
+                            else
+                                ap.ReportError("Missing or invalid " + cmd + "value in DialogControl " + cmd);
+                        }
+                        else
+                        {
+                            ap.ReportError("Missing or invalid dialog control name in DialogControl " + cmd);
+                        }
+                    }
+                    else if (cmd.Equals("controlbounds"))       // verified 10/1/21
+                    {
+                        string control = sp.NextQuotedWord();
+                        ActionConfigFuncs.IControl c;
+
+                        if (control != null && (c = f.GetControl(control)) != null)
+                        {
+                            int? x = sp.NextIntComma(",");
+                            int? y = sp.NextIntComma(",");
+                            int? w = sp.NextIntComma(",");
+                            int? h = sp.NextInt();
+
+                            if ( x != null && y != null && w != null && h != null )
+                            {
+                                c.Bounds = new System.Drawing.Rectangle(x.Value, y.Value, w.Value, h.Value);
+                            }
+                            else if ( sp.IsEOL)
+                            {
+                                ap["X"] = c.Left.ToStringInvariant();
+                                ap["Y"] = c.Top.ToStringInvariant();
+                                ap["W"] = c.Width.ToStringInvariant();
+                                ap["H"] = c.Height.ToStringInvariant();
+                            }
+                            else
+                                ap.ReportError("Missing or invalid bounds values in DialogControl controlbounds");
+                        }
+                        else
+                        {
+                            ap.ReportError("Missing or invalid dialog control name in DialogControl controlbounds");
+                        }
+                    }
                     else if (cmd.Equals("close"))
                     {
                         f.ReturnResult(f.DialogResult);
                         if (inlocal)
-                            ap.dialogs.Remove(handle);
+                            ap.Dialogs.Remove(handle);
                         else
-                            ap.actionfile.dialogs.Remove(handle);
+                            ap.ActionFile.Dialogs.Remove(handle);
                     }
                     else
                         ap.ReportError("Unknown command in DialogControl");

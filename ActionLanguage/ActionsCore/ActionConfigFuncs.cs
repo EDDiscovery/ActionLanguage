@@ -91,6 +91,24 @@ namespace ActionLanguage
             Inherit = 3
         }
 
+        public enum BorderStyle
+        {
+            None = 0,
+            FixedSingle = 1,
+            Fixed3D = 2
+        }
+
+        public interface IControl
+        {
+            bool Enabled { get; set; }
+            bool Visible { get; set; }
+            Rectangle Bounds { get; set; }
+            int Left { get; set; }
+            int Top { get; set; }
+            int Width { get; set; }
+            int Height { get; set; }
+        }
+
         public interface IConfigurableForm
         {
             string Add(string instr);
@@ -104,6 +122,13 @@ namespace ActionLanguage
             Point Location { get; set; }
             void ReturnResult(DialogResult result);
             DialogResult DialogResult { get; }
+            bool AllowResize { get; set; }
+            bool Transparent { get; set; }
+            bool ForceNoWindowsBorder { get; set; }
+            BorderStyle PanelBorderStyle { get; set; }
+            bool TopMost { get; set; }
+            Size Size { get; set; }
+            IControl GetControl(string control);
         }
 
         public interface ITimer : IDisposable

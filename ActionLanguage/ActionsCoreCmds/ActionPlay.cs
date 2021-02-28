@@ -113,12 +113,12 @@ namespace ActionLanguage
             if (FromString(userdata, out pathunexpanded, out statementvars))
             {
                 string errlist = null;
-                Variables vars = ap.functions.ExpandVars(statementvars,out errlist);
+                Variables vars = ap.Functions.ExpandVars(statementvars,out errlist);
 
                 if (errlist == null)
                 {
                     string path;
-                    if (ap.functions.ExpandString(pathunexpanded, out path) != Functions.ExpandResult.Failed)
+                    if (ap.Functions.ExpandString(pathunexpanded, out path) != Functions.ExpandResult.Failed)
                     {
                         if (System.IO.File.Exists(path))
                         {
@@ -134,7 +134,7 @@ namespace ActionLanguage
                             Variables globalsettings = ap.VarExist(globalvarplayeffects) ? new Variables(ap[globalvarplayeffects], Variables.FromMode.MultiEntryComma) : null;
                             SoundEffectSettings ses = SoundEffectSettings.Set(globalsettings, vars);        // work out the settings
                             
-                            AudioQueue.AudioSample audio = ap.actioncontroller.AudioQueueWave.Generate(path, ses);
+                            AudioQueue.AudioSample audio = ap.ActionController.AudioQueueWave.Generate(path, ses);
 
                             if (audio != null)
                             {
@@ -150,7 +150,7 @@ namespace ActionLanguage
                                     audio.sampleOverEvent += Audio_sampleEvent;
                                 }
 
-                                ap.actioncontroller.AudioQueueWave.Submit(audio, vol, priority);
+                                ap.ActionController.AudioQueueWave.Submit(audio, vol, priority);
                                 return !wait;       //False if wait, meaning terminate and wait for it to complete, true otherwise, continue
                             }
                             else
@@ -176,7 +176,7 @@ namespace ActionLanguage
             AudioEvent af = tag as AudioEvent;
 
             if (af.eventname != null && af.eventname.Length>0)
-                af.apr.actioncontroller.ActionRun(af.ev, new Variables("EventName", af.eventname), now: false);    // queue at end an event
+                af.apr.ActionController.ActionRun(af.ev, new Variables("EventName", af.eventname), now: false);    // queue at end an event
 
             if (af.wait)
                 af.apr.ResumeAfterPause();

@@ -40,7 +40,7 @@ namespace ActionLanguage
         public bool ExecuteActionReturn(ActionProgramRun ap , out string retstr )
         {
             string res;         // we keep the string escaped, since all strings are normally kept escaped
-            if (ap.functions.ExpandString(UserData, out res) != BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
+            if (ap.Functions.ExpandString(UserData, out res) != BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
             {
                 retstr = res;
                 return true;

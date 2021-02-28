@@ -50,7 +50,7 @@ namespace ActionLanguage
         public override bool ExecuteAction(ActionProgramRun ap)
         {
             string delay;
-            if (ap.functions.ExpandString(userdata, out delay) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
+            if (ap.Functions.ExpandString(userdata, out delay) == BaseUtils.Functions.ExpandResult.Failed)       //Expand out.. and if no errors
             {
                 ap.ReportError(delay);
                 return true;

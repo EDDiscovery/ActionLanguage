@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2015 - 2016 EDDiscovery development team
+ * Copyright © 2017 - 2020 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -14,13 +14,11 @@
  * EDDiscovery is not affiliated with Frontier Developments plc.
  */
 
+using BaseUtils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BaseUtils;
 
 namespace ActionLanguage
 {
@@ -28,22 +26,22 @@ namespace ActionLanguage
     {
         private List<ActionFile> actionfiles = new List<ActionFile>();
 
-        public List<string> GetList { get { return (from af in actionfiles select af.name).ToList(); } }
+        public List<string> GetFileNames { get { return (from af in actionfiles select af.Name).ToList(); } }
 
         public IEnumerable<ActionFile> Enumerable { get { return actionfiles; } }
 
         // normally pack names are case sensitive, except when we are checking it can be written to a file.. then we would want a case insensitive version
-        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCulture) { return actionfiles.Find(x => x.name.Equals(name,c)); }
+        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCulture) { return actionfiles.Find(x => x.Name.Equals(name,c)); }
 
         // find all which match any name in []
         public ActionFile[] Get(string[] name, StringComparison c = StringComparison.InvariantCulture)
         {
-            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.name, c)) != null select x).ToArray();
+            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c)) != null select x).ToArray();
         }
 
         public ActionFile[] Get(string[] name, bool enablestate, StringComparison c = StringComparison.InvariantCulture)
         {
-            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.name, c) && x.enabled == enablestate) != null select x).ToArray();
+            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c) && x.Enabled == enablestate) != null select x).ToArray();
         }
 
 
@@ -66,7 +64,7 @@ namespace ActionLanguage
         {
             foreach (ActionFile af in actionfiles)
             {
-                if (af.actioneventlist.IsActionVarDefined(flagstart))
+                if (af.EventList.IsActionVarDefined(flagstart))
                     return true;
             }
             return false;
@@ -79,9 +77,9 @@ namespace ActionLanguage
 
             foreach (ActionFile af in actionfiles)
             {
-                if (af.enabled)         // only enabled files are checked
+                if (af.Enabled)         // only enabled files are checked
                 {
-                    List<Condition> events = af.actioneventlist.GetConditionListByEventName(eventname, flagstart);
+                    List<Condition> events = af.EventList.GetConditionListByEventName(eventname, flagstart);
 
                     if (events != null)     // and if we have matching event..
                     {
@@ -155,11 +153,11 @@ namespace ActionLanguage
 
         public Tuple<ActionFile, ActionProgram> FindProgram(string packname, string progname)
         {
-            ActionFile f = actionfiles.Find(x => x.name.Equals(packname));
+            ActionFile f = actionfiles.Find(x => x.Name.Equals(packname));
 
             if (f != null)
             {
-                ActionProgram ap = f.actionprogramlist.Get(progname);   // get in local program list first
+                ActionProgram ap = f.ProgramList.Get(progname);   // get in local program list first
 
                 if (ap != null)
                     return new Tuple<ActionFile, ActionProgram>(f, ap);
@@ -185,11 +183,11 @@ namespace ActionLanguage
 
             if (file != null)                             // if file given, only search that
             {
-                ActionFile f = actionfiles.Find(x => x.name.Equals(file));
+                ActionFile f = actionfiles.Find(x => x.Name.Equals(file));
 
                 if (f != null)      // found file..
                 {
-                    ap = f.actionprogramlist.Get(prog);
+                    ap = f.ProgramList.Get(prog);
 
                     return (ap != null) ? new Tuple<ActionFile, ActionProgram>(f, ap) : null;
                 }
@@ -198,7 +196,7 @@ namespace ActionLanguage
             {
                 if (preferred != null)          // if no file stated, and we have a preferred
                 {
-                    ap = preferred.actionprogramlist.Get(prog);   // get in local program list first
+                    ap = preferred.ProgramList.Get(prog);   // get in local program list first
 
                     if (ap != null)
                         return new Tuple<ActionFile, ActionProgram>(preferred, ap);
@@ -206,7 +204,7 @@ namespace ActionLanguage
 
                 foreach (ActionFile f in actionfiles)
                 {
-                    ap = f.actionprogramlist.Get(prog);
+                    ap = f.ProgramList.Get(prog);
 
                     if (ap != null)         // gotcha
                         return new Tuple<ActionFile, ActionProgram>(f, ap);
@@ -227,7 +225,7 @@ namespace ActionLanguage
 
             foreach (FileInfo f in allFiles)
             {
-                int indexof = actionfiles.FindIndex(x => x.filepath.Equals(f.FullName));
+                int indexof = actionfiles.FindIndex(x => x.FilePath.Equals(f.FullName));
 
                 ActionFile af;
 
@@ -243,12 +241,12 @@ namespace ActionLanguage
                 {
                     if (indexof == -1)
                     {
-                        System.Diagnostics.Trace.WriteLine("Add pack " + af.name);
+                        System.Diagnostics.Trace.WriteLine("Add pack " + af.Name);
                         actionfiles.Add(af);
                     }
                     else
                     {
-                        System.Diagnostics.Trace.WriteLine("Update Pack " + af.name);
+                        System.Diagnostics.Trace.WriteLine("Update Pack " + af.Name);
                     }
                 }
                 else
@@ -257,13 +255,31 @@ namespace ActionLanguage
                     if (indexof != -1)
                     {
                         actionfiles.RemoveAt(indexof);          // remove dead packs
-                        System.Diagnostics.Trace.WriteLine("Delete Pack " + af.name);
+                        System.Diagnostics.Trace.WriteLine("Delete Pack " + af.Name);
                     }
                 }
             }
 
             return errlist;
         }
+
+        public bool CheckForActionFilesChange()
+        {
+            foreach (var af in actionfiles)
+            {
+                if (!File.Exists(af.FilePath) || File.GetLastWriteTimeUtc(af.FilePath) > af.WriteTimeUTC)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void CloseDown()         // close any system stuff
+        {
+            foreach (var af in actionfiles)
+                af.CloseDown();
+        }
+
 
         #region special helpers
 
@@ -274,9 +290,9 @@ namespace ActionLanguage
             List<Tuple<string, ConditionEntry.MatchType>> ret = new List<Tuple<string, ConditionEntry.MatchType>>();
             foreach (ActionFile f in actionfiles)
             {
-                if (f.enabled)
+                if (f.Enabled)
                 {
-                    List<Tuple<string, ConditionEntry.MatchType>> fr = f.actioneventlist.ReturnValuesOfSpecificConditions(conditions, matchtypes);
+                    List<Tuple<string, ConditionEntry.MatchType>> fr = f.EventList.ReturnValuesOfSpecificConditions(conditions, matchtypes);
                     if (fr != null)
                         ret.AddRange(fr);
                 }

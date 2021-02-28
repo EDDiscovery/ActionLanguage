@@ -256,7 +256,7 @@ namespace ActionLanguage
                     indentlevel = act.calcDisplayLevel;
                     whitespace = act.Whitespace;
                     lineno = act.LineNumber;
-                    g.prog.Visible = act.Type == ActionBase.ActionType.Call & EditProgram != null;
+                    g.prog.Visible = (act.Type == ActionBase.ActionType.Call) && (EditProgram != null);
                     g.config.Visible = act.ConfigurationMenuInUse;
                 }
                 else
@@ -280,7 +280,6 @@ namespace ActionLanguage
                 g.up.Location = new Point(g.config.Right + 4, panelheightmargin);
 
                 g.prog.Location = new Point(g.up.Right + 4, panelheightmargin);
-                g.prog.Visible = true;
 
                 g.up.Visible = groups.IndexOf(g) > 0;
 

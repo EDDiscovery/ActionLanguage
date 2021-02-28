@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -24,23 +24,17 @@ namespace ActionLanguage
     public class ActionProgramRun : ActionProgram
     {
         // used during execution.. filled in on program objects associated with an execution
-        public ActionCoreController actioncontroller;                     // core controller.
-        public Functions functions;                   // function handler
-        public ActionFile actionfile;                       // what file it came from..
+        public ActionCoreController ActionController;                     // core controller.
+        public Functions Functions;                   // function handler
+        public ActionFile ActionFile;                       // what file it came from..
+        public Dictionary<string, ActionConfigFuncs.IConfigurableForm> Dialogs;
+        public bool ClosingHandlesAtEnd { get; private set; }
 
         private Variables currentvars;      // set up by ActionRun at invokation so they have the latest globals, see Run line 87 ish
-
         private FunctionPersistentData conditionpersistentdata;
-        public Dictionary<string, ActionConfigFuncs.IConfigurableForm> dialogs;
-        private bool closehandlesatend;
-
-        public bool ClosingHandlesAtEnd { get { return closehandlesatend; } }
-
         private Variables inputvars;        // input vars to this program, never changed
-
-        private ActionRun actionrun;                         // who is running it..
-
-        private int nextstepnumber;     // the next step to execute, 0 based
+        private ActionRun actionrun;        // who is running it..
+        private int nextstepnumber;         // the next step to execute, 0 based
 
         public enum ExecState { On, Off, OffForGood }
         private ExecState[] execstate = new ExecState[50];
@@ -57,9 +51,9 @@ namespace ActionLanguage
                                 ActionRun runner, // who is running it..
                                 ActionCoreController ed) : base(r.Name)      // allow a pause
         {
-            actionfile = af;
+            ActionFile = af;
             actionrun = runner;
-            actioncontroller = ed;
+            ActionController = ed;
             execlevel = 0;
             execstate[execlevel] = ExecState.On;
             nextstepnumber = 0;
@@ -96,20 +90,20 @@ namespace ActionLanguage
         {
             currentvars = v;
             conditionpersistentdata = fh;
-            closehandlesatend = chae;
-            functions = new Functions(currentvars, conditionpersistentdata);           // point the functions at our variables and our files..
-            dialogs = d; 
+            ClosingHandlesAtEnd = chae;
+            Functions = new Functions(currentvars, conditionpersistentdata);           // point the functions at our variables and our files..
+            Dialogs = d; 
         }
 
         public void Terminated()
         {
-            if (closehandlesatend)
+            if (ClosingHandlesAtEnd)
             {
                 conditionpersistentdata.CloseAll();
-                foreach (string s in dialogs.Keys)
-                    dialogs[s].ReturnResult(dialogs[s].DialogResult);
+                foreach (string s in Dialogs.Keys)
+                    Dialogs[s].ReturnResult(Dialogs[s].DialogResult);
 
-                dialogs.Clear();
+                Dialogs.Clear();
             }
 
             //System.Diagnostics.Debug.WriteLine("Program " + actionfile.name + "::" + Name + " terminated, handle close " + closehandlesatend);
@@ -135,7 +129,7 @@ namespace ActionLanguage
             {
                 int lineno = GetLastStep() != null ? GetLastStep().LineNumber : 0;
 
-                return "Step " + nextstepnumber.ToStringInvariant() + " in " + actionfile.name + "::" + Name + ":" + lineno.ToStringInvariant();
+                return "Step " + nextstepnumber.ToStringInvariant() + " in " + ActionFile.Name + "::" + Name + ":" + lineno.ToStringInvariant();
             } }
 
         public int ExecLevel { get { return execlevel; } }

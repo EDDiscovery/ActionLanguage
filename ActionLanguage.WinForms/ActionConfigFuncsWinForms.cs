@@ -91,6 +91,23 @@ namespace ActionLanguage
             }
         }
 
+        public class ControlWrapper : IControl
+        {
+            public Control Control { get; set; }
+            public bool Enabled { get { return Control.Enabled; } set { Control.Enabled = value; } }
+            public bool Visible { get { return Control.Visible; } set { Control.Visible = value; } }
+            public Rectangle Bounds { get { return Control.Bounds; } set { Control.Bounds = value; } }
+            public int Left { get { return Control.Left; } set { Control.Left = value; } }
+            public int Top { get { return Control.Top; } set { Control.Top = value; } }
+            public int Width { get { return Control.Width; } set { Control.Width = value; } }
+            public int Height { get { return Control.Height; } set { Control.Height = value; } }
+
+            public ControlWrapper(Control control)
+            {
+                Control = control;
+            }
+        }
+
         public class ConfigurableForm : IConfigurableForm, IDisposable
         {
             public ExtendedControls.ConfigurableForm Form { get; set; } = new ExtendedControls.ConfigurableForm();
@@ -99,6 +116,13 @@ namespace ActionLanguage
 
             public event Action<string, string, object> Trigger { add { Form.Trigger += value; } remove { Form.Trigger -= value; } }
             public DialogResult DialogResult { get { return (DialogResult)Form.DialogResult; } }
+
+            public bool AllowResize { get { return Form.AllowResize; } set { Form.AllowResize = value; } }
+            public bool Transparent { get { return Form.Transparent; } set { Form.Transparent = value; } }
+            public bool ForceNoWindowsBorder { get { return Form.ForceNoWindowsBorder; } set { Form.ForceNoWindowsBorder = value; } }
+            public BorderStyle PanelBorderStyle { get { return (BorderStyle)Form.PanelBorderStyle; } set { Form.PanelBorderStyle = (System.Windows.Forms.BorderStyle)value; } }
+            public bool TopMost { get { return Form.TopMost; } set { Form.TopMost = value; } }
+            public Size Size { get { return Form.Size; } set { Form.Size = value; } }
 
             public string Add(string instr)
             {
@@ -143,6 +167,11 @@ namespace ActionLanguage
             public void ReturnResult(DialogResult result)
             {
                 Form.ReturnResult((System.Windows.Forms.DialogResult)result);
+            }
+
+            public IControl GetControl(string name)
+            {
+                return new ControlWrapper(Form.GetControl(name));
             }
         }
 

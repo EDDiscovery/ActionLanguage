@@ -28,65 +28,75 @@ namespace ActionLanguage
     {
         public ActionFile()
         {
-            filevariables = new Variables();       // filevariables are only cleared on creation
-            dialogs = new Dictionary<string, ActionConfigFuncs.IConfigurableForm>();
+            FileVariables = new Variables();       // filevariables are only cleared on creation
+            Dialogs = new Dictionary<string, ActionConfigFuncs.IConfigurableForm>();
             Clear();
         }
 
         public ActionFile(string f, string n)
         {
-            filevariables = new Variables();
-            dialogs = new Dictionary<string, ActionConfigFuncs.IConfigurableForm>();
+            FileVariables = new Variables();
+            Dialogs = new Dictionary<string, ActionConfigFuncs.IConfigurableForm>();
             Clear(f, n);
         }
 
         public void Clear(string f = "", string n = "")         // clear all data read from file
         {
-            actioneventlist = new ConditionLists();
-            actionprogramlist = new ActionProgramList();
-            enabled = true;
-            installationvariables = new Variables();
-            filepath = f;
-            name = n;
-            fileencoding = Encoding.UTF8;
-            filevariables["ActionPackName"] = name;         
-            filevariables["ActionPackFilePath"] = filepath;
+            EventList = new ConditionLists();
+            ProgramList = new ActionProgramList();
+            Enabled = true;
+            InstallationVariables = new Variables();
+            FilePath = f;
+            Name = n;
+            WriteTimeUTC = DateTime.MinValue;
+            FileEncoding = Encoding.UTF8;
+            FileVariables["ActionPackName"] = Name;         
+            FileVariables["ActionPackFilePath"] = FilePath;
         }
 
-        public ConditionLists actioneventlist { get; private set; }                        // note we use the list, but not the evaluate between conditions..
-        public ActionProgramList actionprogramlist { get; private set; }                   // programs associated with this pack
-        public Variables installationvariables { get; private set; }              // used to pass to the installer various options, such as disable other packs
-        public Variables filevariables { get; private set; }                      // variables defined using the static.. private to this program.  Not persistent. 
-        public Dictionary<string, ActionConfigFuncs.IConfigurableForm> dialogs;              // persistent dialogs owned by this file
-        public string filepath { get; private set; }                                       // where it came from
-        public string name { get; private set; }                                           // its logical name
-        public bool enabled { get; private set; }                                          // if enabled.
+        public ConditionLists EventList { get; private set; }                 // note we use the list, but not the evaluate between conditions..
+        public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
+        public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
+        public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
+        public Dictionary<string, ActionConfigFuncs.IConfigurableForm> Dialogs; // persistent dialogs owned by this file
+        public string FilePath { get; private set; }                          // where it came from
+        public string Name { get; private set; }                              // its logical name
+        public DateTime WriteTimeUTC { get; private set; }                    // last modified time    
+        public bool Enabled { get; private set; }                             // if enabled.
 
-        public Encoding fileencoding {get; private set;}                                   // file encoding (auto calc, not saved)
+        public Encoding FileEncoding {get; private set;}                      // file encoding (auto calc, not saved)
 
         public void ChangeEventList(ConditionLists s)
         {
-            actioneventlist = s;
+            EventList = s;
         }
 
         public void ChangeInstallationVariables(Variables v)
         {
-            installationvariables = v;
+            InstallationVariables = v;
         }
 
         public void SetFileVariable(string n, string v)
         {
-            filevariables[n] = v;
+            FileVariables[n] = v;
         }
 
         public void DeleteFileVariable(string n)
         {
-            filevariables.Delete(n);
+            FileVariables.Delete(n);
         }
 
         public void DeleteFileVariableWildcard(string n)
         {
-            filevariables.DeleteWildcard(n);
+            FileVariables.DeleteWildcard(n);
+        }
+
+        public void CloseDown()     // close any system stuff
+        {
+            foreach (string s in Dialogs.Keys)
+                Dialogs[s].ReturnResult(ActionConfigFuncs.DialogResult.Cancel);
+
+            Dialogs.Clear();
         }
 
         public string ReadFile(string filename, out bool readenable)     // string, empty if no errors
@@ -103,9 +113,11 @@ namespace ActionLanguage
 
                 using (StreamReader sr = new StreamReader(filename, utc8nobom))         // read directly from file.. presume UTF8 no bom
                 {
+                    WriteTimeUTC = File.GetLastWriteTimeUtc(filename);
+
                     string firstline = sr.ReadLine();
 
-                    fileencoding = sr.CurrentEncoding;
+                    FileEncoding = sr.CurrentEncoding;
 
                     //System.Diagnostics.Trace.WriteLine("File " + filename + " is in " + fileencoding.BodyName + "   is utc8nobom? " + Equals(utc8nobom, fileencoding));
 
@@ -127,11 +139,11 @@ namespace ActionLanguage
                             {
                                 line = line.Substring(7).Trim().ToLowerInvariant();
                                 if (line == "true")
-                                    enabled = true;
+                                    Enabled = true;
                                 else if (line == "false")
-                                    enabled = false;
+                                    Enabled = false;
                                 else
-                                    return name + " " + lineno + " ENABLED is neither true or false" + Environment.NewLine;
+                                    return Name + " " + lineno + " ENABLED is neither true or false" + Environment.NewLine;
 
                                 readenable = true;
                             }
@@ -141,9 +153,9 @@ namespace ActionLanguage
                                 string err = ap.Read(sr, ref lineno, line.Substring(7).Trim()); // Read it, prename it..
 
                                 if (err.Length > 0)
-                                    return name + " " + err;
+                                    return Name + " " + err;
 
-                                actionprogramlist.Add(ap);
+                                ProgramList.Add(ap);
                             }
                             else if (line.StartsWith("INCLUDE", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -156,20 +168,20 @@ namespace ActionLanguage
                                 string err = ap.ReadFile(incfilename);
 
                                 if (err.Length > 0)
-                                    return name + " " + err;
+                                    return Name + " " + err;
 
-                                actionprogramlist.Add(ap);
+                                ProgramList.Add(ap);
                             }
                             else if (line.StartsWith("EVENT", StringComparison.InvariantCultureIgnoreCase))
                             {
                                 Condition c = new Condition();
                                 string err = c.Read(line.Substring(5).Trim(), true);
                                 if (err.Length > 0)
-                                    return name + " " + lineno + " " + err + Environment.NewLine;
+                                    return Name + " " + lineno + " " + err + Environment.NewLine;
                                 else if (c.action.Length == 0 || c.eventname.Length == 0)
-                                    return name + " " + lineno + " EVENT Missing event name or action" + Environment.NewLine;
+                                    return Name + " " + lineno + " EVENT Missing event name or action" + Environment.NewLine;
 
-                                actioneventlist.Add(c,currenteventgroup);
+                                EventList.Add(c,currenteventgroup);
                             }
                             else if (line.StartsWith("GROUP", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -180,23 +192,23 @@ namespace ActionLanguage
                                 Variables c = new Variables();
                                 if (c.FromString(line.Substring(7).Trim(), Variables.FromMode.OnePerLine) && c.Count == 1)
                                 {
-                                    installationvariables.Add(c);
+                                    InstallationVariables.Add(c);
                                 }
                                 else
-                                    return name + " " + lineno + " Incorrectly formatted INSTALL variable" + Environment.NewLine;
+                                    return Name + " " + lineno + " Incorrectly formatted INSTALL variable" + Environment.NewLine;
                             }
                             else if (line.StartsWith("//") || line.StartsWith("REM", StringComparison.InvariantCultureIgnoreCase) || line.Length == 0)
                             {
                             }
                             else
-                                return name + " " + lineno + " Invalid command" + Environment.NewLine;
+                                return Name + " " + lineno + " Invalid command" + Environment.NewLine;
                         }
 
                         string missing = "";
-                        foreach( Condition c in actioneventlist.Enumerable )        // lets see if any programs are missing
+                        foreach( Condition c in EventList.Enumerable )        // lets see if any programs are missing
                         {
                             string progname = c.action;
-                            if ( actionprogramlist.Get(progname) == null )
+                            if ( ProgramList.Get(progname) == null )
                                 missing += "Missing program " + progname + Environment.NewLine;
                         }
 
@@ -204,7 +216,7 @@ namespace ActionLanguage
                     }
                     else
                     {
-                        return name + " Header file type not recognised" + Environment.NewLine;
+                        return Name + " Header file type not recognised" + Environment.NewLine;
                     }
                 }
             }
@@ -218,30 +230,30 @@ namespace ActionLanguage
         {
             try
             {
-                var utc8nobom = new UTF8Encoding(false); System.Diagnostics.Trace.WriteLine("File " + filepath + " written in " + fileencoding.BodyName + " is utf8 no bom " + Equals(utc8nobom,fileencoding));
+                var utc8nobom = new UTF8Encoding(false); System.Diagnostics.Trace.WriteLine("File " + FilePath + " written in " + FileEncoding.BodyName + " is utf8 no bom " + Equals(utc8nobom,FileEncoding));
 
-                using (StreamWriter sr = new StreamWriter(filepath, false, fileencoding))
+                using (StreamWriter sr = new StreamWriter(FilePath, false, FileEncoding))
                 {
-                    string rootpath = Path.GetDirectoryName(filepath) + "\\";
+                    string rootpath = Path.GetDirectoryName(FilePath) + "\\";
 
                     sr.WriteLine("ACTIONFILE V4");
                     sr.WriteLine();
-                    sr.WriteLine("ENABLED " + enabled);
+                    sr.WriteLine("ENABLED " + Enabled);
                     sr.WriteLine();
 
-                    if (installationvariables.Count > 0)
+                    if (InstallationVariables.Count > 0)
                     {
-                        sr.WriteLine(installationvariables.ToString(prefix: "INSTALL ", separ: Environment.NewLine));
+                        sr.WriteLine(InstallationVariables.ToString(prefix: "INSTALL ", separ: Environment.NewLine));
                         sr.WriteLine();
                     }
 
-                    if (actioneventlist.Count > 0)
+                    if (EventList.Count > 0)
                     {
                         string currenteventgroup = null;
 
-                        for (int i = 0; i < actioneventlist.Count; i++)
+                        for (int i = 0; i < EventList.Count; i++)
                         {
-                            string evgroup = actioneventlist.GetGroupName(i);
+                            string evgroup = EventList.GetGroupName(i);
                             if ( evgroup != currenteventgroup )
                             {
                                 if ( currenteventgroup != null )
@@ -250,25 +262,25 @@ namespace ActionLanguage
                                 sr.WriteLine("GROUP " + currenteventgroup);
                             }
 
-                            sr.WriteLine("EVENT " + actioneventlist.Get(i).ToString(includeaction: true));
+                            sr.WriteLine("EVENT " + EventList.Get(i).ToString(includeaction: true));
                         }
 
                         sr.WriteLine();
                     }
 
-                    if (actionprogramlist.Count > 0)
+                    if (ProgramList.Count > 0)
                     {
-                        for (int i = 0; i < actionprogramlist.Count; i++)
+                        for (int i = 0; i < ProgramList.Count; i++)
                         {
-                            ActionProgram f = actionprogramlist.Get(i);
+                            ActionProgram f = ProgramList.Get(i);
 
                             sr.WriteLine("//*************************************************************");
                             sr.WriteLine("// " + f.Name);
                             string evl = "";
 
-                            for (int ic = 0; ic < actioneventlist.Count; ic++)
+                            for (int ic = 0; ic < EventList.Count; ic++)
                             {
-                                Condition c = actioneventlist.Get(ic);
+                                Condition c = EventList.Get(ic);
                                 if (c.action.Equals(f.Name))
                                 {
                                     string e = c.eventname;
@@ -339,7 +351,7 @@ namespace ActionLanguage
                 bool readenable;
                 if (f.ReadFile(file, out readenable).Length == 0)        // read it in..
                 {
-                    f.enabled = enable;
+                    f.Enabled = enable;
                     f.WriteFile();                                // write it out.
                   //  System.Diagnostics.Debug.WriteLine("Set Enable " + file + " " + enable );
                     return true;
@@ -361,9 +373,9 @@ namespace ActionLanguage
             if (f.ReadFile(file,out readenable).Length == 0)        // read it in..
             {
                 if (readenable)
-                    enable = f.enabled;
+                    enable = f.Enabled;
                 //System.Diagnostics.Debug.WriteLine("Enable vars read " + file + " " + enable);
-                return f.installationvariables;
+                return f.InstallationVariables;
             }
             else
                 return null;
