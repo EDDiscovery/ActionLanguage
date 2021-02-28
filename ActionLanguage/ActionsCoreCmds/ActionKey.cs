@@ -134,7 +134,7 @@ namespace ActionLanguage
                     string silentonerrors = vars.Exists(SilentOnError) ? vars[SilentOnError] : (ap.VarExist(globalvarSilentOnErrors) ? ap[globalvarSilentOnErrors] : "0");
                     string announciateonerrors = vars.Exists(AnnounciateOnError) ? vars[AnnounciateOnError] : (ap.VarExist(globalvarAnnounciateOnError) ? ap[globalvarAnnounciateOnError] : "0");
 
-                    string res = ap.actioncontroller.ConfigFuncs.SendKeyToProcess(keys, delay, shiftdelay, updelay, process, akp);
+                    string res = ap.ActionController.ConfigFuncs.SendKeyToProcess(keys, delay, shiftdelay, updelay, process, akp);
 
                     if (res.HasChars())
                     {

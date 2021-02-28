@@ -62,7 +62,7 @@ namespace ActionLanguage
                 System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Doze for " + i);
                 apr = ap;
 
-                t = ap.actioncontroller.ConfigFuncs.CreateTimer(i, T_Tick);
+                t = ap.ActionController.ConfigFuncs.CreateTimer(i, T_Tick);
                 t.Start();
                 return false;
             }
