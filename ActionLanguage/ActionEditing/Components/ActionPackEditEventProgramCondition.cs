@@ -49,8 +49,8 @@ namespace ActionLanguage
             eventtype.Items.AddRange(events);
             eventtype.Location = new Point(panelxmargin, panelymargin);
             eventtype.Size = new Size(140, 24);
-            if (cd.eventname != null)
-                eventtype.SelectedItem = cd.eventname;
+            if (cd.EventName != null)
+                eventtype.SelectedItem = cd.EventName;
             eventtype.SelectedIndexChanged += Eventtype_SelectedIndexChanged;
 
             Controls.Add(eventtype);
@@ -63,7 +63,7 @@ namespace ActionLanguage
 
             Controls.Add(uccond);
 
-            ActionProgram p = cond.action.HasChars() ? actionfile.ProgramList.Get(cond.action) : null;
+            ActionProgram p = cond.Action.HasChars() ? actionfile.ProgramList.Get(cond.Action) : null;
             ActionProgram.ProgramConditionClass classifier = p != null ? p.ProgramClass : ActionProgram.ProgramConditionClass.Full;
             ucprog = new ActionPackEditProgram();
             ucprog.Location = new Point(uccond.Right+16, 0);
@@ -80,7 +80,7 @@ namespace ActionLanguage
 
         private void Eventtype_SelectedIndexChanged(object sender, System.EventArgs e)
         {
-            cd.eventname = eventtype.Text;
+            cd.EventName = eventtype.Text;
 
             if (autosetcondition != null)
             {

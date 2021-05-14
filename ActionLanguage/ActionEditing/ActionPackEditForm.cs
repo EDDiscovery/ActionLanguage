@@ -58,12 +58,12 @@ namespace ActionLanguage
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
             initialtitle = this.Text = label_index.Text = t;
 
-            ConditionLists clist = actionfile.EventList;          // now load the initial conditions from the action file
+            ConditionLists clist = actionfile.FileEventList;    // now load the initial conditions from the action file
 
             string eventname = null;
             for (int i = 0; i < clist.Count; i++)       // for ever event, find the condition, create the group, theme
             {
-                string gname = clist.GetGroupName(i);
+                string gname = clist[i].GroupName;
                 if (gname != eventname)
                 {
                     eventname = gname;
@@ -72,7 +72,7 @@ namespace ActionLanguage
                     groups.Add(gg);
                 }
 
-                Condition cd = clist.Get(i);
+                Condition cd = clist[i];
                 Group g = CreateGroup(true, cd, null);
                 groups.Add(g);
             }
@@ -94,7 +94,7 @@ namespace ActionLanguage
             Group g = new Group();
 
             g.panel = new Panel();
-            g.panel.Name = name ?? (cd?.eventname + " " + cd?.ToString());
+            g.panel.Name = name ?? (cd?.EventName + " " + cd?.ToString());
             g.panel.SuspendLayout();
 
             // We draw as it was 8.25 point then scale.
@@ -113,7 +113,7 @@ namespace ActionLanguage
                 if (cd != null)
                 {
                     g.grouptype.Enabled = false;
-                    g.grouptype.SelectedItem = GetGroupName(cd.eventname);
+                    g.grouptype.SelectedItem = GetGroupName(cd.EventName);
                     g.grouptype.Enabled = true;
 
                     CreateUserControl(g, cd);
@@ -361,15 +361,16 @@ namespace ActionLanguage
                 {
                     Condition c = g.usercontrol.cd;
 
-                    if (c.eventname.Length == 0)
+                    if (c.EventName.Length == 0)
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have an event name defined" + Environment.NewLine;
-                    else if (c.action.Equals("New") || c.action.Length == 0)        // actions, but not selected one..
+                    else if (c.Action.Equals("New") || c.Action.Length == 0)        // actions, but not selected one..
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have an action program defined" + Environment.NewLine;
-                    else if (c.fields == null || c.fields.Count == 0)
+                    else if (c.Fields == null || c.Fields.Count == 0)
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have a condition" + Environment.NewLine;
                     else
                     {
-                        result.Add(g.usercontrol.cd, eventgroup);
+                        g.usercontrol.cd.GroupName = eventgroup;
+                        result.Add(g.usercontrol.cd);
                     }
                 }
 

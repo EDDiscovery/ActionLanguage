@@ -94,7 +94,7 @@ namespace ActionLanguage
             toolTip.SetToolTip(progedit, "Edit associated program");
 
             paras = new ExtendedControls.ExtTextBox();
-            paras.Text = cd.actionvars.ToString();
+            paras.Text = cd.ActionVars.ToString();
             paras.Location = new Point(progedit.Right + 8, panelymargin );
             paras.Size = new Size(pwidth,24);     
             paras.ReadOnly = true;
@@ -129,8 +129,8 @@ namespace ActionLanguage
         public void ChangedCondition(ActionProgram.ProgramConditionClass cls)  // upper swapped out condition.. brand new clean one
         {
             classifier = cls;
-            cd.action = "";
-            cd.actionvars = new Variables();
+            cd.Action = "";
+            cd.ActionVars = new Variables();
             UpdateControls();
         }
 
@@ -141,17 +141,17 @@ namespace ActionLanguage
             buttonSay.Visible = (classifier == ActionProgram.ProgramConditionClass.KeySay || classifier == ActionProgram.ProgramConditionClass.Say);
 
             proglist.Enabled = false;
-            if (cd.action.HasChars())
-                proglist.SelectedItem = cd.action;
+            if (cd.Action.HasChars())
+                proglist.SelectedItem = cd.Action;
             else
                 proglist.SelectedIndex = 0;
             proglist.Enabled = true;
 
-            paras.Text = cd.actionvars.ToString();
+            paras.Text = cd.ActionVars.ToString();
 
             buttonKeys.Text = "Enter Key";
             buttonSay.Text = "Enter Speech";
-            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
+            ActionProgram p = cd.Action.HasChars() ? actionfile.ProgramList.Get(cd.Action) : null;
             if ( p != null )
             {
                 buttonKeys.Text = StringParser.FirstQuotedWord(p.ProgramClassKeyUserData, " ,", buttonKeys.Text, prefix: "Key:").Left(25);
@@ -182,7 +182,7 @@ namespace ActionLanguage
                 Progedit_Click(null, null);
             }
             else
-                cd.action = proglist.Text;      // set program selected
+                cd.Action = proglist.Text;      // set program selected
         }
 
         private void Progedit_Click(object sender, EventArgs e)     //FULL
@@ -245,7 +245,7 @@ namespace ActionLanguage
                 {
                     ActionProgram np2 = apf.GetProgram();
                     actionfile.ProgramList.Delete(np2.Name);
-                    cd.action = "";
+                    cd.Action = "";
                     RefreshEvent();
                 }
             }
@@ -261,7 +261,7 @@ namespace ActionLanguage
             if (avf.ShowDialog(FindForm()) == DialogResult.OK)
             {
                 paras.Text = avf.result.ToString();
-                cd.actionvars = avf.result;
+                cd.ActionVars = avf.result;
             }
         }
 
@@ -270,15 +270,15 @@ namespace ActionLanguage
             ActionProgram.ProgramConditionClass newcls = indextoclassifier[progmajortype.SelectedIndex];
             if (newcls != classifier)
             {
-                ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
+                ActionProgram p = cd.Action.HasChars() ? actionfile.ProgramList.Get(cd.Action) : null;
 
                 if (p != null) // if we have an existing program, may need to alter it
                 {
                     // to not full with prog class being full, need to clear, not in correct form
                     if (newcls != ActionProgram.ProgramConditionClass.Full && p.ProgramClass == ActionProgram.ProgramConditionClass.Full)
                     {
-                        cd.action = "";
-                        cd.actionvars = new Variables();
+                        cd.Action = "";
+                        cd.ActionVars = new Variables();
                     }
                     else if (newcls == ActionProgram.ProgramConditionClass.Key) // key, make sure no say
                         p.SetKeySayProgram(p.ProgramClassKeyUserData, null);
@@ -293,7 +293,7 @@ namespace ActionLanguage
 
         private void Keypress_Click(object sender, EventArgs e)
         {
-            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
+            ActionProgram p = cd.Action.HasChars() ? actionfile.ProgramList.Get(cd.Action) : null;
 
             string ud = onEditKeys(this.FindForm(), this.Icon, p != null ? p.ProgramClassKeyUserData.Alt("") : "");
 
@@ -303,7 +303,7 @@ namespace ActionLanguage
                     p = new ActionProgram(GetSuggestedName());
 
                 paras.Text = "";
-                cd.actionvars = new Variables();
+                cd.ActionVars = new Variables();
                 p.SetKeySayProgram(ud, p.ProgramClassSayUserData);
                 UpdateProgram(p);
             }
@@ -311,7 +311,7 @@ namespace ActionLanguage
 
         private void Saypress_Click(object sender, EventArgs e)
         {
-            ActionProgram p = cd.action.HasChars() ? actionfile.ProgramList.Get(cd.action) : null;
+            ActionProgram p = cd.Action.HasChars() ? actionfile.ProgramList.Get(cd.Action) : null;
 
             string ud = onEditSay(this.FindForm(), p != null ? p.ProgramClassSayUserData.Alt("") : "" , actioncorecontroller );
 
@@ -321,7 +321,7 @@ namespace ActionLanguage
                     p = new ActionProgram(GetSuggestedName());
 
                 paras.Text = "";
-                cd.actionvars = new Variables();
+                cd.ActionVars = new Variables();
                 p.SetKeySayProgram(p.ProgramClassKeyUserData,ud);
                 UpdateProgram(p);
             }
@@ -330,7 +330,7 @@ namespace ActionLanguage
         void UpdateProgram(ActionProgram np)
         {
             actionfile.ProgramList.AddOrChange(np);                // replaces or adds (if its a new name) same as rename
-            cd.action = np.Name;
+            cd.Action = np.Name;
             RefreshEvent();
             UpdateControls();
         }

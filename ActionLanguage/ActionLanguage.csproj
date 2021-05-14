@@ -66,6 +66,7 @@
     <Compile Include="ActionsCoreCmds\ActionReturn.cs" />
     <Compile Include="ActionsCoreCmds\ActionSay.cs" />
     <Compile Include="ActionsCoreCmds\ActionSet.cs" />
+    <Compile Include="ActionsCoreCmds\ActionEvents.cs" />
     <Compile Include="ActionsCoreCmds\ActionSleep.cs" />
     <Compile Include="ActionsCoreCmds\ActionStructures.cs" />
     <Compile Include="ActionsCoreCmds\ActionUserInteraction.cs" />

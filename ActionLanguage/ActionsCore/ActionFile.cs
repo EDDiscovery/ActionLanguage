@@ -42,7 +42,8 @@ namespace ActionLanguage
 
         public void Clear(string f = "", string n = "")         // clear all data read from file
         {
-            EventList = new ConditionLists();
+            InUseEventList = new ConditionLists();
+            FileEventList = new ConditionLists();
             ProgramList = new ActionProgramList();
             Enabled = true;
             InstallationVariables = new Variables();
@@ -54,7 +55,8 @@ namespace ActionLanguage
             FileVariables["ActionPackFilePath"] = FilePath;
         }
 
-        public ConditionLists EventList { get; private set; }                 // note we use the list, but not the evaluate between conditions..
+        public ConditionLists FileEventList { get; private set; }             // list read from file
+        public ConditionLists InUseEventList { get; private set; }            // this is the one active after load - action of reading the file, or changing the event list, synchronises this back to FileEventList
         public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
         public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
         public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
@@ -68,7 +70,8 @@ namespace ActionLanguage
 
         public void ChangeEventList(ConditionLists s)
         {
-            EventList = s;
+            FileEventList = s;
+            InUseEventList = new ConditionLists(InUseEventList);              // deep copy
         }
 
         public void ChangeInstallationVariables(Variables v)
@@ -178,10 +181,12 @@ namespace ActionLanguage
                                 string err = c.Read(line.Substring(5).Trim(), true);
                                 if (err.Length > 0)
                                     return Name + " " + lineno + " " + err + Environment.NewLine;
-                                else if (c.action.Length == 0 || c.eventname.Length == 0)
+                                else if (c.Action.Length == 0 || c.EventName.Length == 0)
                                     return Name + " " + lineno + " EVENT Missing event name or action" + Environment.NewLine;
 
-                                EventList.Add(c,currenteventgroup);
+                                c.GroupName = currenteventgroup;
+                                FileEventList.Add(c);
+                                InUseEventList.Add(new Condition(c));        // full clone
                             }
                             else if (line.StartsWith("GROUP", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -205,9 +210,9 @@ namespace ActionLanguage
                         }
 
                         string missing = "";
-                        foreach( Condition c in EventList.Enumerable )        // lets see if any programs are missing
+                        foreach( Condition c in FileEventList.Enumerable )        // lets see if any programs are missing
                         {
-                            string progname = c.action;
+                            string progname = c.Action;
                             if ( ProgramList.Get(progname) == null )
                                 missing += "Missing program " + progname + Environment.NewLine;
                         }
@@ -247,13 +252,13 @@ namespace ActionLanguage
                         sr.WriteLine();
                     }
 
-                    if (EventList.Count > 0)
+                    if (FileEventList.Count > 0)
                     {
                         string currenteventgroup = null;
 
-                        for (int i = 0; i < EventList.Count; i++)
+                        for (int i = 0; i < FileEventList.Count; i++)
                         {
-                            string evgroup = EventList.GetGroupName(i);
+                            string evgroup = FileEventList[i].GroupName;
                             if ( evgroup != currenteventgroup )
                             {
                                 if ( currenteventgroup != null )
@@ -262,7 +267,7 @@ namespace ActionLanguage
                                 sr.WriteLine("GROUP " + currenteventgroup);
                             }
 
-                            sr.WriteLine("EVENT " + EventList.Get(i).ToString(includeaction: true));
+                            sr.WriteLine("EVENT " + FileEventList[i].ToString(includeaction: true));
                         }
 
                         sr.WriteLine();
@@ -278,20 +283,20 @@ namespace ActionLanguage
                             sr.WriteLine("// " + f.Name);
                             string evl = "";
 
-                            for (int ic = 0; ic < EventList.Count; ic++)
+                            for (int ic = 0; ic < FileEventList.Count; ic++)
                             {
-                                Condition c = EventList.Get(ic);
-                                if (c.action.Equals(f.Name))
+                                Condition c = FileEventList[ic];
+                                if (c.Action.Equals(f.Name))
                                 {
-                                    string e = c.eventname;
+                                    string e = c.EventName;
 
                                     if (!c.IsAlwaysTrue())
                                     {
                                         e += "?(" + c.ToString() + ")";
                                     }
 
-                                    if (c.actionvars.Count > 0)
-                                        e += "(" + c.actionvars.ToString() + ")";
+                                    if (c.ActionVars.Count > 0)
+                                        e += "(" + c.ActionVars.ToString() + ")";
 
                                     e += ", ";
 

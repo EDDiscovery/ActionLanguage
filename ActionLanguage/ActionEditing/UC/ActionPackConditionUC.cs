@@ -109,7 +109,7 @@ namespace ActionLanguage
             textBoxCondition.Visible = (c == ConditionClass.Full);
             buttonKeys.Visible = (c == ConditionClass.Key);
             textBoxCondition.Text = cd.ToString();
-            buttonKeys.Text = (cd.fields.Count > 0) ? cd.fields[0].matchstring.Left(20) : "?";
+            buttonKeys.Text = (cd.Fields.Count > 0) ? cd.Fields[0].MatchString.Left(20) : "?";
         }
 
         private void PanelConditionType_SelectedIndexChanged(object sender, EventArgs e)
@@ -144,8 +144,8 @@ namespace ActionLanguage
             if ( kf.ShowDialog(FindForm()) == DialogResult.OK)
             {
                 buttonKeys.Text = kf.KeyList;
-                cd.fields[0].matchstring = kf.KeyList;
-                cd.fields[0].matchtype = (kf.KeyList.Contains(",")) ? ConditionEntry.MatchType.IsOneOf : ConditionEntry.MatchType.Equals;
+                cd.Fields[0].MatchString = kf.KeyList;
+                cd.Fields[0].MatchCondition = (kf.KeyList.Contains(",")) ? ConditionEntry.MatchType.IsOneOf : ConditionEntry.MatchType.Equals;
             }
         }
 
@@ -157,14 +157,14 @@ namespace ActionLanguage
             frm.TopMost = this.FindForm().TopMost;
             if (frm.ShowDialog(this.FindForm()) == DialogResult.OK)
             {
-                Condition res = frm.Result.Get(0);
+                Condition res = frm.Result[0];
                 if (res != null)
                 {
-                    cd.fields = res.fields;
-                    cd.innercondition = res.innercondition;
+                    cd.Fields = res.Fields;
+                    cd.InnerCondition = res.InnerCondition;
                 }
                 else
-                    cd.fields = null;
+                    cd.Fields = null;
 
                 textBoxCondition.Text = cd.ToString();
             }
@@ -187,9 +187,9 @@ namespace ActionLanguage
                 return ConditionClass.AlwaysTrue;
             else if (c.IsAlwaysFalse())
                 return ConditionClass.AlwaysFalse;
-            else if (c.fields.Count == 1)
+            else if (c.Fields.Count == 1)
             {
-                if (c.fields[0].itemname == "KeyPress" && (c.fields[0].matchtype == ConditionEntry.MatchType.Equals || c.fields[0].matchtype == ConditionEntry.MatchType.IsOneOf))
+                if (c.Fields[0].ItemName == "KeyPress" && (c.Fields[0].MatchCondition == ConditionEntry.MatchType.Equals || c.Fields[0].MatchCondition == ConditionEntry.MatchType.IsOneOf))
                     return ConditionClass.Key;
             }
 

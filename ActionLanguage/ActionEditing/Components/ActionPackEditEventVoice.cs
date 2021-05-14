@@ -42,13 +42,13 @@ namespace ActionLanguage
             textBoxInput = new ExtendedControls.ExtTextBox();
             textBoxInput.Location = new Point(panelxmargin, panelymargin);
             textBoxInput.Size = new Size(356, 24);      // manually matched to size of eventprogramcondition bits
-            textBoxInput.Text = cd.fields[0].matchstring;
+            textBoxInput.Text = cd.Fields[0].MatchString;
             textBoxInput.TextChanged += TextBoxInput_TextChanged;
             textBoxInput.SetTipDynamically(toolTip,"Enter the voice input to recognise.  Multiple phrases seperate with semicolons");
             
             Controls.Add(textBoxInput);
 
-            ActionProgram p = cond.action.HasChars() ? actionfile.ProgramList.Get(cond.action) : null;
+            ActionProgram p = cond.Action.HasChars() ? actionfile.ProgramList.Get(cond.Action) : null;
             ActionProgram.ProgramConditionClass classifier = p != null ? p.ProgramClass : ActionProgram.ProgramConditionClass.KeySay;
 
             ucprog = new ActionPackEditProgram();
@@ -57,7 +57,7 @@ namespace ActionLanguage
             ucprog.Init(actionfile, cond, cp, appfolder, ic, toolTip, classifier);
             ucprog.onEditKeys = onEditKeys;
             ucprog.onEditSay = onEditSay;
-            ucprog.onAdditionalNames += () => { return func(cd.eventname); };
+            ucprog.onAdditionalNames += () => { return func(cd.EventName); };
             ucprog.SuggestedName += () => 
             {
                 string textparse = (textBoxInput.Text.Length > 0 && !textBoxInput.Text.Equals("?")) ? ("_" + textBoxInput.Text.Split(';')[0].SafeVariableString()) : "";
@@ -71,7 +71,7 @@ namespace ActionLanguage
 
         private void TextBoxInput_TextChanged(object sender, System.EventArgs e)
         {
-            cd.fields[0].matchstring = ((ExtendedControls.ExtTextBox)sender).Text;
+            cd.Fields[0].MatchString = ((ExtendedControls.ExtTextBox)sender).Text;
         }
 
         public override void UpdateProgramList(string[] proglist)

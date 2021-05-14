@@ -78,6 +78,7 @@ namespace ActionLanguage
             ActionBase.AddCommand("ElseIf", typeof(ActionElseIf), ActionBase.ActionType.ElseIf);
             ActionBase.AddCommand("End", typeof(ActionEnd), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("ErrorIf", typeof(ActionErrorIf), ActionBase.ActionType.Cmd);
+            ActionBase.AddCommand("Events", typeof(ActionEvents), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("ForEach", typeof(ActionForEach), ActionBase.ActionType.ForEach);
             ActionBase.AddCommand("FileDialog", typeof(ActionFileDialog), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("GlobalLet", typeof(ActionGlobalLet), ActionBase.ActionType.Cmd);

@@ -31,15 +31,15 @@ namespace ActionLanguage
         public IEnumerable<ActionFile> Enumerable { get { return actionfiles; } }
 
         // normally pack names are case sensitive, except when we are checking it can be written to a file.. then we would want a case insensitive version
-        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCulture) { return actionfiles.Find(x => x.Name.Equals(name,c)); }
+        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCultureIgnoreCase) { return actionfiles.Find(x => x.Name.Equals(name,c)); }
 
         // find all which match any name in []
-        public ActionFile[] Get(string[] name, StringComparison c = StringComparison.InvariantCulture)
+        public ActionFile[] Get(string[] name, StringComparison c = StringComparison.InvariantCultureIgnoreCase)
         {
             return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c)) != null select x).ToArray();
         }
 
-        public ActionFile[] Get(string[] name, bool enablestate, StringComparison c = StringComparison.InvariantCulture)
+        public ActionFile[] Get(string[] name, bool enablestate, StringComparison c = StringComparison.InvariantCultureIgnoreCase)
         {
             return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c) && x.Enabled == enablestate) != null select x).ToArray();
         }
@@ -64,7 +64,7 @@ namespace ActionLanguage
         {
             foreach (ActionFile af in actionfiles)
             {
-                if (af.EventList.IsActionVarDefined(flagstart))
+                if (af.InUseEventList.IsActionVarDefined(flagstart))
                     return true;
             }
             return false;
@@ -79,7 +79,7 @@ namespace ActionLanguage
             {
                 if (af.Enabled)         // only enabled files are checked
                 {
-                    List<Condition> events = af.EventList.GetConditionListByEventName(eventname, flagstart);
+                    List<Condition> events = af.InUseEventList.GetConditionListByEventName(eventname, flagstart);
 
                     if (events != null)     // and if we have matching event..
                     {
@@ -140,11 +140,11 @@ namespace ActionLanguage
             {
                 foreach (Condition fe in ae.passed)          // and every condition..
                 {
-                    Tuple<ActionFile, ActionProgram> ap = FindProgram(fe.action, ae.af);          // find program using this name, prefer this action file first
+                    Tuple<ActionFile, ActionProgram> ap = FindProgram(fe.Action, ae.af);          // find program using this name, prefer this action file first
 
                     if (ap != null)     // program got,
                     {
-                        inputparas.Add(fe.actionvars);
+                        inputparas.Add(fe.ActionVars);
                         run.Run(now, ap.Item1, ap.Item2, inputparas);
                     }
                 }
@@ -292,7 +292,7 @@ namespace ActionLanguage
             {
                 if (f.Enabled)
                 {
-                    List<Tuple<string, ConditionEntry.MatchType>> fr = f.EventList.ReturnValuesOfSpecificConditions(conditions, matchtypes);
+                    List<Tuple<string, ConditionEntry.MatchType>> fr = f.InUseEventList.ReturnValuesOfSpecificConditions(conditions, matchtypes);
                     if (fr != null)
                         ret.AddRange(fr);
                 }
