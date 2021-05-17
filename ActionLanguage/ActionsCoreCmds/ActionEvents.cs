@@ -121,20 +121,25 @@ namespace ActionLanguage
                             }
 
                         }
-                        else if (cmdname == "disable")      // checked 14/5/21
+                        else if (cmdname == "disable" || cmdname == "enable" )      // checked 14/5/21
                         {
+                            bool disabled = cmdname == "disable";
                             foreach (var e in matching)
                             {
-                                e.Disabled = true;
-                                System.Diagnostics.Debug.WriteLine("Event Disable " + e.GroupName + ":" + e.ToString(true));
+                                e.Disabled = disabled;
+                                System.Diagnostics.Debug.WriteLine("Event dis(" + disabled + ") " + e.GroupName + ":" + e.ToString(true));
                             }
                         }
-                        else if (cmdname == "enable")       // checked 14/5/21
+                        else if (cmdname == "disableallbut" || cmdname == "enableallbut")
                         {
-                            foreach (var e in matching)
+                            bool disabled = cmdname == "disableallbut";
+                            foreach (var e in ap.ActionFile.InUseEventList.Enumerable)     // all events
                             {
-                                e.Disabled = false;
-                                System.Diagnostics.Debug.WriteLine("Event Enable " + e.GroupName + ":" + e.ToString(true));
+                                if (!matching.Contains(e))              // if not in matching, set state
+                                {
+                                    e.Disabled = disabled;
+                                    System.Diagnostics.Debug.WriteLine("Event dis(" + disabled + ") " + e.GroupName + ":" + e.ToString(true));
+                                }
                             }
                         }
                         else if (cmdname == "list")         // checked 14/5/21
