@@ -375,7 +375,9 @@ namespace ActionLanguage
             enable = null;
 
             bool readenable;
-            if (f.ReadFile(file,out readenable).Length == 0)        // read it in..
+            string res = f.ReadFile(file, out readenable);
+
+            if (res.Length == 0)        // read it in..
             {
                 if (readenable)
                     enable = f.Enabled;
@@ -383,7 +385,10 @@ namespace ActionLanguage
                 return f.InstallationVariables;
             }
             else
+            {
+                System.Diagnostics.Debug.WriteLine("Error reading pack " + file + ":" + res);
                 return null;
+            }
         }
 
     }
