@@ -408,6 +408,8 @@ namespace ActionLanguage
                                 cd.ForceNoWindowsBorder = true;
                             else if (exp[i].Equals("NoPanelBorder", StringComparison.InvariantCultureIgnoreCase))
                                 cd.PanelBorderStyle = BorderStyle.None;
+                            else if (exp[i].StartsWith("FontScale:", StringComparison.InvariantCultureIgnoreCase))
+                                cd.FontScale = exp[i].Substring(10).InvariantParseFloat(1.0f);
                             else
                             {
                                 ap.ReportError("Unknown Dialog option " + exp[i]);
