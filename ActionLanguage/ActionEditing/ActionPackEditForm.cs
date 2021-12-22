@@ -53,7 +53,7 @@ namespace ActionLanguage
             foreach (string s in grouptypenames)
                 groupeventlist.Add(s, (from e in events where e.UIClass == s select e.TriggerName).ToList());
 
-            bool winborder = ExtendedControls.ThemeableFormsInstance.Instance.ApplyDialog(this);    // scale to font
+            bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);    // scale to font
 
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
             initialtitle = this.Text = label_index.Text = t;
@@ -160,12 +160,12 @@ namespace ActionLanguage
             toolTip.SetToolTip(g.action, "Move event up");
             g.panel.Controls.Add(g.action);
 
-            ExtendedControls.ThemeableFormsInstance.Instance.ApplyDialog(g.panel);
+            ExtendedControls.Theme.Current.ApplyDialog(g.panel);
             g.panel.Scale(this.CurrentAutoScaleFactor());
 
             if (g.groupnamepanel != null)
             {
-                g.groupnamepanel.BackColor = ExtendedControls.ThemeableFormsInstance.Instance.TextBackColor;
+                g.groupnamepanel.BackColor = ExtendedControls.Theme.Current.TextBackColor;
             }
 
             g.panel.ResumeLayout();
@@ -297,7 +297,7 @@ namespace ActionLanguage
             ExtendedControls.ExtComboBox b = sender as ExtendedControls.ExtComboBox;
             Group g = (Group)b.Tag;
             CreateUserControl(g, Condition.AlwaysTrue());
-            ExtendedControls.ThemeableFormsInstance.Instance.ApplyDialog(g.usercontrol);
+            ExtendedControls.Theme.Current.ApplyDialog(g.usercontrol);
             g.usercontrol.Scale(this.CurrentAutoScaleFactor());
             PositionGroups(true);
         }

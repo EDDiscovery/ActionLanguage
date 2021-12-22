@@ -46,7 +46,7 @@ namespace ActionLanguage
             applicationfolder = appfolder;
             currentvarlist = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(vbs);
 
-            bool winborder = ExtendedControls.ThemeableFormsInstance.Instance.ApplyDialog(this);
+            bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);
 
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
             this.Text = label_index.Text = t;
@@ -194,7 +194,7 @@ namespace ActionLanguage
 
             g.config.Tag = g.stepname.Tag = g.up.Tag = g.value.Tag = g.left.Tag = g.right.Tag = g.prog.Tag = g;
 
-            ExtendedControls.ThemeableFormsInstance.Instance.ApplyDialog(g.panel);
+            ExtendedControls.Theme.Current.ApplyDialog(g.panel);
             g.panel.Scale(this.CurrentAutoScaleFactor());
 
             panelVScroll.Controls.Add(g.panel);
