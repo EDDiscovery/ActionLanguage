@@ -112,7 +112,7 @@ namespace ActionLanguage
 
                     List<BaseUtils.TypeHelpers.PropertyNameInfo> additionalfieldnames = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(); // We don't have any names to contribute going thru this path
 
-                    apf.Init("Action program ", cp.Icon, cp, appfolder, additionalfieldnames, outername, p, GetActionProgramList(), "");
+                    apf.Init(cp.Icon, cp, appfolder, additionalfieldnames, outername, p, GetActionProgramList(), "");
 
                     System.Windows.Forms.DialogResult res = apf.ShowDialog();
 

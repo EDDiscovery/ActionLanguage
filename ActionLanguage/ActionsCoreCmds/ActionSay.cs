@@ -84,8 +84,8 @@ namespace ActionLanguage
             FromString(userdata, out saying, out vars);
 
             ExtendedAudioForms.SpeechConfigure cfg = new ExtendedAudioForms.SpeechConfigure();
-            cfg.Init(cp.AudioQueueSpeech, cp.SpeechSynthesizer,
-                        "Set Text to say (use ; to separate randomly selectable phrases and {} to group)", "Configure Say Command", cp.Icon,
+            cfg.Init(false, cp.AudioQueueSpeech, cp.SpeechSynthesizer,
+                        null, cp.Icon,
                         saying,
                         vars.Exists(waitname), vars.Exists(literalname),
                         AudioQueue.GetPriority(vars.GetString(priorityname, "Normal")),

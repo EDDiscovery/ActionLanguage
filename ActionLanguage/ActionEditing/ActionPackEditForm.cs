@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -13,17 +13,13 @@
  * 
  * EDDiscovery is not affiliated with Frontier Developments plc.
  */
-using BaseUtils.Win32Constants;
+using BaseUtils;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using BaseUtils;
 
 namespace ActionLanguage
 {
@@ -40,13 +36,15 @@ namespace ActionLanguage
             InitializeComponent();
         }
 
-        public void Init(string t, Icon ic, ActionCoreController cp, string appfolder, ActionFile file, List<ActionEvent> evlist , string collapsestate)       // here, change to using events
+        public void Init(string title, Icon ic, ActionCoreController cp, string appfolder, ActionFile file, List<ActionEvent> evlist , string collapsestate)       // here, change to using events
         {
             this.Icon = ic;
             actioncorecontroller = cp;
             applicationfolder = appfolder;
             actionfile = file;
             events = evlist;
+
+            BaseUtils.Translator.Instance.TranslateVerify(this, typeof(AFIDs), debugit:true);
 
             grouptypenames = (from e in events select e.UIClass).ToList().Distinct().ToList();      // here we extract from events relevant data
             groupeventlist = new Dictionary<string, List<string>>();
@@ -56,7 +54,7 @@ namespace ActionLanguage
             bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);    // scale to font
 
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
-            initialtitle = this.Text = label_index.Text = t;
+            initialtitle = this.Text = label_index.Text = title;
 
             ConditionLists clist = actionfile.FileEventList;    // now load the initial conditions from the action file
 
@@ -399,7 +397,7 @@ namespace ActionLanguage
                     ActionProgramEditForm apf = new ActionProgramEditForm();
                     apf.EditProgram += EditProgram;
 
-                    apf.Init("Action program ", this.Icon, actioncorecontroller, applicationfolder,
+                    apf.Init( this.Icon, actioncorecontroller, applicationfolder,
                                 AdditionalNames(null),        // no event associated, so just return the globals in effect
                                 actionfile.Name, p,
                                 actionfile.ProgramList.GetActionProgramList(), "", ModifierKeys.HasFlag(Keys.Shift));
@@ -431,7 +429,7 @@ namespace ActionLanguage
         private void buttonInstallationVars_Click(object sender, EventArgs e)
         {
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Configuration items for installation - specialist use", this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
+            avf.Init("Configuration items for installation - specialist use".TxID(AFIDs.ActionPackEditForm_ci), this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
 
             if (avf.ShowDialog(this) == DialogResult.OK)
             {

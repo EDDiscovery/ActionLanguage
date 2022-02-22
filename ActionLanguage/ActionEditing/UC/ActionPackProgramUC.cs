@@ -231,7 +231,7 @@ namespace ActionLanguage
 
                 var names = onAdditionalNames();
 
-                apf.Init("Action program ", this.Icon, actioncorecontroller, applicationfolder, names, actionfile.Name, p, 
+                apf.Init( this.Icon, actioncorecontroller, applicationfolder, names, actionfile.Name, p, 
                                 actionfile.ProgramList.GetActionProgramList(), suggestedname, ModifierKeys.HasFlag(Keys.Shift));
 
                 DialogResult res = apf.ShowDialog(FindForm());
@@ -256,7 +256,7 @@ namespace ActionLanguage
             Variables cond = new Variables(paras.Text,Variables.FromMode.MultiEntryComma);
 
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Input parameters to pass to program on run", this.Icon, cond, showatleastoneentry: true, showrunatrefreshcheckbox: true);
+            avf.Init("Input parameters to pass to program on run".TxID(AFIDs.ActionPackEditForm_ip), this.Icon, cond, showatleastoneentry: true, showrunatrefreshcheckbox: true);
 
             if (avf.ShowDialog(FindForm()) == DialogResult.OK)
             {

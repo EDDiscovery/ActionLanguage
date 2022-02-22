@@ -42,7 +42,7 @@ namespace ActionLanguage
             FromString(userdata, out av, out operations);
 
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Define Variable:", cp.Icon, av, showatleastoneentry: true, allowadd: allowaddv, allownoexpand: allownoexpandv, altops:operations, allowmultipleentries:false);
+            avf.Init("Define Variable:".TxID(AFIDs.ActionPackEditForm_df), cp.Icon, av, showatleastoneentry: true, allowadd: allowaddv, allownoexpand: allownoexpandv, altops:operations, allowmultipleentries:false);
 
             if (avf.ShowDialog(parent) == DialogResult.OK)
             {

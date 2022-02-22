@@ -129,9 +129,9 @@
             this.label_index.AutoSize = true;
             this.label_index.Location = new System.Drawing.Point(3, 8);
             this.label_index.Name = "label_index";
-            this.label_index.Size = new System.Drawing.Size(27, 13);
+            this.label_index.Size = new System.Drawing.Size(43, 13);
             this.label_index.TabIndex = 23;
-            this.label_index.Text = "N/A";
+            this.label_index.Text = "<code>";
             // 
             // panelOK
             // 
@@ -197,7 +197,7 @@
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(100, 23);
             this.buttonCancel.TabIndex = 6;
-            this.buttonCancel.Text = "Cancel";
+            this.buttonCancel.Text = "%Cancel%";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
@@ -208,7 +208,7 @@
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(100, 23);
             this.buttonOK.TabIndex = 7;
-            this.buttonOK.Text = "OK";
+            this.buttonOK.Text = "%OK%";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
@@ -228,6 +228,8 @@
             this.panelVScroll.Controls.Add(this.vScrollBarCustom1);
             this.panelVScroll.Controls.Add(this.buttonMore);
             this.panelVScroll.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelVScroll.FlowControlsLeftToRight = false;
+            this.panelVScroll.Location = new System.Drawing.Point(3, 3);
             this.panelVScroll.Name = "panelVScroll";
             this.panelVScroll.Size = new System.Drawing.Size(1060, 502);
             this.panelVScroll.TabIndex = 8;
@@ -245,13 +247,13 @@
             this.vScrollBarCustom1.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.vScrollBarCustom1.HideScrollBar = false;
             this.vScrollBarCustom1.LargeChange = 32;
-            this.vScrollBarCustom1.Location = new System.Drawing.Point(1047, 0);
-            this.vScrollBarCustom1.Maximum = -440;
+            this.vScrollBarCustom1.Location = new System.Drawing.Point(1044, 0);
+            this.vScrollBarCustom1.Maximum = -441;
             this.vScrollBarCustom1.Minimum = 0;
             this.vScrollBarCustom1.MouseOverButtonColor = System.Drawing.Color.Green;
             this.vScrollBarCustom1.MousePressedButtonColor = System.Drawing.Color.Red;
             this.vScrollBarCustom1.Name = "vScrollBarCustom1";
-            this.vScrollBarCustom1.Size = new System.Drawing.Size(13, 502);
+            this.vScrollBarCustom1.Size = new System.Drawing.Size(16, 502);
             this.vScrollBarCustom1.SliderColor = System.Drawing.Color.DarkGray;
             this.vScrollBarCustom1.SmallChange = 1;
             this.vScrollBarCustom1.TabIndex = 0;
@@ -260,8 +262,8 @@
             this.vScrollBarCustom1.ThumbButtonColor = System.Drawing.Color.DarkBlue;
             this.vScrollBarCustom1.ThumbColorScaling = 0.5F;
             this.vScrollBarCustom1.ThumbDrawAngle = 0F;
-            this.vScrollBarCustom1.Value = -440;
-            this.vScrollBarCustom1.ValueLimited = -440;
+            this.vScrollBarCustom1.Value = -441;
+            this.vScrollBarCustom1.ValueLimited = -441;
             // 
             // buttonMore
             // 
@@ -405,7 +407,7 @@
             this.Controls.Add(this.statusStripCustom);
             this.Name = "ActionPackEditPackForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "ActionEditor";
+            this.Text = "<code>";
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.panelOK.ResumeLayout(false);

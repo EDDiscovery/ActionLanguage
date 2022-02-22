@@ -46,6 +46,7 @@
     <Compile Include="ActionEditing\Components\ActionPackEditEventBase.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ActionEditing\TranslationIDs.cs" />
     <Compile Include="ActionEditing\UC\ActionPackConditionUC.cs">
       <SubType>UserControl</SubType>
     </Compile>

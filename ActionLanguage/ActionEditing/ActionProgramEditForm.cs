@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2021 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -34,7 +34,7 @@ namespace ActionLanguage
             AcceptButton = buttonOK;
         }
         
-        public void Init(string t, Icon ic, ActionCoreController cp, string appfolder,
+        public void Init( Icon ic, ActionCoreController cp, string appfolder,
                             List<BaseUtils.TypeHelpers.PropertyNameInfo> vbs,              // list any variables you want in condition statements - passed to config menu, passed back up to condition, not null
                             string pfilesetname,           // file set name
                             ActionProgram prog = null,     // give the program to display
@@ -46,13 +46,14 @@ namespace ActionLanguage
             applicationfolder = appfolder;
             currentvarlist = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(vbs);
 
+            BaseUtils.Translator.Instance.TranslateVerify(this, typeof(AFIDs));
+
             bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);
 
             statusStripCustom.Visible = panelTop.Visible = panelTop.Enabled = !winborder;
-            this.Text = label_index.Text = t;
+            label_index.Text = this.Text;
 
-            filesetname = pfilesetname;
-            labelSet.Text = filesetname + "::";
+            labelSet.Text = pfilesetname + "::";
             textBoxBorderName.Location = new Point(labelSet.Location.X + labelSet.Width + 8, textBoxBorderName.Location.Y);
 
             if (defprogs != null)
@@ -888,7 +889,6 @@ namespace ActionLanguage
 
         #region Variables
 
-        private string filesetname;
         private string initialprogname;
         private string[] definedprograms;                                   // list of programs already defined, to detect rename over..
 
