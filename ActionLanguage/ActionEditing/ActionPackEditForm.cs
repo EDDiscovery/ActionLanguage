@@ -44,7 +44,8 @@ namespace ActionLanguage
             actionfile = file;
             events = evlist;
 
-            BaseUtils.Translator.Instance.TranslateVerify(this, typeof(AFIDs), debugit:true);
+            var enumlist = new Enum[] { AFIDs.ActionPackEditPackForm_buttonInstallationVars, AFIDs.ActionPackEditPackForm_labelEditProg };
+            BaseUtils.Translator.Instance.TranslateControls(this, enumlist);
 
             grouptypenames = (from e in events select e.UIClass).ToList().Distinct().ToList();      // here we extract from events relevant data
             groupeventlist = new Dictionary<string, List<string>>();

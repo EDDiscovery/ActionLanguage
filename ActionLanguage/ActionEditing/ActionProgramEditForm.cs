@@ -46,7 +46,8 @@ namespace ActionLanguage
             applicationfolder = appfolder;
             currentvarlist = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(vbs);
 
-            BaseUtils.Translator.Instance.TranslateVerify(this, typeof(AFIDs));
+            var enumlist = new Enum[] { AFIDs.ActionProgramEditForm, AFIDs.ActionProgramEditForm_labelName, AFIDs.ActionProgramEditForm_buttonExtDisk, AFIDs.ActionProgramEditForm_buttonExtLoad, AFIDs.ActionProgramEditForm_buttonExtSave, AFIDs.ActionProgramEditForm_buttonExtEdit };
+            BaseUtils.Translator.Instance.TranslateControls(this, enumlist);
 
             bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);
 
