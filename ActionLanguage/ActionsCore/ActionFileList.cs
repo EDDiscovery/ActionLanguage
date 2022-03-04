@@ -285,14 +285,15 @@ namespace ActionLanguage
 
         // give back all conditions which match itemname and have a compatible matchtype across all files.. used for key presses/voice input to compile a list of condition data to check for
 
-        public List<Tuple<string, ConditionEntry.MatchType>> ReturnValuesOfSpecificConditions(string conditions, List<ConditionEntry.MatchType> matchtypes)
+        public List<Tuple<string, ConditionEntry>> ReturnSpecificConditions(string eventname, string itemname, List<ConditionEntry.MatchType> matchtypes)      // given itemname, give me a list of values it is matched against
         {
-            List<Tuple<string, ConditionEntry.MatchType>> ret = new List<Tuple<string, ConditionEntry.MatchType>>();
+            var ret = new List<Tuple<string, ConditionEntry>>();
+
             foreach (ActionFile f in actionfiles)
             {
                 if (f.Enabled)
                 {
-                    List<Tuple<string, ConditionEntry.MatchType>> fr = f.InUseEventList.ReturnValuesOfSpecificConditions(conditions, matchtypes);
+                    var fr = f.InUseEventList.ReturnSpecificConditions(eventname, itemname, matchtypes);
                     if (fr != null)
                         ret.AddRange(fr);
                 }
@@ -300,6 +301,7 @@ namespace ActionLanguage
 
             return ret;
         }
+
 
         #endregion
 

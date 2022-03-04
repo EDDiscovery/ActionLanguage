@@ -107,7 +107,8 @@ namespace ActionLanguage
                         ap.ReportError("Missing event pattern");
                     }
                     else
-                    { 
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Events command {cmdname} g `{groupname}` e `{eventname}` a `{action}` v `{actionvarsstr}` c `{condition}`");
                         List<Condition> matching = ap.ActionFile.InUseEventList.Find(groupname,eventname, action, actionvarsstr, condition);
 
                         ap[prefix + "Count"] = matching.Count.ToStringInvariant();
@@ -127,19 +128,16 @@ namespace ActionLanguage
                             foreach (var e in matching)
                             {
                                 e.Disabled = disabled;
-                                System.Diagnostics.Debug.WriteLine("Event dis(" + disabled + ") " + e.GroupName + ":" + e.ToString(true));
+                                System.Diagnostics.Debug.WriteLine("Event " + !disabled + ": " + e.GroupName + ":" + e.ToString(true));
                             }
                         }
                         else if (cmdname == "disableallbut" || cmdname == "enableallbut")
                         {
-                            bool disabled = cmdname == "disableallbut";
+                            bool enabled = cmdname == "enableallbut";
                             foreach (var e in ap.ActionFile.InUseEventList.Enumerable)     // all events
                             {
-                                if (!matching.Contains(e))              // if not in matching, set state
-                                {
-                                    e.Disabled = disabled;
-                                    System.Diagnostics.Debug.WriteLine("Event dis(" + disabled + ") " + e.GroupName + ":" + e.ToString(true));
-                                }
+                                e.Disabled = matching.Contains(e) ? enabled : !enabled;    // if matching list has it, we want it to state, else to opposite state
+                               // System.Diagnostics.Debug.WriteLine("Event " + !e.Disabled + ": " + e.GroupName + ":" + e.ToString(true));
                             }
                         }
                         else if (cmdname == "list")         // checked 14/5/21
