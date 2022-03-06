@@ -223,6 +223,7 @@ namespace ActionLanguage
                     {
                         g.groupnamepanel.Size = new Size(g.action.Left - g.groupnamepanel.Left - 8, g.groupnamecollapsebutton.Bottom + Font.ScalePixels(2));
                         g.groupactionscombobox.Location = new Point(g.groupnamepanel.Width - g.groupactionscombobox.Width - 16, 2);
+                        g.groupnamelabel.Size = new Size(g.groupactionscombobox.Location.X - g.groupnamelabel.Location.X  - 8, g.groupnamelabel.Height);
                     }
 
                     g.panel.Visible = true;
@@ -360,9 +361,9 @@ namespace ActionLanguage
                 {
                     Condition c = g.usercontrol.cd;
 
-                    if (c.EventName.Length == 0)
+                    if (!c.EventName.HasChars())
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have an event name defined" + Environment.NewLine;
-                    else if (c.Action.Equals("New") || c.Action.Length == 0)        // actions, but not selected one..
+                    else if (!c.Action.HasChars() || c.Action.Equals("New"))        // actions, but not selected one..
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have an action program defined" + Environment.NewLine;
                     else if (c.Fields == null || c.Fields.Count == 0)
                         errorlist += prefix + "Event " + g.usercontrol.ID() + " does not have a condition" + Environment.NewLine;
