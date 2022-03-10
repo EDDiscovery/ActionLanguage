@@ -211,7 +211,7 @@ namespace ActionLanguage
             {
                 if (execlevel == 0)
                 {
-                    ReportError("Nested program level error, tring to move up while on level 0");
+                    ReportError("Nested program level error, trying to move up while on level 0");
                     return true;
                 }
 

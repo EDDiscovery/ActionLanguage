@@ -108,7 +108,7 @@ namespace ActionLanguage
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Events command {cmdname} g `{groupname}` e `{eventname}` a `{action}` v `{actionvarsstr}` c `{condition}`");
+                       // System.Diagnostics.Debug.WriteLine($"Events command {cmdname} g `{groupname}` e `{eventname}` a `{action}` v `{actionvarsstr}` c `{condition}`");
                         List<Condition> matching = ap.ActionFile.InUseEventList.Find(groupname,eventname, action, actionvarsstr, condition);
 
                         ap[prefix + "Count"] = matching.Count.ToStringInvariant();
@@ -117,7 +117,7 @@ namespace ActionLanguage
                         {
                             foreach (var e in matching)
                             {
-                                System.Diagnostics.Debug.WriteLine("Event Delete " + e.GroupName + ":" + e.ToString(true));
+                               // System.Diagnostics.Debug.WriteLine("Event Delete " + e.GroupName + ":" + e.ToString(true));
                                 ap.ActionFile.InUseEventList.Remove(e);
                             }
 
@@ -128,7 +128,7 @@ namespace ActionLanguage
                             foreach (var e in matching)
                             {
                                 e.Disabled = disabled;
-                                System.Diagnostics.Debug.WriteLine("Event " + !disabled + ": " + e.GroupName + ":" + e.ToString(true));
+                             //   System.Diagnostics.Debug.WriteLine("Event " + !disabled + ": " + e.GroupName + ":" + e.ToString(true));
                             }
                         }
                         else if (cmdname == "disableallbut" || cmdname == "enableallbut")

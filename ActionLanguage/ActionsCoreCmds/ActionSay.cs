@@ -221,7 +221,7 @@ namespace ActionLanguage
                             ap.ActionController.SetPeristentGlobal("GlobalSaySaid", expsay);
                         }
 
-                        if (ctrl.Contains("Print"))
+                        if (ctrl.Contains("Print") && expsay.HasChars())
                         {
                             ap.ActionController.LogLine("Say: " + expsay);
                         }
