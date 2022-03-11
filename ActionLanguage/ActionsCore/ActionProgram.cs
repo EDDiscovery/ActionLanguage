@@ -26,7 +26,7 @@ namespace ActionLanguage
         protected List<ActionBase> programsteps = new List<ActionBase>();
         public string Name { get; private set; } = "";
         public string StoredInSubFile { get; private set; } = null;       // if null, then its stored in its master ActionFile, else its stored in a subfile
-
+        public string HeaderText { get; set; } =null;       // if null no custom header text.
         public enum ProgramConditionClass { Full, Key, Say, KeySay };       // classification of program, for auto generated scripts
         public ProgramConditionClass ProgramClass { get; private set; } = ProgramConditionClass.Full;  // set on read
         public string ProgramClassKeyUserData;        // if progclass includes key, here is the key (full include any paras)
@@ -35,19 +35,13 @@ namespace ActionLanguage
         public int Count { get { return programsteps.Count; } }
         public IEnumerable<ActionBase> Enumerable { get { return programsteps; } }
 
-        public ActionProgram(string n = null, string subfile = null)
+        public ActionProgram(string name = null, string subfile = null, string precomments = null)
         {
-            if (n != null)
-                Name = n;
+            if (name != null)
+                Name = name;
 
-            if (subfile != null)
-                StoredInSubFile = subfile;
-        }
-
-        public void Set( ActionProgram other)
-        {
-            Name = other.Name;
-            programsteps = other.programsteps;
+            StoredInSubFile = subfile;
+            HeaderText = precomments;
         }
 
         public void Add(ActionBase ap)
@@ -471,7 +465,9 @@ namespace ActionLanguage
                     }
                     else
                     {
-                        Set(apin);
+                        Name = apin.Name;
+                        programsteps = apin.programsteps;
+                        HeaderText = apin.HeaderText;
                         return true;
                     }
                 }

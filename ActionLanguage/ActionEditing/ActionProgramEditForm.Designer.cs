@@ -75,6 +75,7 @@ namespace ActionLanguage
             this.editCommentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.statusStripCustom = new ExtendedControls.ExtStatusStrip();
+            this.extButtonHeader = new ExtendedControls.ExtButton();
             this.panelOuter.SuspendLayout();
             this.panelVScroll.SuspendLayout();
             this.panelName.SuspendLayout();
@@ -286,6 +287,7 @@ namespace ActionLanguage
             // 
             // panelOK
             // 
+            this.panelOK.Controls.Add(this.extButtonHeader);
             this.panelOK.Controls.Add(this.buttonExtDisk);
             this.panelOK.Controls.Add(this.buttonExtLoad);
             this.panelOK.Controls.Add(this.buttonExtSave);
@@ -435,6 +437,16 @@ namespace ActionLanguage
             this.statusStripCustom.TabIndex = 28;
             this.statusStripCustom.Text = "statusStripCustom1";
             // 
+            // extButtonHeader
+            // 
+            this.extButtonHeader.Location = new System.Drawing.Point(374, 4);
+            this.extButtonHeader.Name = "extButtonHeader";
+            this.extButtonHeader.Size = new System.Drawing.Size(75, 23);
+            this.extButtonHeader.TabIndex = 11;
+            this.extButtonHeader.Text = "Header";
+            this.extButtonHeader.UseVisualStyleBackColor = true;
+            this.extButtonHeader.Click += new System.EventHandler(this.extButtonHeader_Click);
+            // 
             // ActionProgramEditForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -495,5 +507,6 @@ namespace ActionLanguage
         private System.Windows.Forms.ToolTip toolTip1;
         private ExtendedControls.ExtButton buttonExtDisk;
         private System.Windows.Forms.ToolStripMenuItem editCommentToolStripMenuItem;
+        private ExtendedControls.ExtButton extButtonHeader;
     }
 }

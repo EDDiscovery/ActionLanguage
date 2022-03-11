@@ -27,6 +27,7 @@ namespace ActionLanguage
         ActionProgramEditForm_buttonExtLoad, // Control 'Load'
         ActionProgramEditForm_buttonExtSave, // Control 'Save'
         ActionProgramEditForm_buttonExtEdit, // Control 'Text Edit'
+        ActionProgramEditForm_extButtonHeader,
 
         ActionPackEditForm_ci,
         ActionPackEditForm_ip,

@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BaseUtils;
 
@@ -120,6 +121,9 @@ namespace ActionLanguage
 
                     string firstline = sr.ReadLine();
 
+                    string precomments = null;
+                    bool inautocomments = false;
+
                     FileEncoding = sr.CurrentEncoding;
 
                     //System.Diagnostics.Trace.WriteLine("File " + filename + " is in " + fileencoding.BodyName + "   is utc8nobom? " + Equals(utc8nobom, fileencoding));
@@ -152,13 +156,16 @@ namespace ActionLanguage
                             }
                             else if (line.StartsWith("PROGRAM", StringComparison.InvariantCultureIgnoreCase))
                             {
-                                ActionProgram ap = new ActionProgram();     
+                                ActionProgram ap = new ActionProgram(null,null,precomments);     
                                 string err = ap.Read(sr, ref lineno, line.Substring(7).Trim()); // Read it, prename it..
 
                                 if (err.Length > 0)
                                     return Name + " " + err;
 
                                 ProgramList.Add(ap);
+
+                                precomments = null;
+                                inautocomments = false;
                             }
                             else if (line.StartsWith("INCLUDE", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -185,8 +192,13 @@ namespace ActionLanguage
                                     return Name + " " + lineno + " EVENT Missing event name or action" + Environment.NewLine;
 
                                 c.GroupName = currenteventgroup;
+                                c.Tag = precomments;        // use the tag for precomments
+
                                 FileEventList.Add(c);
                                 InUseEventList.Add(new Condition(c));        // full clone
+
+                                precomments = null;
+                                inautocomments = false;
                             }
                             else if (line.StartsWith("GROUP", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -202,7 +214,18 @@ namespace ActionLanguage
                                 else
                                     return Name + " " + lineno + " Incorrectly formatted INSTALL variable" + Environment.NewLine;
                             }
-                            else if (line.StartsWith("//") || line.StartsWith("REM", StringComparison.InvariantCultureIgnoreCase) || line.Length == 0)
+                            else if (line.StartsWith("//") || line.StartsWith("REM", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                if (line == automarker)     // look out for auto generated areas, marked by this starter
+                                {
+                                    inautocomments = !inautocomments;
+                                }
+                                else if (!inautocomments)   // if not, its a comment on the below item
+                                {
+                                    precomments = (precomments == null ? line : precomments + line) + Environment.NewLine;
+                                }
+                            }
+                            else if (line.Length == 0)
                             {
                             }
                             else
@@ -231,6 +254,7 @@ namespace ActionLanguage
             }
         }
 
+        const string automarker = "//*************************************************************";
         public bool WriteFile()
         {
             try
@@ -261,10 +285,28 @@ namespace ActionLanguage
                             string evgroup = FileEventList[i].GroupName;
                             if ( evgroup != currenteventgroup )
                             {
-                                if ( currenteventgroup != null )
-                                    sr.WriteLine("");
+                                if (currenteventgroup != null)
+                                {
+                                    if (FileEventList[i].Tag != null)
+                                        sr.WriteLine(Environment.NewLine + (string)FileEventList[i].Tag);
+                                    else
+                                        sr.WriteLine("");
+                                }
+                                else
+                                {
+                                    if (FileEventList[i].Tag != null)
+                                        sr.WriteLine((string)FileEventList[i].Tag);
+                                    else
+                                        sr.WriteLine("");
+                                }
+
                                 currenteventgroup = evgroup;
-                                sr.WriteLine("GROUP " + currenteventgroup);
+                                sr.WriteLine("GROUP " + currenteventgroup + Environment.NewLine);
+                            }
+                            else
+                            {
+                                if (FileEventList[i].Tag != null)
+                                    sr.Write((string)FileEventList[i].Tag);
                             }
 
                             sr.WriteLine("EVENT " + FileEventList[i].ToString(includeaction: true));
@@ -279,9 +321,8 @@ namespace ActionLanguage
                         {
                             ActionProgram f = ProgramList.Get(i);
 
-                            sr.WriteLine("//*************************************************************");
-                            sr.WriteLine("// " + f.Name);
-                            string evl = "";
+                            List<string> elv = new List<string>() { "// Events: " };
+                            int totonline = 0;
 
                             for (int ic = 0; ic < FileEventList.Count; ic++)
                             {
@@ -298,26 +339,45 @@ namespace ActionLanguage
                                     if (c.ActionVars.Count > 0)
                                         e += "(" + c.ActionVars.ToString() + ")";
 
-                                    e += ", ";
-
-                                    if (evl.Length>0 && evl.Length + e.Length > 120 )   // if we have text, and adding this on makes it long
+                                    if (elv.Last().Length > 120)
                                     {
-                                        sr.WriteLine("// Events: " + evl);  // write current out
-                                        evl = "";
+                                        elv.Add("// Events: ");
+                                        totonline = 0;
                                     }
 
-                                    evl += e;
+                                    elv[elv.Count - 1] += (totonline > 0 ? ", " : "") + e;
+                                    totonline++;
                                 }
                             }
 
-                            if (evl.Length > 0)
+                            if (elv[0] == "// Events: ")
+                                elv[0] += "None";
+
+                            if (f.HeaderText.HasChars())
                             {
-                                evl = evl.Substring(0, evl.Length - 2); // remove ,
-                                sr.WriteLine("// Events: " + evl);
+                                string[] lines = f.HeaderText.Split(Environment.NewLine);
+                                bool doneevents = false;
+                                foreach (var l in lines)
+                                {
+                                    if (l.StartsWith("// Events:"))
+                                    {
+                                        if (!doneevents)
+                                        {
+                                            sr.WriteLine(string.Join(Environment.NewLine, elv));
+                                            doneevents = true;
+                                        }
+                                    }
+                                    else
+                                        sr.WriteLine(l);
+                                }
                             }
-
-                            sr.WriteLine("//*************************************************************");
-
+                            else
+                            {
+                                sr.WriteLine(automarker);
+                                sr.WriteLine("// " + f.Name);
+                                sr.WriteLine(string.Join(Environment.NewLine,elv));
+                                sr.WriteLine(automarker);
+                            }
 
                             if (f.StoredInSubFile != null)
                             {

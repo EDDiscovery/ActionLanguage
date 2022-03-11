@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ActionLanguage
@@ -46,7 +47,9 @@ namespace ActionLanguage
             applicationfolder = appfolder;
             currentvarlist = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(vbs);
 
-            var enumlist = new Enum[] { AFIDs.ActionProgramEditForm, AFIDs.ActionProgramEditForm_labelName, AFIDs.ActionProgramEditForm_buttonExtDisk, AFIDs.ActionProgramEditForm_buttonExtLoad, AFIDs.ActionProgramEditForm_buttonExtSave, AFIDs.ActionProgramEditForm_buttonExtEdit };
+            var enumlist = new Enum[] { AFIDs.ActionProgramEditForm, AFIDs.ActionProgramEditForm_labelName, AFIDs.ActionProgramEditForm_buttonExtDisk, AFIDs.ActionProgramEditForm_buttonExtLoad, 
+                                        AFIDs.ActionProgramEditForm_buttonExtSave, AFIDs.ActionProgramEditForm_buttonExtEdit,
+                                        AFIDs.ActionProgramEditForm_extButtonHeader};
             BaseUtils.Translator.Instance.TranslateControls(this, enumlist);
 
             bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);
@@ -86,7 +89,7 @@ namespace ActionLanguage
 
             groups.Clear();
 
-            curprog = new ActionProgram(prog.Name);
+            curprog = new ActionProgram(prog.Name,null,prog.HeaderText);
 
             initialprogname = textBoxBorderName.Text = prog.Name;
 
@@ -522,7 +525,7 @@ namespace ActionLanguage
 
         public ActionProgram GetProgram()      // call only when OK returned
         {
-            ActionProgram ap = new ActionProgram(curprog.Name, curprog.StoredInSubFile);
+            ActionProgram ap = new ActionProgram(curprog.Name, curprog.StoredInSubFile, curprog.HeaderText);
             ActionBase ac;
             int step = 0;
             while ((ac = curprog.GetStep(step++)) != null)
@@ -602,6 +605,36 @@ namespace ActionLanguage
         {
             SaveFileDialog(true);
         }
+
+        private void extButtonHeader_Click(object sender, EventArgs e)
+        {
+            ExtendedControls.ConfigurableForm f = new ExtendedControls.ConfigurableForm();
+
+            int width = 800;
+            int okline = 600;
+
+            var istr = curprog.HeaderText ?? "";        // may be null
+
+            string conv = string.Join(Environment.NewLine, istr.Split(Environment.NewLine).Select(x => x.ReplaceIfStartsWith("// ", "")));      // split, remove any // space prefixes
+
+            f.Add(new ExtendedControls.ConfigurableForm.Entry("text", typeof(ExtendedControls.ExtTextBox), conv,
+                    new Point(8, 30), new Size(width - 20, okline-10-30), null) { textboxmultiline = true });
+
+            f.AddOK(new Point(width - 100, okline));
+            f.AddCancel(new Point(width - 200, okline));
+            f.InstallStandardTriggers();
+
+            DialogResult res = f.ShowDialogCentred(this.FindForm(), this.FindForm().Icon, "Header", closeicon: true);
+
+            if (res == DialogResult.OK )
+            {
+                var str = f.Get("text");
+                if (str.HasChars())     // if anything there, put back the custom header, with // any lines which do not start with it
+                    curprog.HeaderText = string.Join(Environment.NewLine, str.Split(Environment.NewLine).Select(x => x.StartsWith("//") ? x : "// " + x));
+                else
+                    curprog.HeaderText = null;  // else cancel the custom header
+            }
+       }
 
         private void SaveFileDialog(bool associate)
         {
