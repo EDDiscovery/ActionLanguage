@@ -167,7 +167,7 @@ namespace ActionLanguage
                                 double release = vars.GetDouble(enveloperelease, 1000);
                                 double svolume = vars.GetDouble(sustainvolume,decay==0 ? 100 : 50);
 
-                                System.Diagnostics.Debug.WriteLine($"ADSR {attack} {decay} {sustain} {release} {svolume}");
+                               // System.Diagnostics.Debug.WriteLine($"ADSR {attack} {decay} {sustain} {release} {svolume}");
                                 audio = ap.ActionController.AudioQueueWave.Envelope(audio, attack, decay, sustain, release, 100.0, svolume);
                             }
 
