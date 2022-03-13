@@ -34,6 +34,16 @@ namespace ActionLanguage
         static string startname = "StartEvent";
         static string finishname = "FinishEvent";
 
+        static string tonekey = "TONE";
+        static string tonefrequency = "Frequency";
+        static string toneduration = "Duration";
+
+        static string envelopeattack = "Attack";
+        static string envelopedecay = "Decay";
+        static string envelopesustain = "Sustain";
+        static string enveloperelease = "Release";
+        static string sustainvolume = "SustainVolume";
+
         public bool FromString(string s, out string path, out Variables vars)
         {
             vars = new Variables();
@@ -124,7 +134,7 @@ namespace ActionLanguage
                     string path;
                     if (ap.Functions.ExpandString(pathunexpanded, out path) != Functions.ExpandResult.Failed)
                     {
-                        if (System.IO.File.Exists(path))
+                        if (path == tonekey || System.IO.File.Exists(path))
                         {
                             bool wait = vars.GetInt(waitname, 0) != 0;
                             AudioQueue.Priority priority = AudioQueue.GetPriority(vars.GetString(priorityname, "Normal"));
@@ -137,8 +147,29 @@ namespace ActionLanguage
 
                             Variables globalsettings = ap.VarExist(globalvarplayeffects) ? new Variables(ap[globalvarplayeffects], Variables.FromMode.MultiEntryComma) : null;
                             SoundEffectSettings ses = SoundEffectSettings.Set(globalsettings, vars);        // work out the settings
-                            
-                            AudioQueue.AudioSample audio = ap.ActionController.AudioQueueWave.Generate(path, ses);
+
+                            AudioQueue.AudioSample audio = null;
+
+                            if ( path == tonekey)
+                            {
+                                double freq = vars.GetDouble(tonefrequency, 512);
+                                double lengthms = vars.GetDouble(toneduration, 1000);
+                                audio = ap.ActionController.AudioQueueWave.Tone(freq, 100.0, lengthms);
+                            }
+                            else
+                                audio = ap.ActionController.AudioQueueWave.Generate(path, ses);
+
+                            double attack = vars.GetDouble(envelopeattack, -1);
+                            if ( attack>=0 && audio != null )
+                            {
+                                double decay = vars.GetDouble(envelopedecay, 0);
+                                double sustain = vars.GetDouble(envelopesustain, 1E12);
+                                double release = vars.GetDouble(enveloperelease, 1000);
+                                double svolume = vars.GetDouble(sustainvolume,decay==0 ? 100 : 50);
+
+                                System.Diagnostics.Debug.WriteLine($"ADSR {attack} {decay} {sustain} {release} {svolume}");
+                                audio = ap.ActionController.AudioQueueWave.Envelope(audio, attack, decay, sustain, release, 100.0, svolume);
+                            }
 
                             if (audio != null)
                             {
