@@ -383,78 +383,76 @@ namespace ActionLanguage
                     }
 
                     StringParser sp2 = new StringParser(exp[2]);
-                    int? dw = sp2.NextWordComma().InvariantParseIntNull();
-                    int? dh = sp2.NextWordComma().InvariantParseIntNull();
-                    int? x = sp2.NextWordComma().InvariantParseIntNull();
+                    int? minw = sp2.NextWordComma().InvariantParseIntNull();      // minimum may be - for not present
+                    int? minh = sp2.NextWordComma().InvariantParseIntNull();
+                    int? x = sp2.NextWordComma().InvariantParseIntNull();       // position may be - for centred
                     int? y = sp2.NextWordComma().InvariantParseIntNull();
-                    int? mw = sp2.NextWordComma().InvariantParseIntNull();
-                    int? mh = sp2.NextWordComma().InvariantParseIntNull();
+                    int? maxw = sp2.NextWordComma().InvariantParseIntNull();      // max width may be - for crazy max
+                    int? maxh = sp2.NextWordComma().InvariantParseIntNull();
+                    int? wantedw = sp2.NextWordComma().InvariantParseIntNull();   // wanted w may be - for autosize
+                    int? wantedh = sp2.NextWordComma().InvariantParseIntNull();
 
-                    if (dw != null && dh != null && ((x==null)==(y==null))) // need w/h, must have either no pos or both pos
+                    bool closeicon = true, alwaysontop = false;
+
+                    for( int i = 4; i < exp.Count; i++ )
                     {
-                        bool closeicon = true, alwaysontop = false;
-
-                        for( int i = 4; i < exp.Count; i++ )
-                        {
-                            if (exp[i].Equals("AllowResize", StringComparison.InvariantCultureIgnoreCase))
-                                cd.AllowResize = true;
-                            else if (exp[i].Equals("Transparent", StringComparison.InvariantCultureIgnoreCase))
-                                cd.Transparent = true;
-                            else if (exp[i].Equals("NoCloseIcon", StringComparison.InvariantCultureIgnoreCase))
-                                closeicon = false;
-                            else if (exp[i].Equals("AlwaysOnTop", StringComparison.InvariantCultureIgnoreCase))
-                                alwaysontop = true;
-                            else if (exp[i].Equals("NoWindowsBorder", StringComparison.InvariantCultureIgnoreCase))
-                                cd.ForceNoWindowsBorder = true;
-                            else if (exp[i].Equals("NoPanelBorder", StringComparison.InvariantCultureIgnoreCase))
-                                cd.PanelBorderStyle = BorderStyle.None;
-                            else if (exp[i].StartsWith("FontScale:", StringComparison.InvariantCultureIgnoreCase))
-                                cd.FontScale = exp[i].Substring(10).InvariantParseFloat(1.0f);
-                            else
-                            {
-                                ap.ReportError("Unknown Dialog option " + exp[i]);
-                                return true;
-                            }
-                        }
-
-                        if (IsModalDialog())
-                            ap.Dialogs[exp[0]] = cd;
-                        else
-                            ap.ActionFile.Dialogs[exp[0]] = cd;
-
-                        cd.Trigger += Cd_Trigger;
-
-                        System.Drawing.Size minsize = new System.Drawing.Size(dw.Value, dh.Value);
-                        System.Drawing.Size maxsize = new System.Drawing.Size(mw.HasValue ? mw.Value : 50000, mh.HasValue ? mh.Value : 50000);
-
-                        if (x != null && y != null)
-                        {
-                            cd.Init(minsize, maxsize,
-                                       new System.Drawing.Point(x.Value, y.Value),
-                                        ap.ActionController.Icon,
-                                        exp[1],
-                                        exp[0], new List<Object>() { ap, IsModalDialog() },  // logical name and tag
-                                        closeicon: closeicon
-                                        );
-                        }
+                        if (exp[i].Equals("AllowResize", StringComparison.InvariantCultureIgnoreCase))
+                            cd.AllowResize = true;
+                        else if (exp[i].Equals("Transparent", StringComparison.InvariantCultureIgnoreCase))
+                            cd.Transparent = true;
+                        else if (exp[i].Equals("NoCloseIcon", StringComparison.InvariantCultureIgnoreCase))
+                            closeicon = false;
+                        else if (exp[i].Equals("AlwaysOnTop", StringComparison.InvariantCultureIgnoreCase))
+                            alwaysontop = true;
+                        else if (exp[i].Equals("NoWindowsBorder", StringComparison.InvariantCultureIgnoreCase))
+                            cd.ForceNoWindowsBorder = true;
+                        else if (exp[i].Equals("NoPanelBorder", StringComparison.InvariantCultureIgnoreCase))
+                            cd.PanelBorderStyle = BorderStyle.None;
+                        else if (exp[i].StartsWith("FontScale:", StringComparison.InvariantCultureIgnoreCase))
+                            cd.FontScale = exp[i].Substring(10).InvariantParseFloat(1.0f);
                         else
                         {
-                            cd.InitCentred(ap.ActionController.Form, minsize, maxsize,
-                                            ap.ActionController.Icon,
-                                            exp[1],
-                                            exp[0], new List<Object>() { ap, IsModalDialog() }, // logical name and tag
-                                            closeicon: closeicon
-                                            );
+                            ap.ReportError("Unknown Dialog option " + exp[i]);
+                            return true;
                         }
+                    }
 
-                        cd.TopMost = alwaysontop;
+                    if (IsModalDialog())
+                        ap.Dialogs[exp[0]] = cd;
+                    else
+                        ap.ActionFile.Dialogs[exp[0]] = cd;
 
-                        cd.Show(ap.ActionController.Form);
+                    cd.Trigger += Cd_Trigger;
 
-                        return !IsModalDialog();       // modal, return false, STOP.  Non modal, continue
+                    System.Drawing.Size minsize = new System.Drawing.Size(minw.HasValue ? minw.Value : 10, minh.HasValue ? minh.Value : 10);
+                    System.Drawing.Size maxsize = new System.Drawing.Size(maxw.HasValue ? maxw.Value : 50000, maxh.HasValue ? maxh.Value : 50000);
+                    System.Drawing.Size createdsize = new System.Drawing.Size(wantedw.HasValue ? wantedw.Value : 1, wantedh.HasValue ? wantedh.Value : 1);
+
+                    if (x != null && y != null)
+                    {
+                        cd.Init(minsize, maxsize, createdsize,
+                                    new System.Drawing.Point(x.Value, y.Value),
+                                    ap.ActionController.Icon,
+                                    exp[1],
+                                    exp[0], new List<Object>() { ap, IsModalDialog() },  // logical name and tag
+                                    closeicon: closeicon
+                                    );
                     }
                     else
-                        ap.ReportError("Width/Height and/or X/Y not specified correctly in Dialog");
+                    {
+                        cd.InitCentred(ap.ActionController.Form, minsize, maxsize, createdsize,
+                                        ap.ActionController.Icon,
+                                        exp[1],
+                                        exp[0], new List<Object>() { ap, IsModalDialog() }, // logical name and tag
+                                        closeicon: closeicon
+                                        );
+                    }
+
+                    cd.TopMost = alwaysontop;
+
+                    cd.Show(ap.ActionController.Form);
+
+                    return !IsModalDialog();       // modal, return false, STOP.  Non modal, continue
                 }
                 else
                     ap.ReportError(exp[0]);
