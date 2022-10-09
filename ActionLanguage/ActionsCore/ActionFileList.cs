@@ -108,7 +108,7 @@ namespace ActionLanguage
                         fe.IndicateValuesNeeded(ref valuesneeded);
                 }
 
-                valuesneeded.GetValuesIndicated(cls);     // get the values needed for the conditions
+                valuesneeded.GetValuesIndicated(cls, null, 5, new string[] { "_", "[" });     // get the values needed for the conditions
             }
 
             valuesneeded.Add(othervars);
