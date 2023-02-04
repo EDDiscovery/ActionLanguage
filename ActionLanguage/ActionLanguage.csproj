@@ -92,6 +92,14 @@
     <Compile Include="ActionsCore\ActionProgramList.cs" />
     <Compile Include="ActionsCore\ActionProgramRun.cs" />
     <Compile Include="ActionsCore\ActionRun.cs" />
+    <Compile Include="AddOnManager\AddOnManagerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddOnManager\AddOnManagerForm.Designer.cs">
+      <DependentUpon>AddOnManagerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddOnManager\EDDiscoveryTranslations.cs" />
+    <Compile Include="AddOnManager\VersioningManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +108,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ActionEditing\ActionProgramEditForm.resx">
       <DependentUpon>ActionProgramEditForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddOnManager\AddOnManagerForm.resx">
+      <DependentUpon>AddOnManagerForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
