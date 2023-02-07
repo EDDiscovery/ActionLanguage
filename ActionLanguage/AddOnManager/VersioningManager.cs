@@ -35,34 +35,33 @@ namespace ActionLanguage.Manager
 
         public class DownloadItem
         {
-            public bool HasDownloadedCopy { get { return downloadedfilename != null;  } }
-            public string ShortDownloadedDescription { get { return downloadedvars != null && downloadedvars.Exists("ShortDescription") ? downloadedvars["ShortDescription"] : ""; } }
-            public string LongDownloadedDescription { get { return downloadedvars != null && downloadedvars.Exists("LongDescription") ? downloadedvars["LongDescription"] : ""; } }
+            public bool HasDownloadedCopy { get { return DownloadedFilename != null;  } }
+            public string ShortDownloadedDescription { get { return DownloadedVars != null && DownloadedVars.Exists("ShortDescription") ? DownloadedVars["ShortDescription"] : ""; } }
+            public string LongDownloadedDescription { get { return DownloadedVars != null && DownloadedVars.Exists("LongDescription") ? DownloadedVars["LongDescription"] : ""; } }
 
-            public string downloadedpath;           // where its stored on disk to be installed from
-            public string downloadedfilename;       // filename
-            public int[] downloadedversion;
-            public Variables downloadedvars;
-            public string downloadedserver;         // where to get any additional files from
-            public string downloadedserverpath;     // and its path
+            public string DownloadedPath {get;set;}           // where its stored on disk to be installed from
+            public string DownloadedFilename {get;set;}       // filename
+            public int[] DownloadedVersion {get;set;}
+            public Variables DownloadedVars {get;set;}
+            public string DownloadedServer {get;set;}         // where to get any additional files from
+            public string DownloadedServerPath {get;set;}     // and its path
 
-            public bool HasLocalCopy { get { return localfound; } }
-            public string LongLocalDescription { get { return localvars != null && localvars.Exists("LongDescription") ? localvars["LongDescription"] : ""; } }
-            public string ShortLocalDescription { get { return localvars != null && localvars.Exists("ShortDescription") ? localvars["ShortDescription"] : ""; } }
+            public string LongLocalDescription { get { return LocalVars != null && LocalVars.Exists("LongDescription") ? LocalVars["LongDescription"] : ""; } }
+            public string ShortLocalDescription { get { return LocalVars != null && LocalVars.Exists("ShortDescription") ? LocalVars["ShortDescription"] : ""; } }
 
-            public bool localfound;             // if scanned locally
-            public string localfilename;        // always set
-            public string localpath;            // always set
-            public int[] localversion;          // may be null if file does not have version
-            public bool localmodified;          // if local file exists, sha comparison
-            public Variables localvars;         //  null, or set if local has variables
-            public bool? localenable;           // null, or set if local has variables and a Enable flag
-            public bool localnoteditable;       // set if NotEditable variable is true
-            public bool localnotdisableable;    // set if NotDisablable variable is true
-            public ItemState state;
+            public bool LocalPresent {get;set;}             // if scanned locally
+            public string LocalFilename {get;set;}        // always set
+            public string LocalPath {get;set;}            // always set
+            public int[] LocalVersion {get;set;}          // may be null if file does not have version
+            public bool LocalModified {get;set;}          // if local file exists, sha comparison
+            public Variables LocalVars {get;set;}         //  null, or set if local has variables
+            public bool? LocalEnable {get;set;}           // null, or set if local has variables and a Enable flag
+            public bool LocalNotEditable {get;set;}       // set if NotEditable variable is true
+            public bool LocalNotDisableable {get;set;}    // set if NotDisablable variable is true
+            public ItemState State {get;set;}
 
-            public string itemname;
-            public string itemtype;
+            public string ItemName {get;set;}               // filename no extension
+            public string ItemType {get;set;}
         };
 
         public List<DownloadItem> DownloadItems { private set; get; } = new List<DownloadItem>();
@@ -85,44 +84,45 @@ namespace ActionLanguage.Manager
                 {
                     DownloadItem it = new DownloadItem();
 
-                    it.localfound = true;
+                    it.LocalPresent = true;
 
-                    it.itemname = Path.GetFileNameWithoutExtension(f.FullName);
-                    it.itemtype = defaultitemtype;
+                    it.ItemName = Path.GetFileNameWithoutExtension(f.FullName);
+                    it.ItemType = defaultitemtype;
 
-                    it.localfilename = f.FullName;
-                    it.localpath = installfolder;
+                    it.LocalFilename = f.FullName;
+                    it.LocalPath = installfolder;
 
-                    it.state = ItemState.LocalOnly;
-                    it.localvars = ReadVarsFromFile(f.FullName , out it.localenable);
+                    it.State = ItemState.LocalOnly;
+                    it.LocalVars = ReadVarsFromFile(f.FullName , out bool? le);
+                    it.LocalEnable = le;
 
-                    if (it.localvars != null)       // always reads some vars as long as file is there..
+                    if (it.LocalVars != null)       // always reads some vars as long as file is there..
                     {
-                        if (it.localvars.Exists("Version"))     
+                        if (it.LocalVars.Exists("Version"))     
                         {
-                            it.localversion = it.localvars["Version"].VersionFromString();
-                            it.localmodified = !WriteOrCheckSHAFile(it, it.localvars, appfolder, false);
+                            it.LocalVersion = it.LocalVars["Version"].VersionFromString();
+                            it.LocalModified = !WriteOrCheckSHAFile(it, it.LocalVars, appfolder, false);
                         }
                         else
                         {
-                            it.localversion = new int[] { 0, 0, 0, 0 };
-                            it.localmodified = true;
+                            it.LocalVersion = new int[] { 0, 0, 0, 0 };
+                            it.LocalModified = true;
                         }
 
-                        if (it.localvars.Exists("ItemType"))
-                            it.itemtype = it.localvars["ItemType"];     // allow file to override name
+                        if (it.LocalVars.Exists("ItemType"))
+                            it.ItemType = it.LocalVars["ItemType"];     // allow file to override name
 
-                        if (it.localvars.Equals("NotEditable","True"))
-                            it.localnoteditable = true;
+                        if (it.LocalVars.Equals("NotEditable","True"))
+                            it.LocalNotEditable = true;
 
-                        if (it.localvars.Equals("NotDisableable","True"))
-                            it.localnotdisableable = true;
+                        if (it.LocalVars.Equals("NotDisableable","True"))
+                            it.LocalNotDisableable = true;
 
-                        foreach (string key in it.localvars.NameEnumuerable)  // these first, they are not the controller files
+                        foreach (string key in it.LocalVars.NameEnumuerable)  // these first, they are not the controller files
                         {
                             if (key.StartsWith("OtherFile"))
                             {
-                                string[] parts = it.localvars[key].Split(';');
+                                string[] parts = it.LocalVars[key].Split(';');
                                 string o = Path.Combine(new string[] { appfolder, parts[1], parts[0] });
                             }
                         }
@@ -161,37 +161,37 @@ namespace ActionLanguage.Manager
                             string installfolder = System.IO.Path.Combine(appfolder, cv["Location"]);
                             string localfilename = System.IO.Path.Combine(installfolder, Path.GetFileName(f.FullName));
 
-                            DownloadItem it = DownloadItems.Find(x => x.localfilename.Equals(localfilename, StringComparison.InvariantCultureIgnoreCase));
+                            DownloadItem it = DownloadItems.Find(x => x.LocalFilename.Equals(localfilename, StringComparison.InvariantCultureIgnoreCase));
 
                             if (it != null)     // local exists
                             {
-                                it.downloadedpath = folder;
-                                it.downloadedfilename = f.FullName;
-                                it.downloadedvars = cv;
-                                it.downloadedversion = version;
-                                it.downloadedserver = serverlocation;
-                                it.downloadedserverpath = serverpath;
+                                it.DownloadedPath = folder;
+                                it.DownloadedFilename = f.FullName;
+                                it.DownloadedVars = cv;
+                                it.DownloadedVersion = version;
+                                it.DownloadedServer = serverlocation;
+                                it.DownloadedServerPath = serverpath;
 
-                                it.state = (it.downloadedversion.CompareVersion(it.localversion) > 0) ? ItemState.OutOfDate : ItemState.UpToDate;
+                                it.State = (it.DownloadedVersion.CompareVersion(it.LocalVersion) > 0) ? ItemState.OutOfDate : ItemState.UpToDate;
                             }
                             else
                             {
                                 it = new DownloadItem()
                                 {
-                                    itemname = Path.GetFileNameWithoutExtension(f.FullName),
-                                    itemtype = cv.Exists("ItemType") ? cv["ItemType"] : defaultitemtype,       // use file description of it, or use default
+                                    ItemName = Path.GetFileNameWithoutExtension(f.FullName),
+                                    ItemType = cv.Exists("ItemType") ? cv["ItemType"] : defaultitemtype,       // use file description of it, or use default
 
-                                    downloadedpath = folder,
-                                    downloadedfilename = f.FullName,
-                                    downloadedversion = version,
-                                    downloadedvars = cv,
-                                    downloadedserver = serverlocation,
-                                    downloadedserverpath = serverpath,
+                                    DownloadedPath = folder,
+                                    DownloadedFilename = f.FullName,
+                                    DownloadedVersion = version,
+                                    DownloadedVars = cv,
+                                    DownloadedServer = serverlocation,
+                                    DownloadedServerPath = serverpath,
 
-                                    localfilename = localfilename,          // set these so it knows where to install..
-                                    localpath = installfolder,
+                                    LocalFilename = localfilename,          // set these so it knows where to install..
+                                    LocalPath = installfolder,
 
-                                    state = ItemState.NotPresent,
+                                    State = ItemState.NotPresent,
                                 };
 
                                 DownloadItems.Add(it);
@@ -200,14 +200,14 @@ namespace ActionLanguage.Manager
                             int[] minedversion = cv["MinEDVersion"].VersionFromString();        // may be null if robert has screwed up the vnumber
 
                             if ( minedversion != null && minedversion.CompareVersion(edversion) > 0)     // if midedversion > edversion can't install
-                                it.state = ItemState.EDOutOfDate;
+                                it.State = ItemState.EDOutOfDate;
 
                             if ( cv.Exists("MaxEDInstallVersion"))      
                             {
                                 int[] maxedinstallversion = cv["MaxEDInstallVersion"].VersionFromString();
 
                                 if (maxedinstallversion.CompareVersion(edversion) <= 0) // if maxedinstallversion 
-                                    it.state = ItemState.EDTooOld;
+                                    it.State = ItemState.EDTooOld;
                             }
 
                         }
@@ -224,12 +224,12 @@ namespace ActionLanguage.Manager
 
         static public bool SetEnableFlag(DownloadItem item, bool enable, string appfolder)      // false if could not change the flag
         {
-            if (File.Exists(item.localfilename))    // if its there..
+            if (File.Exists(item.LocalFilename))    // if its there..
             { 
-                if (ActionLanguage.ActionFile.SetEnableFlag(item.localfilename, enable))     // if enable flag was changed..
+                if (ActionLanguage.ActionFile.SetEnableFlag(item.LocalFilename, enable))     // if enable flag was changed..
                 {
-                    if (!item.localmodified)      // if was not local modified, lets set the SHA so it does not appear local modified just because of the enable
-                        WriteOrCheckSHAFile(item, item.localvars, appfolder, true);
+                    if (!item.LocalModified)      // if was not local modified, lets set the SHA so it does not appear local modified just because of the enable
+                        WriteOrCheckSHAFile(item, item.LocalVars, appfolder, true);
 
                     return true;
                 }
@@ -242,17 +242,17 @@ namespace ActionLanguage.Manager
         {
             try
             {
-                List<string[]> downloads = (from k in item.downloadedvars.NameEnumuerable where k.StartsWith("OtherFile") select item.downloadedvars[k].Split(';')).ToList();
+                List<string[]> downloads = (from k in item.DownloadedVars.NameEnumuerable where k.StartsWith("OtherFile") select item.DownloadedVars[k].Split(';')).ToList();
 
                 if (downloads.Count > 0)        // we have downloads..
                 {
                     List<string> files = (from a in downloads where a.Length == 2 select a[0]).ToList();        // split them apart and get file names
 
-                    BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(item.downloadedserver);
+                    BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(item.DownloadedServer);
 
                     string tempfolder = Path.GetTempPath();
 
-                    if (ghc.Download(tempfolder, item.downloadedserverpath, files))     // download to temp folder..
+                    if (ghc.Download(tempfolder, item.DownloadedServerPath, files))     // download to temp folder..
                     {
                         foreach (string[] entry in downloads)                           // copy in
                         {
@@ -278,20 +278,20 @@ namespace ActionLanguage.Manager
                     }
                 }
 
-                foreach (string key in item.downloadedvars.NameEnumuerable)  // these first, they are not the controller files
+                foreach (string key in item.DownloadedVars.NameEnumuerable)  // these first, they are not the controller files
                 {
                     if (key.StartsWith("DisableOther"))
                     {
-                        DownloadItem other = DownloadItems.Find(x => x.itemname.Equals(item.downloadedvars[key]));
+                        DownloadItem other = DownloadItems.Find(x => x.ItemName.Equals(item.DownloadedVars[key]));
 
-                        if (other != null && other.localfilename != null)
+                        if (other != null && other.LocalFilename != null)
                             SetEnableFlag(other, false, appfolder); // don't worry if it fails..
                     }
                 }
 
-                File.Copy(item.downloadedfilename, item.localfilename, true);
+                File.Copy(item.DownloadedFilename, item.LocalFilename, true);
 
-                WriteOrCheckSHAFile(item, item.downloadedvars, appfolder, true);
+                WriteOrCheckSHAFile(item, item.DownloadedVars, appfolder, true);
 
                 return true;
             }
@@ -305,11 +305,11 @@ namespace ActionLanguage.Manager
     
         static public bool DeleteInstall(DownloadItem item, string appfolder, string tempmovefolder)
         {
-            foreach (string key in item.localvars.NameEnumuerable)  // these first, they are not the controller files
+            foreach (string key in item.LocalVars.NameEnumuerable)  // these first, they are not the controller files
             {
                 if (key.StartsWith("OtherFile"))
                 {
-                    string[] parts = item.localvars[key].Split(';');
+                    string[] parts = item.LocalVars[key].Split(';');
                     string o = Path.Combine(new string[] { appfolder, parts[1], parts[0] });
                     if ( !BaseUtils.FileHelpers.DeleteFileNoError(o) )      // if failed to delete, do it on next restart
                     {
@@ -318,8 +318,8 @@ namespace ActionLanguage.Manager
                 }
             }
 
-            BaseUtils.FileHelpers.DeleteFileNoError(item.localfilename);
-            string shafile = Path.Combine(item.localpath, item.itemname + ".sha");
+            BaseUtils.FileHelpers.DeleteFileNoError(item.LocalFilename);
+            string shafile = Path.Combine(item.LocalPath, item.ItemName + ".sha");
             BaseUtils.FileHelpers.DeleteFileNoError(shafile);
             return true;
         }
@@ -330,7 +330,7 @@ namespace ActionLanguage.Manager
         {
             try
             {
-                List<string> filelist = new List<string>() { it.localfilename };
+                List<string> filelist = new List<string>() { it.LocalFilename };
 
                 foreach (string key in vars.NameEnumuerable)  // these first, they are not the controller files
                 {
@@ -347,7 +347,7 @@ namespace ActionLanguage.Manager
 
                 string shacurrent = BaseUtils.SHA.CalcSha1(filelist.ToArray());
 
-                string shafile = Path.Combine(it.localpath, it.itemname + ".sha");
+                string shafile = Path.Combine(it.LocalPath, it.ItemName + ".sha");
 
                 if (write)
                 {
@@ -385,7 +385,7 @@ namespace ActionLanguage.Manager
         {
             public int Compare(DownloadItem our, DownloadItem other)
             {
-                return our.itemname.CompareTo(other.itemname);
+                return our.ItemName.CompareTo(other.ItemName);
             }
         }
 

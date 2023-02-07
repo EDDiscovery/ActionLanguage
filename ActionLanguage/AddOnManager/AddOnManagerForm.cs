@@ -211,7 +211,7 @@ namespace ActionLanguage.Manager
                 g.type = new Label();
                 g.type.Location = new Point(tabs[0], labelheightmargin);      // 8 spacing, allow 8*4 to indent
                 g.type.Size = new Size(tabs[1] - tabs[0], 24);
-                g.type.Text = di.itemtype;
+                g.type.Text = di.ItemType;
                 g.panel.Controls.Add(g.type);
 
                 g.info = new ExtendedControls.ExtButton();
@@ -225,13 +225,13 @@ namespace ActionLanguage.Manager
                 g.name = new Label();
                 g.name.Location = new Point(tabs[1]+32, labelheightmargin);      // 8 spacing, allow 8*4 to indent
                 g.name.Size = new Size(tabs[2] - tabs[1] - 32, 24);
-                g.name.Text = di.itemname;
+                g.name.Text = di.ItemName;
                 g.panel.Controls.Add(g.name);
 
                 g.version = new Label();
                 g.version.Location = new Point(tabs[2], labelheightmargin);      // 8 spacing, allow 8*4 to indent
                 g.version.Size = new Size(tabs[3] - tabs[2], 24);
-                g.version.Text = (di.localversion != null) ? di.localversion.ToString(".") : "N/A";
+                g.version.Text = (di.LocalVersion != null) ? di.LocalVersion.ToString(".") : "N/A";
                 g.panel.Controls.Add(g.version);
 
                 g.shortdesc = new Label();
@@ -246,23 +246,23 @@ namespace ActionLanguage.Manager
                 {
                     bool isversion = false;
                     string text;
-                    if (di.state == VersioningManager.ItemState.EDOutOfDate)
+                    if (di.State == VersioningManager.ItemState.EDOutOfDate)
                         text = "Newer EDD required".T(EDTx.AddOnManagerForm_Newer);
-                    else if (di.state == VersioningManager.ItemState.EDTooOld)
+                    else if (di.State == VersioningManager.ItemState.EDTooOld)
                         text = "Too old for EDD".T(EDTx.AddOnManagerForm_Old);
-                    else if (di.state == VersioningManager.ItemState.UpToDate)
-                        text = (di.localmodified) ? "Locally modified".T(EDTx.AddOnManagerForm_Locallymodified) : "Up to Date".T(EDTx.AddOnManagerForm_UptoDate);
-                    else if (di.state == VersioningManager.ItemState.LocalOnly)
+                    else if (di.State == VersioningManager.ItemState.UpToDate)
+                        text = (di.LocalModified) ? "Locally modified".T(EDTx.AddOnManagerForm_Locallymodified) : "Up to Date".T(EDTx.AddOnManagerForm_UptoDate);
+                    else if (di.State == VersioningManager.ItemState.LocalOnly)
                         text = "Local Only".T(EDTx.AddOnManagerForm_LocalOnly);
-                    else if (di.state == VersioningManager.ItemState.NotPresent)
+                    else if (di.State == VersioningManager.ItemState.NotPresent)
                     {
                         isversion = true;
-                        text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.downloadedversion.ToString(".") + ((di.localmodified) ? "*" : "");
+                        text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
                     }
                     else
                     {
                         isversion = true;
-                        text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.downloadedversion.ToString(".") + ((di.localmodified) ? "*" : "");
+                        text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
                     }
 
                     g.actionlabel = new Label();
@@ -276,7 +276,7 @@ namespace ActionLanguage.Manager
                         g.actionbutton = new ExtendedControls.ExtButton();
                         g.actionbutton.Location = new Point(tabs[5], labelheightmargin - 4);      // 8 spacing, allow 8*4 to indent
                         g.actionbutton.Size = new Size(tabs[6] - tabs[5] - 20, 24);
-                        g.actionbutton.Text = (di.state == VersioningManager.ItemState.NotPresent) ? "Install".T(EDTx.AddOnManagerForm_Install) : "Update".T(EDTx.AddOnManagerForm_Update);
+                        g.actionbutton.Text = (di.State == VersioningManager.ItemState.NotPresent) ? "Install".T(EDTx.AddOnManagerForm_Install) : "Update".T(EDTx.AddOnManagerForm_Update);
                         g.actionbutton.Click += Actionbutton_Click;
                         g.actionbutton.Tag = g;
                         g.panel.Controls.Add(g.actionbutton);
@@ -284,11 +284,11 @@ namespace ActionLanguage.Manager
                 }
                 else
                 {
-                    bool loaded = CheckActionLoaded != null ? CheckActionLoaded(g.di.itemname) : false;
+                    bool loaded = CheckActionLoaded != null ? CheckActionLoaded(g.di.ItemName) : false;
 
                     if (loaded)     // may not be loaded IF its got an error.
                     {
-                        if (!di.localnoteditable )
+                        if (!di.LocalNotEditable )
                         {
                             g.actionbutton = new ExtendedControls.ExtButton();
                             g.actionbutton.Location = new Point(tabs[5], labelheightmargin - 4);      // 8 spacing, allow 8*4 to indent
@@ -301,7 +301,7 @@ namespace ActionLanguage.Manager
                     }
                 }
 
-                if (di.HasLocalCopy)
+                if (di.LocalPresent)
                 {
                     g.deletebutton = new ExtendedControls.ExtButton();
                     g.deletebutton.Location = new Point(tabs[6], labelheightmargin - 4);      // 8 spacing, allow 8*4 to indent
@@ -312,16 +312,16 @@ namespace ActionLanguage.Manager
                     g.panel.Controls.Add(g.deletebutton);
                 }
 
-                if (di.localenable.HasValue)
+                if (di.LocalEnable.HasValue)
                 {
                     g.enabled = new ExtendedControls.ExtCheckBox();
                     g.enabled.Location = new Point(tabs[7], labelheightmargin - 4);
                     g.enabled.Size = new Size(tabs[8] - tabs[7], 24);
                     g.enabled.Text = "";
-                    g.enabled.Checked = di.localenable.Value;
+                    g.enabled.Checked = di.LocalEnable.Value;
                     g.enabled.Click += Enabled_Click;
                     g.enabled.Tag = g;
-                    g.enabled.Enabled = !di.localnotdisableable;
+                    g.enabled.Enabled = !di.LocalNotDisableable;
                     g.panel.Controls.Add(g.enabled);
                 }
 
@@ -404,10 +404,10 @@ namespace ActionLanguage.Manager
             Group g = cb.Tag as Group;
             VersioningManager.SetEnableFlag(g.di, cb.Checked, appfolder);
 
-            if (g.di.localenable == cb.Checked)
-                changelist.Remove(g.di.itemname);
+            if (g.di.LocalEnable == cb.Checked)
+                changelist.Remove(g.di.ItemName);
             else
-                changelist[g.di.itemname] = cb.Checked ? "+" : "-";
+                changelist[g.di.ItemName] = cb.Checked ? "+" : "-";
         }
 
         private void Actionbutton_Click(object sender, EventArgs e)
@@ -415,7 +415,7 @@ namespace ActionLanguage.Manager
             ExtendedControls.ExtButton cb = sender as ExtendedControls.ExtButton;
             Group g = cb.Tag as Group;
 
-            if (g.di.localmodified)
+            if (g.di.LocalModified)
             {
                 if (ExtendedControls.MessageBoxTheme.Show(this, "Modified locally, do you wish to overwrite the changes".T(EDTx.AddOnManagerForm_Modwarn), "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
                     return;
@@ -423,7 +423,7 @@ namespace ActionLanguage.Manager
 
             if (mgr.InstallFiles(g.di, appfolder, tempmovefolder))
             {
-                changelist[g.di.itemname] = g.di.localfound ? "++" : "+";
+                changelist[g.di.ItemName] = g.di.LocalPresent ? "++" : "+";
                 ExtendedControls.MessageBoxTheme.Show(this, "Add-on updated");
                 ReadyToDisplay();
             }
@@ -444,10 +444,10 @@ namespace ActionLanguage.Manager
             ExtendedControls.ExtButton cb = sender as ExtendedControls.ExtButton;
             Group g = cb.Tag as Group;
 
-            if (ExtendedControls.MessageBoxTheme.Show(this, string.Format("Do you really want to delete {0}".T(EDTx.AddOnManagerForm_DeleteWarn), g.di.itemname), "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (ExtendedControls.MessageBoxTheme.Show(this, string.Format("Do you really want to delete {0}".T(EDTx.AddOnManagerForm_DeleteWarn), g.di.ItemName), "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 VersioningManager.DeleteInstall(g.di, appfolder, tempmovefolder);
-                changelist[g.di.itemname] = "-";
+                changelist[g.di.ItemName] = "-";
                 ReadyToDisplay();
             }
         }
