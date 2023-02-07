@@ -65,6 +65,7 @@ namespace ActionLanguage.Manager
 
         string githuburl;
         int[] edversion;
+        string progtype;
 
         public AddOnManagerForm()
         {
@@ -74,8 +75,9 @@ namespace ActionLanguage.Manager
         // manageddownloadmode = true = manage downloads, get from git (or use temp folder dependent on downloadgit)
         // else just show actions and allow editing of them
 
-        public void Init(bool managedownloadmode, Icon ic, int[] version, string appdatafolder, string tempmovefolder, string githuburl, bool downloadgit)           
+        public void Init(string progtype, bool managedownloadmode, Icon ic, int[] version, string appdatafolder, string tempmovefolder, string githuburl, bool downloadgit)           
         {
+            this.progtype = progtype;
             this.Icon = ic;
             this.managedownloadmode = managedownloadmode;
             this.appfolder = appdatafolder;
@@ -169,10 +171,10 @@ namespace ActionLanguage.Manager
 
             if (managedownloadmode)
             {
-                mgr.ReadInstallFiles(githuburl, "ActionFiles/V1", downloadactfolder, appfolder, "*.act", edversion, "Action File");
-                mgr.ReadInstallFiles(githuburl, "AddonFiles/V1", downloadaddonfolder, appfolder, "*.inf", edversion, "Other File");
+                mgr.ReadInstallFiles(githuburl, "ActionFiles/V1", downloadactfolder, appfolder, "*.act", edversion, "Action File", progtype);
+                mgr.ReadInstallFiles(githuburl, "AddonFiles/V1", downloadaddonfolder, appfolder, "*.inf", edversion, "Other File", progtype);
 #if DEBUG
-                mgr.ReadInstallFiles(githuburl, "ActionFiles/Debug", downloadactdebugfolder, appfolder, "*.act", edversion, "Action File");
+                mgr.ReadInstallFiles(githuburl, "ActionFiles/Debug", downloadactdebugfolder, appfolder, "*.act", edversion, "Action File", progtype);
 #endif
             }
 

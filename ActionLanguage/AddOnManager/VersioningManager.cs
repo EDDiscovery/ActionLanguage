@@ -137,7 +137,8 @@ namespace ActionLanguage.Manager
             }
         }
 
-        public void ReadInstallFiles(string serverlocation , string serverpath, string folder, string appfolder, string filename, int[] edversion , string defaultitemtype)
+        public void ReadInstallFiles(string serverlocation , string serverpath, string folder, string appfolder, string filename, int[] edversion , 
+                                    string defaultitemtype, string progtype)
         {
             FileInfo[] allFiles = Directory.EnumerateFiles(folder, filename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
 
@@ -152,7 +153,10 @@ namespace ActionLanguage.Manager
                     {
                         int[] version;
 
-                        if (cv.Exists("LongDescription") && cv.Exists("ShortDescription") &&
+                        bool allowedpack = !cv.Exists("ProgType") || cv["ProgType"].Contains(progtype);    // if no progtype, or we have progtype and its got a field with it in
+
+                        if (allowedpack && 
+                            cv.Exists("LongDescription") && cv.Exists("ShortDescription") &&
                             cv.Exists("Version") && cv.Exists("Location") &&
                             cv.Exists("MinEDVersion") &&
                             (version = cv["Version"].VersionFromString()) != null
