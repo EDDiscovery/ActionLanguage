@@ -305,8 +305,8 @@ namespace ActionLanguage
 
         public void WaitTillFinished(int timeout, bool doevents)           // Could be IN ANOTHER THREAD BEWARE
         {
-            int t = Environment.TickCount + timeout;
-            while( Environment.TickCount < t )
+            MSTicks tm = new MSTicks(timeout);
+            while( tm.NotTimedOut )
             {
                 if (progcurrent == null)
                     break;
