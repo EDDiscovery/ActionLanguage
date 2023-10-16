@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017-2023 EDDiscovery development team
+ * Copyright © 2023 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -19,12 +19,15 @@ using System.Windows.Forms;
 
 namespace ActionLanguage
 {
-    public class ActionPackEditEventVoice : ActionPackEditEventBase
+    public class ActionPackEditEventInputToKey : ActionPackEditEventBase
     {
         public System.Func<Form, System.Drawing.Icon, string, string> onEditKeys;   // edit the key string..  must provide
-        public System.Func<Form, string, ActionCoreController, string> onEditSay;   // edit the say string..  must provide
+        public System.Func<Form, string, ActionCoreController, string> onEditSay;   // edit the say string..
+        public System.Func<string[]> onInputButton;   // edit the input string..
 
-        private ExtendedControls.ExtTextBox textBoxInput;
+        //public System.Func<Form, string, ActionCoreController, string> onEditInput;   // edit the input string..  must provide
+
+        private ExtendedControls.ExtButton inputbutton;
         private ActionPackEditProgram ucprog;
 
         private const int panelxmargin = 3;
@@ -37,20 +40,28 @@ namespace ActionLanguage
 
             // layed out for 12 point.  UC below require 28 point area
 
-            textBoxInput = new ExtendedControls.ExtTextBox();
-            textBoxInput.Location = new Point(panelxmargin, panelymargin);
-            textBoxInput.Size = new Size(356, 24);      // manually matched to size of eventprogramcondition bits
-            textBoxInput.Text = cd.Fields[0].MatchString;
-            textBoxInput.TextChanged += TextBoxInput_TextChanged;
-            textBoxInput.SetTipDynamically(toolTip,"Enter the voice input to recognise.  Multiple phrases seperate with semicolons");
+            inputbutton = new ExtendedControls.ExtButton();
+            inputbutton.Location = new Point(panelxmargin, panelymargin);
+            inputbutton.Size = new Size(356, 24);      // manually matched to size of eventprogramcondition bits
+            inputbutton.Text = cd.Fields[0].MatchString + ":" + cd.Fields[1].MatchString + ":" + cd.Fields[2].MatchString;
+            inputbutton.Click += (s, e) => { 
+                var ret = onInputButton(); 
+                if ( ret != null )
+                {
+                    cd.Fields[0].MatchString = ret[0];
+                    cd.Fields[1].MatchString = ret[1];
+                    cd.Fields[2].MatchString = ret[2];
+                    inputbutton.Text = cd.Fields[0].MatchString + ":" + cd.Fields[1].MatchString + ":" + cd.Fields[2].MatchString;
+                }
+            };
             
-            Controls.Add(textBoxInput);
+            Controls.Add(inputbutton);
 
             ActionProgram p = cond.Action.HasChars() ? actionfile.ProgramList.Get(cond.Action) : null;
             ActionProgram.ProgramConditionClass classifier = p != null ? p.ProgramClass : ActionProgram.ProgramConditionClass.KeySay;
 
             ucprog = new ActionPackEditProgram();
-            ucprog.Location = new Point(textBoxInput.Right+16, 0);
+            ucprog.Location = new Point(inputbutton.Right+16, 0);
             ucprog.Size = new Size(400, 28);       // init all the panels to 0/this height, select widths
             ucprog.Init(actionfile, cond, cp, appfolder, ic, toolTip, classifier);
             ucprog.onEditKeys = onEditKeys;
@@ -58,18 +69,14 @@ namespace ActionLanguage
             ucprog.onAdditionalNames += () => { return func(cd.EventName); };
             ucprog.SuggestedName += () => 
             {
-                string textparse = (textBoxInput.Text.Length > 0 && !textBoxInput.Text.Equals("?")) ? ("_" + textBoxInput.Text.Split(';')[0].SafeVariableString()) : "";
-                return "VoiceInput" + textparse;
+                string name = cond.Fields.Count == 3 ? cond.Fields[0].MatchString + "_" + cond.Fields[1].MatchString + "_" + cond.Fields[2].MatchString : "Unknown";
+                name = name.SafeVariableString();
+                return "InputToKeys_" + name;
             };
 
             ucprog.RefreshEvent += () => { RefreshIt(); };
             Controls.Add(ucprog);
 
-        }
-
-        private void TextBoxInput_TextChanged(object sender, System.EventArgs e)
-        {
-            cd.Fields[0].MatchString = ((ExtendedControls.ExtTextBox)sender).Text;
         }
 
         public override void UpdateProgramList(string[] proglist)
@@ -80,10 +87,9 @@ namespace ActionLanguage
         public override void Dispose()
         {
             base.Dispose();
-            textBoxInput.Dispose();
             ucprog.Dispose();
         }
 
-        public override string ID() { return "Voice Input"; }
+        public override string ID() { return "Input->Keys"; }
     }
 }

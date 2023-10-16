@@ -23,7 +23,8 @@ using System.Windows.Forms;
 
 namespace ActionLanguage
 {
-    // this class adds on an event field, and program fields
+    // this class adds on a program selector, a P edit button, and event variable fields, used to the right of the condition
+    // it adapts to the program classifer type (Full, Keys, Say, etc)
 
     public class ActionPackEditProgram : UserControl
     {

@@ -23,8 +23,10 @@ using System.Windows.Forms;
 
 namespace ActionLanguage
 {
-    // this class adds on an event field, and program fields
-
+    // this class is the condition part of the event line for normal events, used by EventProgramCondition
+    // containing condition type selector panel
+    // hosts event + condition selector (either a full condition, or a keypress, or true/false always)
+    
     public class ActionPackEditCondition : UserControl
     {
         public Func<List<BaseUtils.TypeHelpers.PropertyNameInfo>> onAdditionalNames;        // give me more names
@@ -38,7 +40,7 @@ namespace ActionLanguage
         private Label labelAlwaysTrue;
         private Label labelAlwaysFalse;
         private Condition cd;
-        bool overrideshowfull = false;
+        private bool overrideshowfull = false;
 
         public void Init(Condition c, Icon ic, ToolTip toolTip)
         {
@@ -52,6 +54,8 @@ namespace ActionLanguage
             panelConditionType.Size = new Size(this.Width, 28); // outer panel aligns with this UC 
             panelConditionType.SelectedIndexChanged += PanelConditionType_SelectedIndexChanged;
             toolTip.SetToolTip(panelConditionType, "Use the selector (click on bottom right arrow) to select condition class type");
+
+            // now the four representations
 
             textBoxCondition = new ExtendedControls.ExtTextBox();
             textBoxCondition.Location = new Point(panelxmargin, panelymargin );
@@ -91,6 +95,7 @@ namespace ActionLanguage
             SelectRepresentation();
         }
 
+        // looking at the condition, select if condition text box or keys is shown
         private void SelectRepresentation()
         {
             ConditionClass c = Classify(cd);
@@ -110,6 +115,23 @@ namespace ActionLanguage
             buttonKeys.Visible = (c == ConditionClass.Key);
             textBoxCondition.Text = cd.ToString();
             buttonKeys.Text = (cd.Fields.Count > 0) ? cd.Fields[0].MatchString.Left(20) : "?";
+        }
+
+        // given a condition, classify it into a full expression, a key check expression, or always false/true
+        private enum ConditionClass { Full, Key, AlwaysTrue, AlwaysFalse };
+        private ConditionClass Classify(Condition c)
+        {
+            if (c.IsAlwaysTrue())
+                return ConditionClass.AlwaysTrue;
+            else if (c.IsAlwaysFalse())
+                return ConditionClass.AlwaysFalse;
+            else if (c.Fields.Count == 1)
+            {
+                if (c.Fields[0].ItemName == "KeyPress" && (c.Fields[0].MatchCondition == ConditionEntry.MatchType.Equals || c.Fields[0].MatchCondition == ConditionEntry.MatchType.IsOneOf))
+                    return ConditionClass.Key;
+            }
+
+            return ConditionClass.Full;
         }
 
         private void PanelConditionType_SelectedIndexChanged(object sender, EventArgs e)
@@ -137,6 +159,8 @@ namespace ActionLanguage
             SelectRepresentation();
         }
 
+
+        // key shown, click, present editing dialog
         private void Keypress_Click(object sender, EventArgs e)
         {
             ExtendedControls.KeyForm kf = new ExtendedControls.KeyForm();
@@ -149,6 +173,7 @@ namespace ActionLanguage
             }
         }
 
+        // condition shown, click, present editing dialog
         private void Condition_Click(object sender, EventArgs e)
         {
             ExtendedConditionsForms.ConditionFilterForm frm = new ExtendedConditionsForms.ConditionFilterForm();
@@ -179,22 +204,6 @@ namespace ActionLanguage
             base.Dispose();
         }
 
-        enum ConditionClass { Full, Key, AlwaysTrue , AlwaysFalse };
-
-        private ConditionClass Classify(Condition c)
-        {
-            if (c.IsAlwaysTrue())
-                return ConditionClass.AlwaysTrue;
-            else if (c.IsAlwaysFalse())
-                return ConditionClass.AlwaysFalse;
-            else if (c.Fields.Count == 1)
-            {
-                if (c.Fields[0].ItemName == "KeyPress" && (c.Fields[0].MatchCondition == ConditionEntry.MatchType.Equals || c.Fields[0].MatchCondition == ConditionEntry.MatchType.IsOneOf))
-                    return ConditionClass.Key;
-            }
-
-            return ConditionClass.Full;
-        }
-
+ 
     }
 }

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright © 2017-2023 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -10,8 +10,6 @@
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- * 
- * EDDiscovery is not affiliated with Frontier Developments plc.
  */
 
 using BaseUtils;
@@ -21,7 +19,7 @@ using System.Windows.Forms;
 
 namespace ActionLanguage
 {
-    public class ActionPackEditEventProgramCondition : ActionPackEditBase
+    public class ActionPackEditEventProgramCondition : ActionPackEditEventBase
     {
         public System.Func<Form, System.Drawing.Icon, string, string> onEditKeys;   // edit the key string.. must provide
         public System.Func<Form, string, ActionCoreController, string> onEditSay;   // edit the say string..
