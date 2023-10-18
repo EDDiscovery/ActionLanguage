@@ -83,7 +83,7 @@ namespace ActionLanguage
             int defdelay = vars.Exists(DelayID) ? vars[DelayID].InvariantParseInt(DefaultDelay) : ExtendedControls.KeyForm.DefaultDelayID;
             string process = vars.Exists(ProcessID) ? vars[ProcessID] : "";
 
-            kf.Init(ic, true, " ", keys, process , defdelay:defdelay, additionalkeys:additionalkeys ,parser:additionalparser );      // process="" default, defdelay = DefaultDelayID default
+            kf.Init(ic, true, " ", keys, process , additionalkeys:additionalkeys ,parser:additionalparser );      // process="" default, defdelay = DefaultDelayID default
 
             if (kf.ShowDialog(parent) == DialogResult.OK)
             {
