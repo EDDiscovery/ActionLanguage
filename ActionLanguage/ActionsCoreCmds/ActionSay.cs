@@ -204,8 +204,7 @@ namespace ActionLanguage
                     string expsay;
                     if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
                     {
-                        System.Diagnostics.Debug.WriteLine("Say wait {0}, vol {1}, rate {2}, queue {3}, priority {4}, culture {5}, literal {6}, dontspeak {7} , prefix {8}, postfix {9}, mix {10} starte {11}, finishe {12} , voice {13}, text {14}",
-                                        wait, vol, rate, queuelimitms, priority, culture, literal, dontspeak, prefixsoundpath, postfixsoundpath, mixsoundpath, start, finish, voice, expsay);
+                        System.Diagnostics.Debug.WriteLine($"{Environment.TickCount} Say wait {wait}, vol {vol}, rate {rate}, queue {queuelimitms}, priority {priority}, culture {culture}, literal {literal}, dontspeak {dontspeak} , prefix {prefixsoundpath}, postfix {postfixsoundpath}, mix {mixsoundpath} starte {start}, finishe {finish} , voice {voice}, text {expsay}");
 
                         Random rnd = FunctionHandlers.GetRandom();
 
