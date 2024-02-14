@@ -32,7 +32,7 @@ namespace ActionLanguage.Manager
             public Label name;
             public Label version;
             public Label shortdesc;
-            public Label actionlabel;
+            public ExtendedControls.ExtLabelAutoHeight actionlabel;
             public ExtendedControls.ExtButton actionbutton;
             public ExtendedControls.ExtButton deletebutton;
             public ExtendedControls.ExtCheckBox enabled;
@@ -185,6 +185,7 @@ namespace ActionLanguage.Manager
 
             int[] tabs;
             if ( managedownloadmode )
+                //               0     1   2    3    4    5    6    7     8
                 //               type, n,  ver  des  stat act, del, ena
                 tabs = new int[] { 0,  80, 280, 360, 560, 660, 760, 820 , 880};
             else
@@ -236,9 +237,9 @@ namespace ActionLanguage.Manager
                 g.version.Text = (di.LocalVersion != null) ? di.LocalVersion.ToString(".") : "N/A";
                 g.panel.Controls.Add(g.version);
 
-                g.shortdesc = new Label();
+                g.shortdesc = new ExtendedControls.ExtLabelAutoHeight();
                 g.shortdesc.Location = new Point(tabs[3], labelheightmargin);      // 8 spacing, allow 8*4 to indent
-                g.shortdesc.Size = new Size(tabs[4] - tabs[3], 24);
+                g.shortdesc.Size = new Size(tabs[4] - tabs[3] - 4, 24);
                 g.shortdesc.Text = di.ShortLocalDescription.HasChars() ? di.ShortLocalDescription : di.ShortDownloadedDescription;
                 if (g.shortdesc.Text.Length == 0)
                     g.shortdesc.Text = "N/A";
@@ -267,10 +268,11 @@ namespace ActionLanguage.Manager
                         text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
                     }
 
-                    g.actionlabel = new Label();
+                    g.actionlabel = new ExtendedControls.ExtLabelAutoHeight();
                     g.actionlabel.Location = new Point(tabs[4], labelheightmargin);      // 8 spacing, allow 8*4 to indent
-                    g.actionlabel.Size = new Size(tabs[5] - tabs[4], 24);
+                    g.actionlabel.Size = new Size(tabs[5] - tabs[4] - 4, 24);
                     g.actionlabel.Text = text;
+                    // g.actionlabel.BackColor = Color.AliceBlue; // debug
                     g.panel.Controls.Add(g.actionlabel);
 
                     if (isversion)        
@@ -367,6 +369,7 @@ namespace ActionLanguage.Manager
             panelVScroll.Scale(this.CurrentAutoScaleFactor());       // scale newly added children to form
 
             theme.ApplyStd(panelVScroll);
+            
 
             panelVScroll.ResumeLayout();
         }
