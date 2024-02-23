@@ -14,6 +14,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -21,51 +22,11 @@ namespace ActionLanguage.Manager
 {
     public partial class AddOnManagerForm : ExtendedControls.DraggableForm
     {
-        public Dictionary<string,string> changelist = new Dictionary<string,string>();      //+ enabled/installed, - deleted/disabled
-
-        class Group
-        {
-            public VersioningManager.DownloadItem di;
-            public Panel panel;
-            public Button info;
-            public Label type;
-            public Label name;
-            public Label version;
-            public Label shortdesc;
-            public ExtendedControls.ExtLabelAutoHeight actionlabel;
-            public ExtendedControls.ExtButton actionbutton;
-            public ExtendedControls.ExtButton deletebutton;
-            public ExtendedControls.ExtCheckBox enabled;
-        }
-
-        List<Group> groups = new List<Group>();
-        VersioningManager mgr;
-
-        int panelheightmargin = 1;
-        int labelheightmargin = 6;
-        int panelleftmargin = 3;
-
+        public Dictionary<string, string> ChangeList { get; set; }  = new Dictionary<string, string>();      //+ enabled/installed, - deleted/disabled
         public Action<string> EditActionFile;
         public Action EditGlobals;
         public Action CreateActionFile;
-        public delegate bool IsActionLoaded(string name);
-        public event IsActionLoaded CheckActionLoaded;
-
-        bool managedownloadmode;
-        bool downloadgit;
-
-        string downloadactfolder;
-        string downloadflightfolder;
-        string downloadaddonfolder;
-#if DEBUG
-        string downloadactdebugfolder;
-#endif
-        string appfolder;
-        string tempmovefolder;
-
-        string githuburl;
-        int[] edversion;
-        string progtype;
+        public Func<string,bool> CheckActionLoaded;
 
         public AddOnManagerForm()
         {
@@ -87,19 +48,14 @@ namespace ActionLanguage.Manager
             this.edversion = version;
 
             downloadactfolder = System.IO.Path.Combine(appdatafolder, "temp", "act");
-            if (!System.IO.Directory.Exists(downloadactfolder))
-                System.IO.Directory.CreateDirectory(downloadactfolder);
-            downloadflightfolder = System.IO.Path.Combine(appdatafolder, "temp", "flights");
-            if (!System.IO.Directory.Exists(downloadflightfolder))
-                System.IO.Directory.CreateDirectory(downloadflightfolder);
+            BaseUtils.FileHelpers.CreateDirectoryNoError(downloadactfolder);
+
             downloadaddonfolder = System.IO.Path.Combine(appdatafolder, "temp", "addonfiles");
-            if (!System.IO.Directory.Exists(downloadaddonfolder))
-                System.IO.Directory.CreateDirectory(downloadaddonfolder);
+            BaseUtils.FileHelpers.CreateDirectoryNoError(downloadaddonfolder);
 
 #if DEBUG
             downloadactdebugfolder = System.IO.Path.Combine(appdatafolder, "temp", "Debug");
-            if (!System.IO.Directory.Exists(downloadactdebugfolder))
-                System.IO.Directory.CreateDirectory(downloadactdebugfolder);
+            BaseUtils.FileHelpers.CreateDirectoryNoError(downloadactdebugfolder);
 #endif
 
             SizeF prev = this.AutoScaleDimensions;
@@ -122,11 +78,19 @@ namespace ActionLanguage.Manager
 
         private System.Threading.Thread CheckThread;
 
-        private void DownloadManager_Shown(object sender, EventArgs e)
+
+        protected override void OnShown(EventArgs e)
         {
+            base.OnShown(e);
             this.Cursor = Cursors.WaitCursor;
             CheckThread = new System.Threading.Thread(new System.Threading.ThreadStart(CheckState));
             CheckThread.Start();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            canceldownload.Cancel();
+            base.OnClosing(e);
         }
 
         private void CheckState()   // in a thread..
@@ -135,10 +99,19 @@ namespace ActionLanguage.Manager
             {
                 BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(githuburl); // EDDiscovery.Properties.Resources.URLGithubDataDownload
                 System.Diagnostics.Debug.WriteLine("Checking github");
-                ghc.Download(downloadactfolder, "ActionFiles/V1", "*.act");
-                ghc.Download(downloadaddonfolder, "AddonFiles/V1", "*.inf");
+
+                ghc.DownloadFolder(canceldownload.Token,downloadactfolder, "ActionFiles/V1", "*.act", true, true);
+                if (canceldownload.IsCancellationRequested)
+                    return;
+
+                ghc.DownloadFolder(canceldownload.Token,downloadaddonfolder, "AddonFiles/V1", "*.inf", true, true);
+                if (canceldownload.IsCancellationRequested)
+                    return;
 #if DEBUG
-                ghc.Download(downloadactdebugfolder, "ActionFiles/Debug", "*.act");
+
+                ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", "*.act", true, true);
+                if (canceldownload.IsCancellationRequested)
+                    return;
 #endif
             }
 
@@ -410,9 +383,9 @@ namespace ActionLanguage.Manager
             VersioningManager.SetEnableFlag(g.di, cb.Checked, appfolder);
 
             if (g.di.LocalEnable == cb.Checked)
-                changelist.Remove(g.di.ItemName);
+                ChangeList.Remove(g.di.ItemName);
             else
-                changelist[g.di.ItemName] = cb.Checked ? "+" : "-";
+                ChangeList[g.di.ItemName] = cb.Checked ? "+" : "-";
         }
 
         private void Actionbutton_Click(object sender, EventArgs e)
@@ -428,7 +401,7 @@ namespace ActionLanguage.Manager
 
             if (mgr.InstallFiles(g.di, appfolder, tempmovefolder))
             {
-                changelist[g.di.ItemName] = g.di.LocalPresent ? "++" : "+";
+                ChangeList[g.di.ItemName] = g.di.LocalPresent ? "++" : "+";
                 ExtendedControls.MessageBoxTheme.Show(this, "Add-on updated");
                 ReadyToDisplay();
             }
@@ -452,7 +425,7 @@ namespace ActionLanguage.Manager
             if (ExtendedControls.MessageBoxTheme.Show(this, string.Format("Do you really want to delete {0}".T(EDTx.AddOnManagerForm_DeleteWarn), g.di.ItemName), "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 VersioningManager.DeleteInstall(g.di, appfolder, tempmovefolder);
-                changelist[g.di.ItemName] = "-";
+                ChangeList[g.di.ItemName] = "-";
                 ReadyToDisplay();
             }
         }
@@ -493,6 +466,46 @@ namespace ActionLanguage.Manager
         {
             Close();
         }
+
+        private class Group
+        {
+            public VersioningManager.DownloadItem di;
+            public Panel panel;
+            public Button info;
+            public Label type;
+            public Label name;
+            public Label version;
+            public Label shortdesc;
+            public ExtendedControls.ExtLabelAutoHeight actionlabel;
+            public ExtendedControls.ExtButton actionbutton;
+            public ExtendedControls.ExtButton deletebutton;
+            public ExtendedControls.ExtCheckBox enabled;
+        }
+
+        private List<Group> groups = new List<Group>();
+        private VersioningManager mgr;
+
+        private const int panelheightmargin = 1;
+        private const int labelheightmargin = 6;
+        private const int panelleftmargin = 3;
+
+        private bool managedownloadmode;
+        private bool downloadgit;
+
+        private string downloadactfolder;
+        private string downloadaddonfolder;
+#if DEBUG
+        private string downloadactdebugfolder;
+#endif
+        private string appfolder;
+        private string tempmovefolder;
+
+        private string githuburl;
+        private int[] edversion;
+        private string progtype;
+
+        private System.Threading.CancellationTokenSource canceldownload = new System.Threading.CancellationTokenSource();
+
 
     }
 }

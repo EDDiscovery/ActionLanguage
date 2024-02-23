@@ -285,7 +285,6 @@ namespace ActionLanguage.Manager
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "<code>";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DownloadManagerForm_FormClosing);
-            this.Shown += new System.EventHandler(this.DownloadManager_Shown);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.panelOuter.ResumeLayout(false);

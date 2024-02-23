@@ -256,7 +256,9 @@ namespace ActionLanguage.Manager
 
                     string tempfolder = Path.GetTempPath();
 
-                    if (ghc.Download(tempfolder, item.DownloadedServerPath, files))     // download to temp folder..
+                    // download to temp folder..
+
+                    if (ghc.DownloadFolder(new System.Threading.CancellationToken(), tempfolder, item.DownloadedServerPath, files, true, false))  
                     {
                         foreach (string[] entry in downloads)                           // copy in
                         {
