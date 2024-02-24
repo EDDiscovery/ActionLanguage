@@ -284,7 +284,6 @@ namespace ActionLanguage.Manager
             this.Name = "AddOnManagerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "<code>";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DownloadManagerForm_FormClosing);
             this.panelTop.ResumeLayout(false);
             this.panelTop.PerformLayout();
             this.panelOuter.ResumeLayout(false);

@@ -84,13 +84,18 @@ namespace ActionLanguage.Manager
             base.OnShown(e);
             this.Cursor = Cursors.WaitCursor;
             CheckThread = new System.Threading.Thread(new System.Threading.ThreadStart(CheckState));
+            CheckThread.Name = "AddOnManagerGitHubGet"; 
             CheckThread.Start();
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            canceldownload.Cancel();
             base.OnClosing(e);
+
+            canceldownload.Cancel();        // on closing, set cancel token, so downloads are aborted if occurring
+
+            if (CheckThread != null && CheckThread.IsAlive)     // wait for thread to complete
+                CheckThread.Join();
         }
 
         private void CheckState()   // in a thread..
@@ -100,7 +105,7 @@ namespace ActionLanguage.Manager
                 BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(githuburl); // EDDiscovery.Properties.Resources.URLGithubDataDownload
                 System.Diagnostics.Debug.WriteLine("Checking github");
 
-                ghc.DownloadFolder(canceldownload.Token,downloadactfolder, "ActionFiles/V1", "*.act", true, true);
+                ghc.DownloadFolder(canceldownload.Token,downloadactfolder, "ActionFiles/V1", "*.act", true, true);      // we don't use .etag and we synchronise the folder removing anything not in github
                 if (canceldownload.IsCancellationRequested)
                     return;
 
@@ -116,12 +121,6 @@ namespace ActionLanguage.Manager
             }
 
             BeginInvoke((MethodInvoker)ReadyToDisplay);
-        }
-
-        private void DownloadManagerForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (CheckThread != null && CheckThread.IsAlive)     // can't close if its alive, it will call back nothing
-                CheckThread.Join();
         }
 
         static public void ReadLocalFiles(VersioningManager mgr, string appfolder, bool othertypes )
