@@ -207,6 +207,8 @@ namespace ActionLanguage
 
         private void PositionEntries(bool calcminsize)
         {
+            panelVScroll.SuspendControlMonitoring();
+
             int y = panelymargin;
             int panelwidth = Math.Max(panelVScroll.Width - panelVScroll.ScrollBarWidth, 10);
 
@@ -265,6 +267,8 @@ namespace ActionLanguage
             }
 
             this.Text = label_index.Text = initialtitle + " (" + entries.Count.ToString() + ")";
+
+            panelVScroll.ResumeControlMonitoring();
         }
 
         #endregion
