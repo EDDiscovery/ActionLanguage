@@ -1,6 +1,6 @@
 ﻿namespace ActionLanguage
 {
-    partial class ActionPackEditPackForm 
+    partial class ActionPackEditPackForm
     {
         /// <summary>
         /// Required designer variable.
@@ -40,8 +40,8 @@
             this.buttonCancel = new ExtendedControls.ExtButton();
             this.buttonOK = new ExtendedControls.ExtButton();
             this.panelOuter = new System.Windows.Forms.Panel();
-            this.panelVScroll = new ExtendedControls.ExtPanelScroll();
-            this.vScrollBarCustom1 = new ExtendedControls.ExtScrollBar();
+            this.extPanelVertScrollWithBar = new ExtendedControls.ExtPanelVertScrollWithBar();
+            this.panelVScroll = new ExtendedControls.ExtPanelVertScroll();
             this.buttonMore = new ExtendedControls.ExtButton();
             this.statusStripCustom = new ExtendedControls.ExtStatusStrip();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -62,6 +62,7 @@
             this.panelTop.SuspendLayout();
             this.panelOK.SuspendLayout();
             this.panelOuter.SuspendLayout();
+            this.extPanelVertScrollWithBar.SuspendLayout();
             this.panelVScroll.SuspendLayout();
             this.contextMenuStripAction.SuspendLayout();
             this.contextMenuStripCollapse.SuspendLayout();
@@ -215,7 +216,7 @@
             // panelOuter
             // 
             this.panelOuter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelOuter.Controls.Add(this.panelVScroll);
+            this.panelOuter.Controls.Add(this.extPanelVertScrollWithBar);
             this.panelOuter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelOuter.Location = new System.Drawing.Point(0, 24);
             this.panelOuter.Name = "panelOuter";
@@ -223,47 +224,25 @@
             this.panelOuter.Size = new System.Drawing.Size(1068, 510);
             this.panelOuter.TabIndex = 10;
             // 
+            // extPanelVertScrollWithBar
+            // 
+            this.extPanelVertScrollWithBar.Controls.Add(this.panelVScroll);
+            this.extPanelVertScrollWithBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.extPanelVertScrollWithBar.Location = new System.Drawing.Point(3, 3);
+            this.extPanelVertScrollWithBar.Name = "extPanelVertScrollWithBar";
+            this.extPanelVertScrollWithBar.Size = new System.Drawing.Size(1060, 502);
+            this.extPanelVertScrollWithBar.TabIndex = 6;
+            // 
             // panelVScroll
             // 
-            this.panelVScroll.Controls.Add(this.vScrollBarCustom1);
             this.panelVScroll.Controls.Add(this.buttonMore);
             this.panelVScroll.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelVScroll.FlowControlsLeftToRight = false;
-            this.panelVScroll.Location = new System.Drawing.Point(3, 3);
+            this.panelVScroll.Location = new System.Drawing.Point(0, 0);
             this.panelVScroll.Name = "panelVScroll";
             this.panelVScroll.Size = new System.Drawing.Size(1060, 502);
             this.panelVScroll.TabIndex = 8;
-            this.panelVScroll.VerticalScrollBarDockRight = true;
+            this.panelVScroll.Value = 0;
             this.panelVScroll.Resize += new System.EventHandler(this.panelVScroll_Resize);
-            // 
-            // vScrollBarCustom1
-            // 
-            this.vScrollBarCustom1.ArrowBorderColor = System.Drawing.Color.LightBlue;
-            this.vScrollBarCustom1.ArrowButtonColor = System.Drawing.Color.LightGray;
-            this.vScrollBarCustom1.ArrowColorScaling = 0.5F;
-            this.vScrollBarCustom1.ArrowDownDrawAngle = 270F;
-            this.vScrollBarCustom1.ArrowUpDrawAngle = 90F;
-            this.vScrollBarCustom1.BorderColor = System.Drawing.Color.White;
-            this.vScrollBarCustom1.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.vScrollBarCustom1.HideScrollBar = false;
-            this.vScrollBarCustom1.LargeChange = 32;
-            this.vScrollBarCustom1.Location = new System.Drawing.Point(1044, 0);
-            this.vScrollBarCustom1.Maximum = -441;
-            this.vScrollBarCustom1.Minimum = 0;
-            this.vScrollBarCustom1.MouseOverButtonColor = System.Drawing.Color.Green;
-            this.vScrollBarCustom1.MousePressedButtonColor = System.Drawing.Color.Red;
-            this.vScrollBarCustom1.Name = "vScrollBarCustom1";
-            this.vScrollBarCustom1.Size = new System.Drawing.Size(16, 502);
-            this.vScrollBarCustom1.SliderColor = System.Drawing.Color.DarkGray;
-            this.vScrollBarCustom1.SmallChange = 1;
-            this.vScrollBarCustom1.TabIndex = 0;
-            this.vScrollBarCustom1.Text = "vScrollBarCustom1";
-            this.vScrollBarCustom1.ThumbBorderColor = System.Drawing.Color.Yellow;
-            this.vScrollBarCustom1.ThumbButtonColor = System.Drawing.Color.DarkBlue;
-            this.vScrollBarCustom1.ThumbColorScaling = 0.5F;
-            this.vScrollBarCustom1.ThumbDrawAngle = 0F;
-            this.vScrollBarCustom1.Value = -441;
-            this.vScrollBarCustom1.ValueLimited = -441;
             // 
             // buttonMore
             // 
@@ -396,7 +375,7 @@
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.expandAllToolStripMenuItem_Click);
             // 
-            // ActionPackEditPackForm
+            // ActionPackEditPackFormNew
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -405,7 +384,7 @@
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.panelOK);
             this.Controls.Add(this.statusStripCustom);
-            this.Name = "ActionPackEditPackForm";
+            this.Name = "ActionPackEditPackFormNew";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "<code>";
             this.panelTop.ResumeLayout(false);
@@ -413,6 +392,7 @@
             this.panelOK.ResumeLayout(false);
             this.panelOK.PerformLayout();
             this.panelOuter.ResumeLayout(false);
+            this.extPanelVertScrollWithBar.ResumeLayout(false);
             this.panelVScroll.ResumeLayout(false);
             this.contextMenuStripAction.ResumeLayout(false);
             this.contextMenuStripCollapse.ResumeLayout(false);
@@ -433,8 +413,7 @@
         private ExtendedControls.ExtButton buttonCancel;
         private ExtendedControls.ExtButton buttonOK;
         private System.Windows.Forms.Panel panelOuter;
-        private ExtendedControls.ExtPanelScroll panelVScroll;
-        private ExtendedControls.ExtScrollBar vScrollBarCustom1;
+        private ExtendedControls.ExtPanelVertScroll panelVScroll;
         private ExtendedControls.ExtButton buttonMore;
         private ExtendedControls.ExtStatusStrip statusStripCustom;
         private ExtendedControls.ExtButton buttonInstallationVars;
@@ -453,5 +432,6 @@
         private System.Windows.Forms.ToolStripMenuItem moveGroupUpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem moveGroupDownToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameGroupToolStripMenuItem;
+        private ExtendedControls.ExtPanelVertScrollWithBar extPanelVertScrollWithBar;
     }
 }

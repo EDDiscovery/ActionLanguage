@@ -87,8 +87,10 @@ namespace ActionLanguage
                 entries.Add(g);
             }
 
+            panelVScroll.SuspendLayout();
             foreach (Entry g in entries)     // add the groups to the vscroller
                 panelVScroll.Controls.Add(g.panel);
+            panelVScroll.ResumeLayout();
 
             PositionEntries(true);       //repositions all items
 
@@ -99,7 +101,8 @@ namespace ActionLanguage
 
         #region Entry Making and positions
 
-        private Entry CreateEntry(bool isevent, Condition cd, string name)     // create a group, create the UC under it if required
+        // create a group, create the UC under it if required
+        private Entry CreateEntry(bool isevent, Condition cd, string name)     
         {
             Entry g = new Entry();
 
@@ -126,7 +129,11 @@ namespace ActionLanguage
                     g.classtype.SelectedItem = GetClassNameFromCondition(cd);
                     g.classtype.Enabled = true;
 
+                    // given the condition, pick the editor control to use from it
+
                     CreateEditorControl(g, cd);
+                    
+                    //System.Diagnostics.Debug.WriteLine($"APEF Event {GetClassNameFromCondition(cd)} {cd.ToString()}");
                 }
 
                 g.classtype.SelectedIndexChanged += Classtype_SelectedIndexChanged;
@@ -207,12 +214,12 @@ namespace ActionLanguage
 
         private void PositionEntries(bool calcminsize)
         {
-            panelVScroll.SuspendControlMonitoring();
-
             int y = panelymargin;
-            int panelwidth = Math.Max(panelVScroll.Width - panelVScroll.ScrollBarWidth, 10);
+            int panelwidth = Math.Max(panelVScroll.Width, 10);
 
             bool collapsed = false;
+
+            panelVScroll.SuspendLayout();
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -231,14 +238,14 @@ namespace ActionLanguage
                     if (g.editoruc != null)
                     {
                         g.editoruc.Location = new Point(g.classtype.Right + 16, 0);
-                        g.editoruc.Size = g.editoruc.FindMaxSubControlArea(0,0);
+                        g.editoruc.Size = g.editoruc.FindMaxSubControlArea(0, 0);
                     }
 
                     if (g.groupnamepanel != null)
                     {
                         g.groupnamepanel.Size = new Size(g.actionbutton.Left - g.groupnamepanel.Left - 8, g.groupnamecollapsebutton.Bottom + Font.ScalePixels(2));
                         g.groupactionscombobox.Location = new Point(g.groupnamepanel.Width - g.groupactionscombobox.Width - 16, 2);
-                        g.groupnamelabel.Size = new Size(g.groupactionscombobox.Location.X - g.groupnamelabel.Location.X  - 8, g.groupnamelabel.Height);
+                        g.groupnamelabel.Size = new Size(g.groupactionscombobox.Location.X - g.groupnamelabel.Location.X - 8, g.groupnamelabel.Height);
                     }
 
                     g.panel.Visible = true;
@@ -249,7 +256,10 @@ namespace ActionLanguage
                     y += g.panel.Height + Font.ScalePixels(4);
                 }
                 else
+                {
                     g.panel.Visible = false;
+                    g.panel.Location = new Point(0, 0);     // we put it at 0,0 so it won't interfer with calculations on scroll area
+                }
             }
 
             buttonMore.Location = new Point(panelxmargin, y );
@@ -268,7 +278,7 @@ namespace ActionLanguage
 
             this.Text = label_index.Text = initialtitle + " (" + entries.Count.ToString() + ")";
 
-            panelVScroll.ResumeControlMonitoring();
+            panelVScroll.ResumeLayout();
         }
 
         #endregion
@@ -300,7 +310,7 @@ namespace ActionLanguage
                 entries[groupabove].groupcollapsed = false;
 
             PositionEntries(true);
-            panelVScroll.ToEnd();       // tell it to scroll to end
+            //panelVScroll.ToEnd();       // tell it to scroll to end
         }
 
         private void Classtype_SelectedIndexChanged(object sender, EventArgs e)
