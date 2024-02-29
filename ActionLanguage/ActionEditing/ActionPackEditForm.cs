@@ -212,7 +212,7 @@ namespace ActionLanguage
             entry.panel.Controls.Add(entry.editoruc);
         }
 
-        private void PositionEntries(bool calcminsize)
+        private void PositionEntries(bool calcminsize, bool toend = false)
         {
             int y = panelymargin;
             int panelwidth = Math.Max(panelVScroll.Width, 10);
@@ -220,6 +220,8 @@ namespace ActionLanguage
             bool collapsed = false;
 
             panelVScroll.SuspendLayout();
+
+            int curpos = panelVScroll.Reset();      // we are going to restablish the whole co-ords again, so reset.
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -252,7 +254,7 @@ namespace ActionLanguage
                     g.panel.Location = new Point(panelxmargin, y);
                     g.panel.Size = g.panel.FindMaxSubControlArea(2, 2);
 
-                    //System.Diagnostics.Debug.WriteLine("Panel " + i + " " + g.panel.Name + " loc " + g.panel.Location + " size " + g.panel.Size);
+                   // System.Diagnostics.Debug.WriteLine("Panel " + i + " " + g.panel.Name + " loc " + g.panel.Location + " size " + g.panel.Size);
                     y += g.panel.Height + Font.ScalePixels(4);
                 }
                 else
@@ -263,10 +265,11 @@ namespace ActionLanguage
             }
 
             buttonMore.Location = new Point(panelxmargin, y );
-            //System.Diagnostics.Debug.WriteLine("More " + buttonMore.Location);
+           // System.Diagnostics.Debug.WriteLine("More " + buttonMore.Location);
 
             if (calcminsize)
             {
+                stopresizepositioning = true;
                 int titleHeight = RectangleToScreen(this.ClientRectangle).Top - this.Top;
                 y += buttonMore.Height + titleHeight + ((panelTop.Enabled) ? (panelTop.Height + statusStripCustom.Height) : 8) + 16 + panelOK.Height;
                 this.MaximumSize = new Size(Screen.FromControl(this).WorkingArea.Width - 100, Screen.FromControl(this).WorkingArea.Height - 100);
@@ -274,13 +277,20 @@ namespace ActionLanguage
 
                 if (Bottom > Screen.FromControl(this).WorkingArea.Height)
                     Top = Screen.FromControl(this).WorkingArea.Height - Height - 50;
+
+                stopresizepositioning = false;
             }
 
             this.Text = label_index.Text = initialtitle + " (" + entries.Count.ToString() + ")";
 
             panelVScroll.ResumeLayout();
-        }
 
+            if (toend)
+                panelVScroll.ToEnd();       // tell it to scroll to end
+            else
+                panelVScroll.ScrollTo(curpos);
+        }
+    
         #endregion
 
         private void Usercontrol_RefreshEvent()
@@ -309,8 +319,7 @@ namespace ActionLanguage
             if (groupabove != -1 && entries[groupabove].groupcollapsed == true)
                 entries[groupabove].groupcollapsed = false;
 
-            PositionEntries(true);
-            //panelVScroll.ToEnd();       // tell it to scroll to end
+            PositionEntries(true,true);
         }
 
         private void Classtype_SelectedIndexChanged(object sender, EventArgs e)
@@ -464,10 +473,11 @@ namespace ActionLanguage
 
         #region Form control 
 
+        bool stopresizepositioning = false;
         private void panelVScroll_Resize(object sender, EventArgs e)
         {
-            PositionEntries(false);
-            Refresh();
+            if ( !stopresizepositioning )
+                PositionEntries(false);
         }
 
         private void panel_minimize_Click(object sender, EventArgs e)

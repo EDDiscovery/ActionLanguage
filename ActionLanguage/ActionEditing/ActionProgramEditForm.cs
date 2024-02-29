@@ -82,11 +82,13 @@ namespace ActionLanguage
 
         void LoadProgram(ActionProgram prog)
         {
+            panelVScroll.SuspendLayout();
             foreach (Group g in groups)
             {
                 g.panel.Controls.Clear();
                 panelVScroll.Controls.Remove(g.panel);
             }
+            panelVScroll.ResumeLayout();
 
             groups.Clear();
 
@@ -94,7 +96,6 @@ namespace ActionLanguage
 
             initialprogname = textBoxBorderName.Text = prog.Name;
 
-            SuspendLayout();
             panelVScroll.SuspendLayout();
 
             ActionBase ac;
@@ -107,15 +108,16 @@ namespace ActionLanguage
                 step++;
             }
 
-            RepositionGroups();
+            RepositionGroups(true);
+
             panelVScroll.ResumeLayout();
-            ResumeLayout();
         }
 
+        bool stopresizepositioning = false;
         private void panelVScroll_Resize(object sender, EventArgs e)
         {
-            RepositionGroups(false); // don't recalc min size, it creates a loop
-            Refresh();
+            if ( !stopresizepositioning )
+                RepositionGroups(false); // don't recalc min size, it creates a loop
         }
 
         private void ActionProgramForm_Shown(object sender, EventArgs e)        
@@ -131,13 +133,10 @@ namespace ActionLanguage
 
         Group CreateStep(int insertpos, ActionBase step = null)
         {
-            SuspendLayout();
-            panelVScroll.SuspendLayout();
+            // layout sizes as if its in 12 point, then its scaled.
 
             Group g = new Group();
             
-            // layout sizes as if its in 12 point, then its scaled.
-
             g.checkit = step;
             
             g.panel = new Panel();
@@ -203,8 +202,6 @@ namespace ActionLanguage
             ExtendedControls.Theme.Current.ApplyDialog(g.panel);
             g.panel.Scale(this.CurrentAutoScaleFactor());
 
-            panelVScroll.Controls.Add(g.panel);
-
             if (insertpos == -1)
                 groups.Add(g);
             else
@@ -212,8 +209,8 @@ namespace ActionLanguage
 
             g.panel.ResumeLayout();
 
-            panelVScroll.ResumeLayout();
-            ResumeLayout();
+            panelVScroll.Controls.Add(g.panel);
+
             return g;
         }
 
@@ -234,14 +231,15 @@ namespace ActionLanguage
             value.Enabled = true;
         }
 
-        string RepositionGroups(bool calcminsize = true)
+        string RepositionGroups(bool calcminsize,bool toend= false)
         {
-            SuspendLayout();
             panelVScroll.SuspendLayout();
+
+            int curpos = panelVScroll.Reset();      // we are going to restablish the whole co-ords again, so reset.
 
             string errlist = curprog.CalculateLevels();
 
-            int panelwidth = Math.Max(panelVScroll.Width - panelVScroll.ScrollBarWidth, 10);
+            int panelwidth = Math.Max(panelVScroll.Width, 10);
             int voff = panelheightmargin;
             int actstep = 0;
 
@@ -324,15 +322,23 @@ namespace ActionLanguage
 
             if (calcminsize)
             {
+                stopresizepositioning = true;
+
                 this.MaximumSize = new Size(Screen.FromControl(this).WorkingArea.Width - 100, Screen.FromControl(this).WorkingArea.Height - 100);
                 this.MinimumSize = new Size(600, Math.Min(voff,this.MaximumSize.Height));
 
                 if (Bottom > Screen.FromControl(this).WorkingArea.Height)
                     Top = Screen.FromControl(this).WorkingArea.Height - Height - 50;
+
+                stopresizepositioning = false;
             }
 
             panelVScroll.ResumeLayout();
-            ResumeLayout();
+
+            if (toend)
+                panelVScroll.ToEnd();       // tell it to scroll to end
+            else
+                panelVScroll.ScrollTo(curpos);
 
             return errlist;
         }
@@ -341,8 +347,7 @@ namespace ActionLanguage
         {
             CreateStep(-1,null);
             curprog.Add(null);
-            RepositionGroups();
-            panelVScroll.ToEnd();       // tell it to scroll to end
+            RepositionGroups(true,true);
         }
 
         private void Stepname_SelectedIndexChanged(object sender, EventArgs e)                // EVENT list changed
@@ -365,7 +370,7 @@ namespace ActionLanguage
                         curprog.SetStep(gstep, a);
                         g.checkit = a;
                         SetValue(g.value, a);
-                        RepositionGroups();
+                        RepositionGroups(true);
                     }
                     else
                     {
@@ -408,7 +413,7 @@ namespace ActionLanguage
             groups.Insert(gstep - 1, g);
             curprog.MoveUp(gstep);
 
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void Prog_Clicked(object sender, EventArgs e)
@@ -442,7 +447,7 @@ namespace ActionLanguage
                     nextact.LevelUp = Math.Max(nextact.LevelUp - 1, 0);
             }
 
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void Right_Clicked(object sender, EventArgs e)
@@ -460,7 +465,7 @@ namespace ActionLanguage
                     nextact.LevelUp++;
             }
 
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void Value_TextChanged(object sender, EventArgs e)
@@ -769,7 +774,7 @@ namespace ActionLanguage
                 p++;
             }
 
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -800,7 +805,7 @@ namespace ActionLanguage
                 curprog.Delete(gstep);
             }
 
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void whitespaceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -815,7 +820,7 @@ namespace ActionLanguage
             }
 
             UnMark();
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void removeWhitespaceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -830,7 +835,7 @@ namespace ActionLanguage
             }
 
             UnMark();
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         private void insertEntryAboveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -850,7 +855,7 @@ namespace ActionLanguage
             }
 
             UnMark();
-            RepositionGroups();
+            RepositionGroups(true);
         }
 
         bool IsMarked { get { return groups.Find(x => x.marked) != null; } }
@@ -891,7 +896,7 @@ namespace ActionLanguage
             if (r != null)
             {
                 c.Comment = r;
-                RepositionGroups();
+                RepositionGroups(true);
             }
         }
 
