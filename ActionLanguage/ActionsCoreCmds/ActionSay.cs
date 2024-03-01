@@ -47,6 +47,7 @@ namespace ActionLanguage
         static string postfixsound = "PostfixSound";
         static string mixsound = "MixSound";
         static string queuelimit = "QueueLimit";
+        static string paravar = "Para";
 
         static public bool FromString(string s, out string saying, out Variables vars)
         {
@@ -84,7 +85,7 @@ namespace ActionLanguage
             FromString(userdata, out saying, out vars);
 
             ExtendedAudioForms.SpeechConfigure cfg = new ExtendedAudioForms.SpeechConfigure();
-            cfg.Init(false, cp.AudioQueueSpeech, cp.SpeechSynthesizer,
+            cfg.Init(false,true,false, cp.AudioQueueSpeech, cp.SpeechSynthesizer,
                         null, cp.Icon,
                         saying,
                         vars.Exists(waitname), vars.Exists(literalname),
@@ -140,14 +141,11 @@ namespace ActionLanguage
 
         public override bool ExecuteAction(ActionProgramRun ap)
         {
-            string say;
-            Variables statementvars;
-            if (FromString(userdata, out say, out statementvars))
+            if (FromString(userdata, out string say, out Variables statementvars))
             {
                 string ctrl = ap.VarExist("SpeechDebug") ? ap["SpeechDebug"] : "";
 
-                string errlist = null;
-                Variables vars = ap.Functions.ExpandVars(statementvars, out errlist);
+                Variables vars = ap.Functions.ExpandVars(statementvars, out string errlist);
 
                 if (ctrl.Contains("SayLine"))
                 {
@@ -158,6 +156,15 @@ namespace ActionLanguage
 
                 if (errlist == null)
                 {
+                    while ( vars.Exists(paravar))       // if we have Para=
+                    {
+                        string plist = vars[paravar];
+                        vars.Delete(paravar);
+                        Variables pv = new Variables();
+                        pv.FromString(plist, Variables.FromMode.MultiEntryComma);
+                        vars.Add(pv);
+                    }
+
                     bool wait = vars.GetInt(waitname, 0) != 0;
 
                     string prior = (vars.Exists(priorityname) && vars[priorityname].Length > 0) ? vars[priorityname] : (ap.VarExist(globalvarspeechpriority) ? ap[globalvarspeechpriority] : "Normal");

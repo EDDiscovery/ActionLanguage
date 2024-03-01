@@ -33,7 +33,7 @@ namespace ActionLanguage
         static string priorityname = "Priority";
         static string startname = "StartEvent";
         static string finishname = "FinishEvent";
-
+        static string paravar = "Para";
         static string tonekey = "TONE";
         static string tonefrequency = "Frequency";
         static string toneduration = "Duration";
@@ -88,7 +88,7 @@ namespace ActionLanguage
             FromString(userdata, out path, out vars);
 
             ExtendedAudioForms.WaveConfigureDialog cfg = new ExtendedAudioForms.WaveConfigureDialog();
-            cfg.Init(false, cp.AudioQueueWave, null, cp.Icon,
+            cfg.Init(false,true, cp.AudioQueueWave, null, cp.Icon,
                         path,
                         vars.Exists(waitname),
                         AudioQueue.GetPriority(vars.GetString(priorityname, "Normal")),
@@ -136,6 +136,15 @@ namespace ActionLanguage
                     {
                         if (path == tonekey || System.IO.File.Exists(path))
                         {
+                            while (vars.Exists(paravar))       // if we have Para=
+                            {
+                                string plist = vars[paravar];
+                                vars.Delete(paravar);
+                                Variables pv = new Variables();
+                                pv.FromString(plist, Variables.FromMode.MultiEntryComma);
+                                vars.Add(pv);
+                            }
+
                             bool wait = vars.GetInt(waitname, 0) != 0;
                             AudioQueue.Priority priority = AudioQueue.GetPriority(vars.GetString(priorityname, "Normal"));
                             string start = vars.GetString(startname);
