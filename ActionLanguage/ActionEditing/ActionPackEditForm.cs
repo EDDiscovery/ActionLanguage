@@ -219,9 +219,7 @@ namespace ActionLanguage
 
             bool collapsed = false;
 
-            panelVScroll.SuspendLayout();
-
-            int curpos = panelVScroll.Reset();      // we are going to restablish the whole co-ords again, so reset.
+            int curpos = panelVScroll.BeingPosition();      // we are going to restablish the whole co-ords again, so reset.
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -283,12 +281,7 @@ namespace ActionLanguage
 
             this.Text = label_index.Text = initialtitle + " (" + entries.Count.ToString() + ")";
 
-            panelVScroll.ResumeLayout();
-
-            if (toend)
-                panelVScroll.ToEnd();       // tell it to scroll to end
-            else
-                panelVScroll.ScrollTo(curpos);
+            panelVScroll.FinishedPosition(toend ? int.MaxValue : curpos);
         }
     
         #endregion
@@ -465,7 +458,7 @@ namespace ActionLanguage
 
             if (avf.ShowDialog(this) == DialogResult.OK)
             {
-                actionfile.ChangeInstallationVariables(avf.result);
+                actionfile.ChangeInstallationVariables(avf.Result);
             }
         }
 

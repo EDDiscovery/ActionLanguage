@@ -257,12 +257,12 @@ namespace ActionLanguage
             Variables cond = new Variables(paras.Text,Variables.FromMode.MultiEntryComma);
 
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Input parameters to pass to program on run".TxID(AFIDs.ActionPackEditForm_ip), this.Icon, cond, showatleastoneentry: true, showrunatrefreshcheckbox: true);
+            avf.Init("Input parameters to pass to program on run".TxID(AFIDs.ActionPackEditForm_ip), this.Icon, cond, showatleastoneentry: true);
 
             if (avf.ShowDialog(FindForm()) == DialogResult.OK)
             {
-                paras.Text = avf.result.ToString();
-                cd.ActionVars = avf.result;
+                paras.Text = avf.Result.ToString();
+                cd.ActionVars = avf.Result;
             }
         }
 

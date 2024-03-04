@@ -46,7 +46,7 @@ namespace ActionLanguage
 
             if (avf.ShowDialog(parent) == DialogResult.OK)
             {
-                userdata = ToString(avf.result,avf.result_altops);
+                userdata = ToString(avf.Result,avf.ResultAltOPs);
                 return true;
             }
             else

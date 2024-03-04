@@ -233,9 +233,7 @@ namespace ActionLanguage
 
         string RepositionGroups(bool calcminsize,bool toend= false)
         {
-            panelVScroll.SuspendLayout();
-
-            int curpos = panelVScroll.Reset();      // we are going to restablish the whole co-ords again, so reset.
+            int curpos = panelVScroll.BeingPosition();      // we are going to restablish the whole co-ords again, so reset.
 
             string errlist = curprog.CalculateLevels();
 
@@ -333,12 +331,7 @@ namespace ActionLanguage
                 stopresizepositioning = false;
             }
 
-            panelVScroll.ResumeLayout();
-
-            if (toend)
-                panelVScroll.ToEnd();       // tell it to scroll to end
-            else
-                panelVScroll.ScrollTo(curpos);
+            panelVScroll.FinishedPosition(toend ? int.MaxValue : curpos);
 
             return errlist;
         }

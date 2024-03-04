@@ -155,7 +155,7 @@ namespace ActionLanguage
                                 vol = ap.variables.GetInt(globalvarplayvolume, 60);
 
                             Variables globalsettings = ap.VarExist(globalvarplayeffects) ? new Variables(ap[globalvarplayeffects], Variables.FromMode.MultiEntryComma) : null;
-                            SoundEffectSettings ses = SoundEffectSettings.Set(globalsettings, vars);        // work out the settings
+                            SoundEffectSettings ses = SoundEffectSettings.Create(globalsettings, vars);        // work out the settings
 
                             AudioQueue.AudioSample audio = null;
 
