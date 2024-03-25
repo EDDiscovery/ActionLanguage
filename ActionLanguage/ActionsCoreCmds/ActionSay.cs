@@ -194,7 +194,12 @@ namespace ActionLanguage
                     string mixsoundpath = vars.GetString(mixsound, checklen: true);
 
                     Variables globalsettings = ap.VarExist(globalvarspeecheffects) ? new Variables(ap[globalvarspeecheffects], Variables.FromMode.MultiEntryComma) : null;
-                    SoundEffectSettings ses = SoundEffectSettings.Create(globalsettings, vars);        // work out the settings. May be null
+
+                    // work out the settings. local vars could have NoEffect (so none) or MergeEffect (Global then vars)
+                    // or if no local vars use 
+                    // apply the NoEffects, MergeEffects and NoGlobalEffect flags as well as the effect variables
+
+                    SoundEffectSettings ses = SoundEffectSettings.Create(globalsettings, vars);        
 
                     if (queuelimitms > 0)
                     {
@@ -212,8 +217,8 @@ namespace ActionLanguage
                     if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
                     {
                         System.Diagnostics.Debug.WriteLine($"{Environment.TickCount} Say wait {wait}, vol {vol}, rate {rate}, queue {queuelimitms}, priority {priority}, culture {culture}, literal {literal}, dontspeak {dontspeak} , prefix {prefixsoundpath}, postfix {postfixsoundpath}, mix {mixsoundpath} starte {start}, finishe {finish} , voice {voice}, text {expsay}");
-                        System.Diagnostics.Debug.WriteLine($"..Say variables {vars.ToString(separ: Environment.NewLine)}");
-                        System.Diagnostics.Debug.WriteLine($"..Say effect variables {ses?.Values.ToString(separ: Environment.NewLine)}");
+                        System.Diagnostics.Debug.WriteLine($"..Say variables: {vars.ToString(separ: Environment.NewLine, prefix:"  ")}");
+                        //System.Diagnostics.Debug.WriteLine($"..Say effect variables: {ses?.Values.ToString(separ: Environment.NewLine, prefix:"  ")}");
 
                         Random rnd = FunctionHandlers.GetRandom();
 
