@@ -515,7 +515,7 @@ namespace ActionLanguage
 
         private void insertGroupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string s = ExtendedControls.PromptSingleLine.ShowDialog(this, "Group Name:", "", "Enter group name", Icon);
+            string s = ExtendedControls.PromptSingleLine.ShowDialog(this, "Group Name:", "", "Enter group name", Icon, requireinput:true);
 
             if (s != null)
             {
@@ -624,7 +624,7 @@ namespace ActionLanguage
 
         private void renameGroupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string s = ExtendedControls.PromptSingleLine.ShowDialog(this, "Group Name:", "", "Enter group name", Icon);
+            string s = ExtendedControls.PromptSingleLine.ShowDialog(this, "Group Name:", "", "Enter group name", Icon, requireinput:true);
 
             if (s != null)
             {
