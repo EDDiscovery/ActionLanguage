@@ -707,7 +707,7 @@ namespace ActionLanguage
             }
             else if (e.Button == MouseButtons.Right)
             {
-                if (sender is ExtendedControls.ExtPanelScroll)
+                if (sender is ExtendedControls.ExtPanelVertScroll)
                     rightclickstep = groups.Count;      // click outside, means end
                 else
                 {
