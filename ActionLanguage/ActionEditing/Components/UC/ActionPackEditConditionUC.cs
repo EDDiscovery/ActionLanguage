@@ -163,7 +163,7 @@ namespace ActionLanguage
         // key shown, click, present editing dialog
         private void Keypress_Click(object sender, EventArgs e)
         {
-            ExtendedControls.KeyForm kf = new ExtendedControls.KeyForm();
+            ExtendedForms.KeyForm kf = new ExtendedForms.KeyForm();
             kf.Init(this.Icon, false, ",", buttonKeys.Text.Equals("?") ? "" : buttonKeys.Text);
             if ( kf.ShowDialog(FindForm()) == DialogResult.OK)
             {

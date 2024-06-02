@@ -79,8 +79,8 @@ namespace ActionLanguage
             string keys;
             FromString(userdata, out keys, out vars);
 
-            ExtendedControls.KeyForm kf = new ExtendedControls.KeyForm();
-            int defdelay = vars.Exists(DelayID) ? vars[DelayID].InvariantParseInt(DefaultDelay) : ExtendedControls.KeyForm.DefaultDelayID;
+            ExtendedForms.KeyForm kf = new ExtendedForms.KeyForm();
+            int defdelay = vars.Exists(DelayID) ? vars[DelayID].InvariantParseInt(DefaultDelay) : ExtendedForms.KeyForm.DefaultDelayID;
             string process = vars.Exists(ProcessID) ? vars[ProcessID] : "";
 
             kf.Init(ic, true, " ", keys, process , additionalkeys:additionalkeys ,parser:additionalparser );      // process="" default, defdelay = DefaultDelayID default
@@ -89,7 +89,7 @@ namespace ActionLanguage
             {
                 Variables vlist = new Variables();
 
-                if (kf.DefaultDelay != ExtendedControls.KeyForm.DefaultDelayID)                                       // only add these into the command if set to non default
+                if (kf.DefaultDelay != ExtendedForms.KeyForm.DefaultDelayID)                                       // only add these into the command if set to non default
                     vlist[DelayID] = kf.DefaultDelay.ToStringInvariant();
                 if (kf.ProcessSelected.Length > 0)
                     vlist[ProcessID] = kf.ProcessSelected;
