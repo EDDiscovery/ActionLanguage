@@ -622,7 +622,7 @@ namespace ActionLanguage
             macroname = sp.NextQuotedWord();
             searchterm = null;
 
-            return (macroname != null && sp.IsStringMoveOn("in") && (searchterm = sp.NextQuotedWord()) != null);
+            return (macroname != null && sp.IsStringMoveOn("in",StringComparison.InvariantCultureIgnoreCase) && (searchterm = sp.NextQuotedWord()) != null);
         }
 
         static public string ToString(string macro, string searchterm)
@@ -694,6 +694,7 @@ namespace ActionLanguage
                     if (values.Count > 0)
                     {
                         ap[expmacroname] = values[count++];
+                        ap["Index"] = count.ToStringInvariant();
                         System.Diagnostics.Debug.WriteLine("First value " + ap[expmacroname]);
                     }
                 }
@@ -715,6 +716,7 @@ namespace ActionLanguage
                 {
                     ap.Goto(ap.PushPos + 1);
                     ap[expmacroname] = values[count++];
+                    ap["Index"] = count.ToStringInvariant();
                     System.Diagnostics.Debug.WriteLine("New value " + ap[expmacroname]);
 
                     return true;

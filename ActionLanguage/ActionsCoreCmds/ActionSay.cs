@@ -215,7 +215,7 @@ namespace ActionLanguage
                     if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
                     {
                         System.Diagnostics.Debug.WriteLine($"{Environment.TickCount} Say wait {wait}, vol {vol}, rate {rate}, queue {queuelimitms}, priority {priority}, culture {culture}, literal {literal}, dontspeak {dontspeak} , prefix {prefixsoundpath}, postfix {postfixsoundpath}, mix {mixsoundpath} starte {start}, finishe {finish} , voice {voice}, text {expsay}");
-                        System.Diagnostics.Debug.WriteLine($"..Say variables: {vars.ToString(separ: Environment.NewLine, prefix:"  ")}");
+                        //System.Diagnostics.Debug.WriteLine($"..Say variables: {vars.ToString(separ: Environment.NewLine, prefix:"  ")}");
                         //System.Diagnostics.Debug.WriteLine($"..Say effect variables: {ses?.Values.ToString(separ: Environment.NewLine, prefix:"  ")}");
 
                         Random rnd = FunctionHandlers.GetRandom();
