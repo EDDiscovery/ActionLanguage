@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright 2017 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -10,8 +10,6 @@
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- * 
- * EDDiscovery is not affiliated with Frontier Developments plc.
  */
 using System;
 using System.Collections.Generic;
@@ -624,7 +622,7 @@ namespace ActionLanguage
             macroname = sp.NextQuotedWord();
             searchterm = null;
 
-            return (macroname != null && sp.IsStringMoveOn("in") && (searchterm = sp.NextQuotedWord()) != null);
+            return (macroname != null && sp.IsStringMoveOn("in",StringComparison.InvariantCultureIgnoreCase) && (searchterm = sp.NextQuotedWord()) != null);
         }
 
         static public string ToString(string macro, string searchterm)
@@ -696,6 +694,7 @@ namespace ActionLanguage
                     if (values.Count > 0)
                     {
                         ap[expmacroname] = values[count++];
+                        ap["Index"] = count.ToStringInvariant();
                         System.Diagnostics.Debug.WriteLine("First value " + ap[expmacroname]);
                     }
                 }
@@ -717,6 +716,7 @@ namespace ActionLanguage
                 {
                     ap.Goto(ap.PushPos + 1);
                     ap[expmacroname] = values[count++];
+                    ap["Index"] = count.ToStringInvariant();
                     System.Diagnostics.Debug.WriteLine("New value " + ap[expmacroname]);
 
                     return true;

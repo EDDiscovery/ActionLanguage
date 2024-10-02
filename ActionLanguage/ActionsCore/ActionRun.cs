@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017-2021 EDDiscovery development team
+ * Copyright 2017-2024 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -10,9 +10,8 @@
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- * 
- * EDDiscovery is not affiliated with Frontier Developments plc.
  */
+
 using BaseUtils;
 using System;
 using System.Collections.Generic;
@@ -27,17 +26,7 @@ namespace ActionLanguage
     {
         public bool AsyncMode { get; set; } = true;         // set this for non async mode -debug only
 
-        private BaseUtils.LogToFile logger = null;
-        private bool logtologline = false;
-        
-        private List<ActionProgramRun> progqueue = new List<ActionProgramRun>();
-        private ActionProgramRun progcurrent = null;
-
-        private ActionCoreController actioncontroller = null;
-        private ActionFileList actionfilelist = null;
-
-        private bool executing = false;         // Records is executing
-        private Timer restarttick = new Timer();
+        #region Implementation
 
         public ActionRun(ActionCoreController ed, ActionFileList afl)
         {
@@ -317,5 +306,24 @@ namespace ActionLanguage
                     System.Threading.Thread.Sleep(20);
             }
         }
+
+        #endregion
+
+        #region Vars
+
+        private BaseUtils.LogToFile logger = null;
+        private bool logtologline = false;
+
+        private List<ActionProgramRun> progqueue = new List<ActionProgramRun>();
+        private ActionProgramRun progcurrent = null;
+
+        private ActionCoreController actioncontroller = null;
+        private ActionFileList actionfilelist = null;
+
+        private bool executing = false;         // Records is executing
+        private Timer restarttick = new Timer();
+
+        #endregion
+
     }
 }

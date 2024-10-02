@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017 EDDiscovery development team
+ * Copyright 2017-2024 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -10,42 +10,19 @@
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- * 
- * EDDiscovery is not affiliated with Frontier Developments plc.
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using BaseUtils;
-using AudioExtensions;
 
 namespace ActionLanguage
 {
     public class ActionCoreController
     {
-        protected ActionFileList actionfiles;
-        protected ActionRun actionrunasync;
-
-        private Variables programrunglobalvariables;         // program run, lost at power off, set by GLOBAL or internal 
-        private Variables persistentglobalvariables;   // user variables, set by user only, including user setting vars like SpeechVolume
-        private Variables globalvariables;                  // combo of above.
-
-        protected Variables PersistentVariables { get { return persistentglobalvariables; } }
-        protected void LoadPeristentVariables(Variables list)
-        {
-            persistentglobalvariables = list;
-            globalvariables = new Variables(persistentglobalvariables, programrunglobalvariables);
-        }
-
         virtual public AudioExtensions.AudioQueue AudioQueueWave { get; }
         virtual public AudioExtensions.AudioQueue AudioQueueSpeech { get; }
         virtual public AudioExtensions.SpeechSynthesizer SpeechSynthesizer { get; }
 
         public Variables Globals { get { return globalvariables; } }
-
-        protected System.Windows.Forms.Form form;
 
         public System.Windows.Forms.Form Form { get { return form; } }
 
@@ -149,6 +126,28 @@ namespace ActionLanguage
         {
             return actionfiles.CheckForActionFilesChange();
         }
+
+
+        #region Vars
+
+        protected ActionFileList actionfiles;
+        protected ActionRun actionrunasync;
+
+        private Variables programrunglobalvariables;         // program run, lost at power off, set by GLOBAL or internal 
+        private Variables persistentglobalvariables;   // user variables, set by user only, including user setting vars like SpeechVolume
+        private Variables globalvariables;                  // combo of above.
+
+        protected Variables PersistentVariables { get { return persistentglobalvariables; } }
+        protected void LoadPeristentVariables(Variables list)
+        {
+            persistentglobalvariables = list;
+            globalvariables = new Variables(persistentglobalvariables, programrunglobalvariables);
+        }
+
+        protected System.Windows.Forms.Form form;
+
+        #endregion
+
 
     }
 }

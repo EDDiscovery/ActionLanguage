@@ -616,7 +616,7 @@ namespace ActionLanguage
 
             string conv = string.Join(Environment.NewLine, istr.Split(Environment.NewLine).Select(x => x.ReplaceIfStartsWith("// ", "")));      // split, remove any // space prefixes
 
-            f.Add(new ExtendedControls.ConfigurableForm.Entry("text", typeof(ExtendedControls.ExtTextBox), conv,
+            f.Add(new ExtendedControls.ConfigurableEntryList.Entry("text", typeof(ExtendedControls.ExtTextBox), conv,
                     new Point(8, 30), new Size(width - 20, okline-10-30), null) { TextBoxMultiline = true });
 
             f.AddOK(new Point(width - 100, okline));

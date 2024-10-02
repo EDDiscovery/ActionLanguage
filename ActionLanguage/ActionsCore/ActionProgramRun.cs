@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017-2021 EDDiscovery development team
+ * Copyright © 2017-2024 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -10,9 +10,8 @@
  * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF
  * ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
- * 
- * EDDiscovery is not affiliated with Frontier Developments plc.
  */
+
 using System;
 using System.Collections.Generic;
 using BaseUtils;
@@ -24,26 +23,11 @@ namespace ActionLanguage
     public class ActionProgramRun : ActionProgram
     {
         // used during execution.. filled in on program objects associated with an execution
-        public ActionCoreController ActionController;                     // core controller.
-        public Functions Functions;                   // function handler
-        public ActionFile ActionFile;                       // what file it came from..
-        public Dictionary<string, ExtendedControls.ConfigurableForm> Dialogs;
+        public ActionCoreController ActionController { get; set; }                     // core controller.
+        public Functions Functions { get; set; }                   // function handler
+        public ActionFile ActionFile { get; set; }                       // what file it came from..
+        public Dictionary<string, ExtendedControls.ConfigurableForm> Dialogs { get; set; }  // dialogs open..
         public bool ClosingHandlesAtEnd { get; private set; }
-
-        private Variables currentvars;      // set up by ActionRun at invokation so they have the latest globals, see Run line 87 ish
-        private FunctionPersistentData conditionpersistentdata;
-        private Variables inputvars;        // input vars to this program, never changed
-        private ActionRun actionrun;        // who is running it..
-        private int nextstepnumber;         // the next step to execute, 0 based
-
-        public enum ExecState { On, Off, OffForGood }
-        private ExecState[] execstate = new ExecState[50];
-        private ActionBase.ActionType[] exectype = new ActionBase.ActionType[50];   // type of level
-        private int[] execlooppos = new int[50];            // if not -1, on level down, go back to this step.
-        private int execlevel = 0;
-
-        private bool continueonerrors = false;
-        private string errlist = null;
 
         public ActionProgramRun(ActionFile af, // associated file
                                 ActionProgram r,  // the program
@@ -160,6 +144,8 @@ namespace ActionLanguage
         {
             PushState(ty, res ? ExecState.On : ExecState.Off, pushpos);
         }
+
+        public enum ExecState { On, Off, OffForGood }
 
         public void PushState(ActionBase.ActionType ty, ExecState ex, bool pushpos = false)
         {
@@ -310,6 +296,25 @@ namespace ActionLanguage
         {
             continueonerrors = v;
         }
+
+        #endregion
+
+
+        #region vars
+
+        private Variables currentvars;      // set up by ActionRun at invokation so they have the latest globals, see Run line 87 ish
+        private FunctionPersistentData conditionpersistentdata;
+        private Variables inputvars;        // input vars to this program, never changed
+        private ActionRun actionrun;        // who is running it..
+        private int nextstepnumber;         // the next step to execute, 0 based
+
+        private ExecState[] execstate = new ExecState[50];
+        private ActionBase.ActionType[] exectype = new ActionBase.ActionType[50];   // type of level
+        private int[] execlooppos = new int[50];            // if not -1, on level down, go back to this step.
+        private int execlevel = 0;
+
+        private bool continueonerrors = false;
+        private string errlist = null;
 
         #endregion
 
