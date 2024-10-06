@@ -26,7 +26,7 @@ namespace ActionLanguage
         public ActionCoreController ActionController { get; set; }                     // core controller.
         public Functions Functions { get; set; }                   // function handler
         public ActionFile ActionFile { get; set; }                       // what file it came from..
-        public Dictionary<string, ExtendedControls.ConfigurableForm> Dialogs { get; set; }  // dialogs open..
+        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; set; }  // dialogs open..
         public bool ClosingHandlesAtEnd { get; private set; }
 
         public ActionProgramRun(ActionFile af, // associated file
@@ -70,7 +70,7 @@ namespace ActionLanguage
 
         #region Exec control
 
-        public void PrepareToRun( Variables v , FunctionPersistentData fh , Dictionary<string, ExtendedControls.ConfigurableForm> d, bool chae = true)
+        public void PrepareToRun( Variables v , FunctionPersistentData fh , Dictionary<string, ExtendedControls.IConfigurableDialog> d, bool chae = true)
         {
             currentvars = v;
             conditionpersistentdata = fh;

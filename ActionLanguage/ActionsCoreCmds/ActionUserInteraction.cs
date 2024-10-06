@@ -520,7 +520,7 @@ namespace ActionLanguage
                     bool infile = ap.ActionFile.Dialogs.ContainsKey(handle);
                     bool inlocal = ap.Dialogs.ContainsKey(handle);
 
-                    ExtendedControls.ConfigurableForm f = infile ? ap.ActionFile.Dialogs[handle] : (inlocal ? ap.Dialogs[handle] : null);
+                    ExtendedControls.IConfigurableDialog f = infile ? ap.ActionFile.Dialogs[handle] : (inlocal ? ap.Dialogs[handle] : null);
 
                     string cmd = sp.NextWordLCInvariant();
 

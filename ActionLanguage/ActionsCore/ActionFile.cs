@@ -28,14 +28,14 @@ namespace ActionLanguage
         public ActionFile()
         {
             FileVariables = new Variables();       // filevariables are only cleared on creation
-            Dialogs = new Dictionary<string, ExtendedControls.ConfigurableForm>();
+            Dialogs = new Dictionary<string, ExtendedControls.IConfigurableDialog>();
             Clear();
         }
 
         public ActionFile(string f, string n)
         {
             FileVariables = new Variables();
-            Dialogs = new Dictionary<string, ExtendedControls.ConfigurableForm>();
+            Dialogs = new Dictionary<string, ExtendedControls.IConfigurableDialog>();
             Clear(f, n);
         }
 
@@ -59,7 +59,7 @@ namespace ActionLanguage
         public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
         public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
         public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
-        public Dictionary<string, ExtendedControls.ConfigurableForm> Dialogs; // persistent dialogs owned by this file
+        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs; // persistent dialogs owned by this file
         public string FilePath { get; private set; }                          // where it came from
         public string Name { get; private set; }                              // its logical name
         public DateTime WriteTimeUTC { get; private set; }                    // last modified time    

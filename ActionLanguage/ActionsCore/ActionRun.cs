@@ -39,7 +39,7 @@ namespace ActionLanguage
         // now = true, run it immediately, else run at end of queue.  Optionally pass in handles and dialogs in case its a sub prog
 
         public void Run(bool now, ActionFile fileset, ActionProgram r, Variables inputparas,
-                                FunctionPersistentData fh = null, Dictionary<string, ExtendedControls.ConfigurableForm> d = null, bool closeatend = true)
+                                FunctionPersistentData fh = null, Dictionary<string, ExtendedControls.IConfigurableDialog> d = null, bool closeatend = true)
         {
             if (now)
             {
@@ -49,7 +49,7 @@ namespace ActionLanguage
                 progcurrent = new ActionProgramRun(fileset, r, inputparas, this, actioncontroller);   // now we run this.. no need to push to stack
 
                 progcurrent.PrepareToRun(new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.FileVariables),
-                                                fh == null ? new FunctionPersistentData() : fh, d == null ? new Dictionary<string, ExtendedControls.ConfigurableForm>() : d, closeatend);        // if no filehandles, make them and close at end
+                                                fh == null ? new FunctionPersistentData() : fh, d == null ? new Dictionary<string, ExtendedControls.IConfigurableDialog>() : d, closeatend);        // if no filehandles, make them and close at end
             }
             else
             {
@@ -128,7 +128,7 @@ namespace ActionLanguage
                         progcurrent.PrepareToRun(
                                 new Variables(progcurrent.inputvariables, actioncontroller.Globals, progcurrent.ActionFile.FileVariables),
                                 new FunctionPersistentData(),
-                                new Dictionary<string, ExtendedControls.ConfigurableForm>(), true); // with new file handles and close at end..
+                                new Dictionary<string, ExtendedControls.IConfigurableDialog>(), true); // with new file handles and close at end..
                     }
 
                     if (progcurrent.IsProgramFinished)          // reject empty programs..
