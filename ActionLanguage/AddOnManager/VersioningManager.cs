@@ -70,13 +70,13 @@ namespace ActionLanguage.Manager
         {
         }
 
-        public void ReadLocalFiles(string appfolder, string subfolder, string filename , string defaultitemtype)       // DONE FIRST
+        // read local act files from installfolder with pattern matching by filename
+        public void ReadLocalFiles(string appfolder, string filesfolder, string filename , string defaultitemtype)      
         {
-            string installfolder = System.IO.Path.Combine(appfolder, subfolder);
-            if (!System.IO.Directory.Exists(installfolder))
-                System.IO.Directory.CreateDirectory(installfolder);
+            if (!System.IO.Directory.Exists(filesfolder))
+                System.IO.Directory.CreateDirectory(filesfolder);
 
-            FileInfo[] allFiles = Directory.EnumerateFiles(installfolder, filename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
+            FileInfo[] allFiles = Directory.EnumerateFiles(filesfolder, filename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
 
             foreach (FileInfo f in allFiles)
             {
@@ -90,7 +90,7 @@ namespace ActionLanguage.Manager
                     it.ItemType = defaultitemtype;
 
                     it.LocalFilename = f.FullName;
-                    it.LocalPath = installfolder;
+                    it.LocalPath = filesfolder;
 
                     it.State = ItemState.LocalOnly;
                     it.LocalVars = ReadVarsFromFile(f.FullName , out bool? le);

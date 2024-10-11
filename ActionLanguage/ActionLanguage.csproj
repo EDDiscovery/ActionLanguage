@@ -79,6 +79,7 @@
     <Compile Include="ActionsCoreCmds\ActionEvents.cs" />
     <Compile Include="ActionsCoreCmds\ActionSleep.cs" />
     <Compile Include="ActionsCoreCmds\ActionStructures.cs" />
+    <Compile Include="ActionsCoreCmds\ActionDialog.cs" />
     <Compile Include="ActionsCoreCmds\ActionUserInteraction.cs" />
     <Compile Include="ActionsCore\ActionBase.cs" />
     <Compile Include="ActionsCore\ActionCoreController.cs" />

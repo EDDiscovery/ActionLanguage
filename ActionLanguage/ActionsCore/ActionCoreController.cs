@@ -31,6 +31,8 @@ namespace ActionLanguage
         public bool AsyncMode { get { return actionrunasync.AsyncMode; } set { actionrunasync.AsyncMode = value; } }
         public void DebugTrace(bool ll, string file = null) { actionrunasync.DebugTrace(ll, file); }
 
+        public ActionFile GetFile(string name) { return actionfiles.Get(name); }
+
         public ActionCoreController(System.Windows.Forms.Form frm, System.Drawing.Icon ic )
         {
             Icon = ic;

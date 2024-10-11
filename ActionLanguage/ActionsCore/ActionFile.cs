@@ -23,6 +23,7 @@ using BaseUtils;
 
 namespace ActionLanguage
 {
+    [System.Diagnostics.DebuggerDisplay("ActionFile E:{Enabled} {Name} {FilePath} ")]
     public class ActionFile
     {
         public ActionFile()
