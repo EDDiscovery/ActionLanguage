@@ -36,20 +36,33 @@ namespace ActionLanguage
             actionfilelist = afl;
         }
 
-        // now = true, run it immediately, else run at end of queue.  Optionally pass in handles and dialogs in case its a sub prog
+        // now = true, run it immediately, else run at end of queue.
+        // pass in local vars to run with
+        // Optionally pass in handles and dialogs in case its a sub prog
 
-        public void Run(bool now, ActionFile fileset, ActionProgram r, Variables inputparas,
-                                FunctionPersistentData fh = null, Dictionary<string, ExtendedControls.IConfigurableDialog> d = null, bool closeatend = true)
+        public void Run(bool now, ActionFile fileset, ActionProgram r, 
+                                Variables inputparas, // local vars to pass into run
+                                FunctionPersistentData fh = null,           // Function handler in baseutils uses this for peristent data
+                                Dictionary<string, ExtendedControls.IConfigurableDialog> dialogs = null,  // set of dialogs
+                                bool closeatend = true)
         {
             if (now)
             {
                 if (progcurrent != null)                    // if running, push the current one back onto the queue to be picked up
                     progqueue.Insert(0, progcurrent);
 
-                progcurrent = new ActionProgramRun(fileset, r, inputparas, this, actioncontroller);   // now we run this.. no need to push to stack
+                // now we run this.. no need to push to stack
 
-                progcurrent.PrepareToRun(new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.FileVariables),
-                                                fh == null ? new FunctionPersistentData() : fh, d == null ? new Dictionary<string, ExtendedControls.IConfigurableDialog>() : d, closeatend);        // if no filehandles, make them and close at end
+                progcurrent = new ActionProgramRun(fileset, r, inputparas, this, actioncontroller);   
+
+                // assemble total variable set for running.
+                var runningvarset = new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.FileVariables);
+
+                // prepare runner
+                progcurrent.PrepareToRun(runningvarset,
+                                                fh == null ? new FunctionPersistentData() : fh, 
+                                                dialogs == null ? new Dictionary<string, ExtendedControls.IConfigurableDialog>() : dialogs, 
+                                                closeatend);        // if no filehandles, make them and close at end
             }
             else
             {

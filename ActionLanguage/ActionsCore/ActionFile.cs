@@ -51,8 +51,9 @@ namespace ActionLanguage
             Name = n;
             WriteTimeUTC = DateTime.MinValue;
             FileEncoding = Encoding.UTF8;
-            FileVariables["ActionPackName"] = Name;         
+            FileVariables["ActionPackName"] = Name;             // static file variables giving name and file path
             FileVariables["ActionPackFilePath"] = FilePath;
+            FileVariables["ActionPackFolder"] = FilePath.HasChars() ? Path.GetDirectoryName(FilePath) : "";
         }
 
         public ConditionLists FileEventList { get; private set; }             // list read from file

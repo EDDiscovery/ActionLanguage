@@ -70,9 +70,9 @@ namespace ActionLanguage
 
         #region Exec control
 
-        public void PrepareToRun( Variables v , FunctionPersistentData fh , Dictionary<string, ExtendedControls.IConfigurableDialog> d, bool chae = true)
+        public void PrepareToRun( Variables runningset , FunctionPersistentData fh , Dictionary<string, ExtendedControls.IConfigurableDialog> d, bool chae = true)
         {
-            currentvars = v;
+            currentvars = runningset;
             conditionpersistentdata = fh;
             ClosingHandlesAtEnd = chae;
             Functions = new Functions(currentvars, conditionpersistentdata);           // point the functions at our variables and our files..

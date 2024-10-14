@@ -50,7 +50,7 @@ namespace ActionLanguage
 
         public class MatchingSets
         {
-            public ActionFile af;                           // file it came from
+            public ActionFile af;            // file it came from
             public List<Condition> cl;       // list of matching events..
             public List<Condition> passed;   // list of passed events after condition checked.
         }
@@ -128,7 +128,8 @@ namespace ActionLanguage
 
             return progs;
         }
-
+        
+        // run programs in matching set
         // now = true run immediately, else defer to current programs
         public void RunActions(bool now, List<ActionFileList.MatchingSets> ale, ActionRun run, Variables inputparas)
         {
