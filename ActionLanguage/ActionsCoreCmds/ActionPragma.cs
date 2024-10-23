@@ -105,7 +105,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("enableasync"))
                     {
-                        ap.ActionController.AsyncMode = false;
+                        ap.ActionController.AsyncMode = true;
                     }
                     else if (cmd.Equals("enabletrace"))
                     {

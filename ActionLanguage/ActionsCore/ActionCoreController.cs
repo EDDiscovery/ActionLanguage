@@ -28,8 +28,9 @@ namespace ActionLanguage
 
         public System.Drawing.Icon Icon { get; private set;}
 
-        public bool AsyncMode { get { return actionrunasync.AsyncMode; } set { actionrunasync.AsyncMode = value; } }
-        public void DebugTrace(bool ll, string file = null) { actionrunasync.DebugTrace(ll, file); }
+        public bool AsyncMode { get { return actionrun.AsyncMode; } set { actionrun.AsyncMode = value; } }
+        public bool Executing { get => actionrun.Executing; }
+        public void DebugTrace(bool ll, string file = null) { actionrun.DebugTrace(ll, file); }
 
         public ActionFile GetFile(string name) { return actionfiles.Get(name); }
 
@@ -109,7 +110,7 @@ namespace ActionLanguage
 
         public void TerminateAll()
         {
-            actionrunasync.TerminateAll();
+            actionrun.TerminateAll();
         }
 
         public virtual void LogLine(string s)
@@ -133,7 +134,7 @@ namespace ActionLanguage
         #region Vars
 
         protected ActionFileList actionfiles;
-        protected ActionRun actionrunasync;
+        protected ActionRun actionrun;
 
         private Variables programrunglobalvariables;         // program run, lost at power off, set by GLOBAL or internal 
         private Variables persistentglobalvariables;   // user variables, set by user only, including user setting vars like SpeechVolume

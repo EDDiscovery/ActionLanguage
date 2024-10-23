@@ -25,6 +25,7 @@ namespace ActionLanguage
     public class ActionRun
     {
         public bool AsyncMode { get; set; } = true;         // set this for non async mode -debug only
+        public bool Executing { get => executing; }
 
         #region Implementation
 
@@ -222,7 +223,7 @@ namespace ActionLanguage
 
                 if (AsyncMode && timetaken.ElapsedMilliseconds > 150)  // no more than ms per go to stop the main thread being blocked
                 {
-                    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND Actions at " + timetaken.ElapsedMilliseconds);
+                    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND Actions at " + timetaken.ElapsedMilliseconds + " " + progcurrent.Name);
                     restarttick.Start();
                     break;
                 }

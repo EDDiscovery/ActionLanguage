@@ -247,22 +247,20 @@ namespace ActionLanguage
                     else if (cmd.Equals("get"))
                     {
                         string control = sp.NextQuotedWord();
-                        string r;
-
-                        if (control != null && (r = cf.Get(control)) != null)
+                        if (control.HasChars() && cf.Get(control, out string r))
                         {
                             ap["DialogResult"] = r;
                         }
                         else
                             ap.ReportError("DialogControl get missing or invalid dialog name");
                     }
-                    else if (cmd.Equals("set"))
+                    else if (cmd.Equals("set") || cmd.Equals("setescape"))
                     {
                         string control = sp.NextQuotedWord(" =");
                         string value = sp.IsCharMoveOn('=') ? sp.NextQuotedWord() : null;
-                        if (control != null && value != null)
+                        if (control != null && value != null && sp.IsEOL)
                         {
-                            if (!cf.Set(control, value))
+                            if (!cf.Set(control, value, cmd.Equals("setescape")))
                                 ap.ReportError($"DialogControl set cannot set {control}");
                         }
                         else
@@ -279,6 +277,18 @@ namespace ActionLanguage
                                 ap.ReportError($"DialogControl add error: {res}");
                             else
                                 cf.UpdateEntries();
+                        }
+                        else
+                            ap.ReportError($"DialogControl add no string");
+                    }
+                    else if (cmd.Equals("addtext"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        string value = sp.IsCharMoveOn(',') ? sp.NextQuotedWord() : null;
+                        if (control != null && value != null )
+                        {
+                            if (!cf.AddText(control, value))
+                                ap.ReportError($"DialogControl set cannot addtext {control}");
                         }
                         else
                             ap.ReportError($"DialogControl add no string");
