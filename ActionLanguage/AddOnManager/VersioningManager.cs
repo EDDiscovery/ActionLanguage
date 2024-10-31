@@ -70,13 +70,16 @@ namespace ActionLanguage.Manager
         {
         }
 
-        // read local act files from installfolder with pattern matching by filename
-        public void ReadLocalFiles(string appfolder, string filesfolder, string filename , string defaultitemtype)      
+        // read local act files from installfolder 
+        public void ReadLocalFiles(string appfolder,        // root of install
+                                   string filesfolder,      // where we are scanning
+                                   string wildcardfilename, // pattern to match
+                                   string defaultitemtype)  // type to give in it.ItemType to the scanned files
         {
             if (!System.IO.Directory.Exists(filesfolder))
                 System.IO.Directory.CreateDirectory(filesfolder);
 
-            FileInfo[] allFiles = Directory.EnumerateFiles(filesfolder, filename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
+            FileInfo[] allFiles = Directory.EnumerateFiles(filesfolder, wildcardfilename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
 
             foreach (FileInfo f in allFiles)
             {
@@ -137,17 +140,26 @@ namespace ActionLanguage.Manager
             }
         }
 
-        public void ReadInstallFiles(string serverlocation , string serverpath, string folder, string appfolder, string filename, int[] edversion , 
-                                    string defaultitemtype, string progtype)
+        // Read files from a dump got from github
+        // does after local files reading
+        public void ReadInstallFiles(string serverlocation , string serverpath,     // only to fill in the fields
+                                    string downloadfolder, // where the downloads have been stored
+                                    string approotfolder, // root of install
+                                    string wildcardfilename, // what files to consider in the download folder
+                                    int[] edversion , 
+                                    string defaultitemtype,
+                                    string progtype)      // program name, which can screen out downloaded files if it has ProgType variable defined
         {
-            FileInfo[] allFiles = Directory.EnumerateFiles(folder, filename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
+            // all files found in the download folder
+
+            FileInfo[] allFiles = Directory.EnumerateFiles(downloadfolder, wildcardfilename, SearchOption.TopDirectoryOnly).Select(f => new FileInfo(f)).OrderBy(p => p.Name).ToArray();
 
             foreach (FileInfo f in allFiles)
             {
                 try
                 {
                     bool? enabled;   // don't care about this in remote files
-                    Variables cv = ReadVarsFromFile(f.FullName,out enabled);
+                    Variables cv = ReadVarsFromFile(f.FullName,out enabled);        // get variables from file
 
                     if (cv != null)
                     {
@@ -162,14 +174,15 @@ namespace ActionLanguage.Manager
                             (version = cv["Version"].VersionFromString()) != null
                             )
                         {
-                            string installfolder = System.IO.Path.Combine(appfolder, cv["Location"]);
-                            string localfilename = System.IO.Path.Combine(installfolder, Path.GetFileName(f.FullName));
+                            string installfolder = System.IO.Path.Combine(approotfolder, cv["Location"]);       // store folder given from root of app by Location
+                            string localfilename = System.IO.Path.Combine(installfolder, Path.GetFileName(f.FullName)); // local equivalent file name
 
+                            // see if the local scan above found the equivalent item
                             DownloadItem it = DownloadItems.Find(x => x.LocalFilename.Equals(localfilename, StringComparison.InvariantCultureIgnoreCase));
 
                             if (it != null)     // local exists
                             {
-                                it.DownloadedPath = folder;
+                                it.DownloadedPath = downloadfolder;
                                 it.DownloadedFilename = f.FullName;
                                 it.DownloadedVars = cv;
                                 it.DownloadedVersion = version;
@@ -180,12 +193,12 @@ namespace ActionLanguage.Manager
                             }
                             else
                             {
-                                it = new DownloadItem()
+                                it = new DownloadItem()     // not locally held, new item
                                 {
                                     ItemName = Path.GetFileNameWithoutExtension(f.FullName),
                                     ItemType = cv.Exists("ItemType") ? cv["ItemType"] : defaultitemtype,       // use file description of it, or use default
 
-                                    DownloadedPath = folder,
+                                    DownloadedPath = downloadfolder,
                                     DownloadedFilename = f.FullName,
                                     DownloadedVersion = version,
                                     DownloadedVars = cv,
@@ -242,10 +255,13 @@ namespace ActionLanguage.Manager
             return false;
         }
 
+        // Install this item
         public bool InstallFiles(DownloadItem item, string appfolder, string tempmovefolder)
         {
             try
             {
+                // find all variables in the file starting with OtherFile
+
                 List<string[]> downloads = (from k in item.DownloadedVars.NameEnumuerable where k.StartsWith("OtherFile") select item.DownloadedVars[k].Split(';')).ToList();
 
                 if (downloads.Count > 0)        // we have downloads..
@@ -283,6 +299,11 @@ namespace ActionLanguage.Manager
                         }
                     }
                 }
+
+                // tbd OtherFolder..
+
+
+                // find all disable other commands
 
                 foreach (string key in item.DownloadedVars.NameEnumuerable)  // these first, they are not the controller files
                 {
@@ -323,6 +344,8 @@ namespace ActionLanguage.Manager
                     }
                 }
             }
+
+            // tbd OtherFolder..
 
             BaseUtils.FileHelpers.DeleteFileNoError(item.LocalFilename);
             string shafile = Path.Combine(item.LocalPath, item.ItemName + ".sha");

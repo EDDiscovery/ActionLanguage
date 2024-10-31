@@ -72,7 +72,7 @@ namespace ActionLanguage
                         return true;
                     }
 
-                    DialogResult res = ExtendedControls.MessageBoxTheme.Show(ap.ActionController.Form, exp[0], caption, but, icon);
+                    DialogResult res = ExtendedControls.MessageBoxTheme.Show(ap.ActionController.ParentUIForm, exp[0], caption, but, icon);
 
                     ap["DialogResult"] = res.ToString();
                 }
@@ -127,8 +127,9 @@ namespace ActionLanguage
                     string caption = (exp[1].Length>0) ? exp[1]: "EDDiscovery Program Message";
 
                     ExtendedControls.InfoForm ifrm = new ExtendedControls.InfoForm();
-                    ifrm.Info(caption, ap.ActionController.Icon, exp[0]);
-                    ifrm.Show(ap.ActionController.Form);
+                    ifrm.LinkClicked += (e) => { BaseUtils.BrowserInfo.LaunchBrowser(e.LinkText); };
+                    ifrm.Info(caption, ap.ActionController.Icon, exp[0], enableurls:true);
+                    ifrm.Show(ap.ActionController.ParentUIForm);
                 }
                 else
                     ap.ReportError(exp[0]);
@@ -183,8 +184,9 @@ namespace ActionLanguage
                             return ap.ReportError("FileDialog folder does not recognise folder location " + rootfolder);
                     }
 
-                    string fileret = (fbd.ShowDialog(ap.ActionController.Form) == DialogResult.OK) ? fbd.SelectedPath : "";
-                    ap["FolderName"] = fileret;
+                    var dialogres = fbd.ShowDialog(ap.ActionController.ParentUIForm);
+                    ap["DialogResult"] = dialogres.ToString();
+                    ap["FolderName"] = (dialogres == DialogResult.OK) ? fbd.SelectedPath : "";
                 }
                 else if (cmdname.Equals("openfile"))
                 {
@@ -212,8 +214,9 @@ namespace ActionLanguage
                         if (check != null && check.Equals("On", StringComparison.InvariantCultureIgnoreCase))
                             fd.CheckFileExists = true;
 
-                        string fileret = (fd.ShowDialog(ap.ActionController.Form) == DialogResult.OK) ? fd.FileName : "";
-                        ap["FileName"] = fileret;
+                        var dialogres = fd.ShowDialog(ap.ActionController.ParentUIForm);
+                        ap["DialogResult"] = dialogres.ToString();
+                        ap["FileName"] = (dialogres == DialogResult.OK) ? fd.FileName : "";
                     }
                     catch
                     {
@@ -244,8 +247,9 @@ namespace ActionLanguage
                         if (check != null && check.Equals("On", StringComparison.InvariantCultureIgnoreCase))
                             fd.OverwritePrompt = true;
 
-                        string fileret = (fd.ShowDialog(ap.ActionController.Form) == DialogResult.OK) ? fd.FileName : "";
-                        ap["FileName"] = fileret;
+                        var dialogres = fd.ShowDialog(ap.ActionController.ParentUIForm);
+                        ap["DialogResult"] = dialogres.ToString();
+                        ap["FileName"] = (dialogres == DialogResult.OK) ? fd.FileName : "";
                     }
                     catch
                     {
@@ -302,19 +306,21 @@ namespace ActionLanguage
 
                 if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
                 {
-                    string[] prompts = exp[1].Split(';');
-                    string[] def = (exp.Count >= 3) ? exp[2].Split(';') : null;
-                    bool multiline = (exp.Count >= 4) ? (exp[3].IndexOf("Multiline", StringComparison.InvariantCultureIgnoreCase) >= 0) : false;
-                    string[] tooltips = (exp.Count >= 5) ? exp[4].Split(';') : null;
+                    bool multiline = exp.Count >= 4 ? (exp[3].IndexOf("Multiline", StringComparison.InvariantCultureIgnoreCase) >= 0) : false;
+                    char separ = exp.Count >= 4 ? (exp[3].IndexOf("0x2345") >= 0 ? '\u2345' : exp[3].IndexOf("166") >= 0 ? (char)166 : ';') : ';';
 
-                    List<string> r = ExtendedControls.PromptMultiLine.ShowDialog(ap.ActionController.Form, exp[0], ap.ActionController.Icon,
+                    string[] prompts = exp[1].Split(separ);
+                    string[] def = (exp.Count >= 3) ? exp[2].Split(separ) : null;
+                    string[] tooltips = (exp.Count >= 5) ? exp[4].Split(separ) : null;
+
+                    List<string> r = ExtendedControls.PromptMultiLine.ShowDialog(ap.ActionController.ParentUIForm, exp[0], ap.ActionController.Icon,
                                         prompts, def, multiline, tooltips);
 
                     ap["InputBoxOK"] = (r != null) ? "1" : "0";
                     if (r != null)
                     {
                         for (int i = 0; i < r.Count; i++)
-                            ap["InputBox" + (i + 1).ToString()] = r[i];
+                            ap["InputBox" + (i + 1).ToStringInvariant()] = r[i];
                     }
                 }
                 else

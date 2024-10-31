@@ -41,7 +41,7 @@ namespace ActionLanguage
         // pass in local vars to run with
         // Optionally pass in handles and dialogs in case its a sub prog
 
-        public void Run(bool now, ActionFile fileset, ActionProgram r, 
+        public void Run(bool now, ActionFile actionfile, ActionProgram r, 
                                 Variables inputparas, // local vars to pass into run
                                 FunctionPersistentData fh = null,           // Function handler in baseutils uses this for peristent data
                                 Dictionary<string, ExtendedControls.IConfigurableDialog> dialogs = null,  // set of dialogs
@@ -49,25 +49,25 @@ namespace ActionLanguage
         {
             if (now)
             {
-                if (progcurrent != null)                    // if running, push the current one back onto the queue to be picked up
-                    progqueue.Insert(0, progcurrent);
+                if (actionprogruncurrent != null)                    // if running, push the current one back onto the queue to be picked up
+                    progqueue.Insert(0, actionprogruncurrent);
 
                 // now we run this.. no need to push to stack
 
-                progcurrent = new ActionProgramRun(fileset, r, inputparas, this, actioncontroller);   
+                actionprogruncurrent = new ActionProgramRun(actionfile, r, inputparas, this, actioncontroller);   
 
                 // assemble total variable set for running.
-                var runningvarset = new Variables(progcurrent.inputvariables, actioncontroller.Globals, fileset.FileVariables);
+                var runningvarset = new Variables(actionprogruncurrent.inputvariables, actioncontroller.Globals, actionfile.FileVariables);
 
                 // prepare runner
-                progcurrent.PrepareToRun(runningvarset,
+                actionprogruncurrent.PrepareToRun(runningvarset,
                                                 fh == null ? new FunctionPersistentData() : fh, 
                                                 dialogs == null ? new Dictionary<string, ExtendedControls.IConfigurableDialog>() : dialogs, 
                                                 closeatend);        // if no filehandles, make them and close at end
             }
             else
             {
-                progqueue.Add(new ActionProgramRun(fileset, r, inputparas, this, actioncontroller));
+                progqueue.Add(new ActionProgramRun(actionfile, r, inputparas, this, actioncontroller));
             }
         }
 
@@ -110,56 +110,56 @@ namespace ActionLanguage
 
             while( true )
             {
-                if (progcurrent != null)
+                if (actionprogruncurrent != null)
                 {
-                    if (progcurrent.GetErrorList != null)       // any errors pending, handle
+                    if (actionprogruncurrent.GetErrorList != null)       // any errors pending, handle
                     {
-                        actioncontroller.LogLine("Error: " + progcurrent.GetErrorList + Environment.NewLine + StackTrace() );
+                        actioncontroller.LogLine("Error: " + actionprogruncurrent.GetErrorList + Environment.NewLine + StackTrace() );
                         TerminateToCloseAtEnd();        // terminate up to a close at end entry, which would have started this stack
                     }
-                    else if (progcurrent.IsProgramFinished)        // if current program ran out, cancel it
+                    else if (actionprogruncurrent.IsProgramFinished)        // if current program ran out, cancel it
                     {
                         // this catches a LOOP without a statement at the end..  or a DO without a WHILE at the end..
-                        if (progcurrent.ExecLevel > 0 && progcurrent.LevelUp(progcurrent.ExecLevel, null)) // see if we have any pending LOOP (or a DO without a while) and continue..
+                        if (actionprogruncurrent.ExecLevel > 0 && actionprogruncurrent.LevelUp(actionprogruncurrent.ExecLevel, null)) // see if we have any pending LOOP (or a DO without a while) and continue..
                             continue;       // errors or movement causes it to go back.. errors will be picked up above
 
                         TerminateCurrent();
                     }
                 }
 
-                while (progcurrent == null && progqueue.Count > 0)    // if no program,but something in queue
+                while (actionprogruncurrent == null && progqueue.Count > 0)    // if no program,but something in queue
                 {
-                    progcurrent = progqueue[0];
+                    actionprogruncurrent = progqueue[0];
                     progqueue.RemoveAt(0);
 
-                    if (progcurrent.variables != null)      // if not null, its because its just been restarted after a call.. reset globals
+                    if (actionprogruncurrent.variables != null)      // if not null, its because its just been restarted after a call.. reset globals
                     {
-                        progcurrent.Add(actioncontroller.Globals); // in case they have been updated...
-                        progcurrent.Add(progcurrent.ActionFile.FileVariables); // in case they have been updated...
+                        actionprogruncurrent.Add(actioncontroller.Globals); // in case they have been updated...
+                        actionprogruncurrent.Add(actionprogruncurrent.ActionFile.FileVariables); // in case they have been updated...
                     }
                     else
                     {
-                        progcurrent.PrepareToRun(
-                                new Variables(progcurrent.inputvariables, actioncontroller.Globals, progcurrent.ActionFile.FileVariables),
+                        actionprogruncurrent.PrepareToRun(
+                                new Variables(actionprogruncurrent.inputvariables, actioncontroller.Globals, actionprogruncurrent.ActionFile.FileVariables),
                                 new FunctionPersistentData(),
                                 new Dictionary<string, ExtendedControls.IConfigurableDialog>(), true); // with new file handles and close at end..
                     }
 
-                    if (progcurrent.IsProgramFinished)          // reject empty programs..
+                    if (actionprogruncurrent.IsProgramFinished)          // reject empty programs..
                     {
                         TerminateCurrent();
                         continue;       // and try again
                     }
                 }
 
-                if (progcurrent == null)        // Still nothing, game over
+                if (actionprogruncurrent == null)        // Still nothing, game over
                     break;
 
-                ActionBase ac = progcurrent.GetNextStep();      // get the step. move PC on.
+                ActionBase ac = actionprogruncurrent.GetNextStep();      // get the step. move PC on.
 
             //    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " " + timetaken.ElapsedMilliseconds + " @ " + progcurrent.Location + " Lv " + progcurrent.ExecLevel + " e " + (progcurrent.IsExecuteOn ? "1" : "0") + " up " + ac.LevelUp + " " + progcurrent.PushPos + " " + ac.Name);
 
-                if (ac.LevelUp > 0 && progcurrent.LevelUp(ac.LevelUp, ac) )        // level up..
+                if (ac.LevelUp > 0 && actionprogruncurrent.LevelUp(ac.LevelUp, ac) )        // level up..
                 {
                     //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Abort Lv" + progcurrent.ExecLevel + " e " + (progcurrent.IsExecuteOn ? "1" : "0") + " up " + ac.LevelUp + ": " + progcurrent.StepNumber + " " + ac.Name + " " + ac.DisplayedUserData);
                     continue;
@@ -168,8 +168,8 @@ namespace ActionLanguage
                 if ( logtologline || logger != null )
                 {
                     string t = (Environment.TickCount % 10000).ToString("00000") + " ";
-                    string index = string.Concat(Enumerable.Repeat(". ", progcurrent.ExecLevel));
-                    string s =  progcurrent.GetLastStep().LineNumber.ToString() + (progcurrent.IsExecuteOn ? "+" : "-") + ":" + index + ac.Name + " " + ac.DisplayedUserData;
+                    string index = string.Concat(Enumerable.Repeat(". ", actionprogruncurrent.ExecLevel));
+                    string s =  actionprogruncurrent.GetLastStep().LineNumber.ToString() + (actionprogruncurrent.IsExecuteOn ? "+" : "-") + ":" + index + ac.Name + " " + ac.DisplayedUserData;
                     System.Diagnostics.Debug.WriteLine(t+s);
                     if ( logtologline )
                         actioncontroller.LogLine(t + s);
@@ -177,45 +177,50 @@ namespace ActionLanguage
                         logger.WriteLine(s);
                 }
 
-                if (progcurrent.DoExecute(ac))       // execute is on.. 
+                if (actionprogruncurrent.DoExecute(ac))       // execute is on.. 
                 {
                     if (ac.Type == ActionBase.ActionType.Call)     // Call needs to pass info back up thru to us, need a different call
                     {
                         ActionCall acall = ac as ActionCall;
                         string prog;
                         Variables paravars;
-                        if (acall.ExecuteCallAction(progcurrent, out prog, out paravars)) // if execute ok
+                        if (acall.ExecuteCallAction(actionprogruncurrent, out prog, out paravars)) // if execute ok
                         {
                             //System.Diagnostics.Debug.WriteLine("Call " + prog + " with " + paravars.ToString());
 
-                            Tuple<ActionFile, ActionProgram> ap = actionfilelist.FindProgram(prog, progcurrent.ActionFile);          // find program using this name, prefer this action file first
+                            Tuple<ActionFile, ActionProgram> ap = actionfilelist.FindProgram(prog, actionprogruncurrent.ActionFile);          // find program using this name, prefer this action file first
 
                             if (ap != null)
                             {
-                                Run(true,ap.Item1, ap.Item2, paravars , progcurrent.Functions.persistentdata,progcurrent.Dialogs, false);   // run now with these para vars
+                                Run(true,ap.Item1, ap.Item2, paravars , actionprogruncurrent.Functions.PersistentData,actionprogruncurrent.Dialogs, false);   // run now with these para vars
                             }
                             else
-                                progcurrent.ReportError("Call cannot find " + prog);
+                                actionprogruncurrent.ReportError("Call cannot find " + prog);
                         }
                     }
                     else if (ac.Type == ActionBase.ActionType.Return)     // Return needs to pass info back up thru to us, need a different call
                     {
                         ActionReturn ar = ac as ActionReturn;
+                        ActionFile curfile = actionprogruncurrent.ActionFile;
+                        string funcname = actionprogruncurrent.Name;
+
                         string retstr;
-                        if ( ar.ExecuteActionReturn(progcurrent,out retstr) )
+                        if ( ar.ExecuteActionReturn(actionprogruncurrent,out retstr) )
                         {
                             TerminateCurrent();
 
                             // if a new program is queued, but not prepared, and this program returns to finish, make sure we don't
                             // screw up since the variables are not preparred yet - they will be above in PrepareToRun
 
-                            if (progqueue.Count > 0 && progqueue[0].variables != null )        // pass return value if program is there AND its prepared
+                            if (progqueue.Count > 0 && progqueue[0].variables != null)        // pass return value if program is there AND its prepared
                                 progqueue[0]["ReturnValue"] = retstr;
+                            else
+                               curfile.ReportClosingReturn?.Invoke(curfile,funcname,retstr);    // or no more queues, send back return to file in case it wants to report it somehow up
 
                             continue;       // back to top, next action from returned function.
                         }
                     }
-                    else if (!ac.ExecuteAction(progcurrent))      // if execute says, stop, i'm waiting for something
+                    else if (!ac.ExecuteAction(actionprogruncurrent))      // if execute says, stop, i'm waiting for something
                     {
                         return;             // exit, with executing set true.  ResumeAfterPause will restart it.
                     }
@@ -223,7 +228,7 @@ namespace ActionLanguage
 
                 if (AsyncMode && timetaken.ElapsedMilliseconds > 150)  // no more than ms per go to stop the main thread being blocked
                 {
-                    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND Actions at " + timetaken.ElapsedMilliseconds + " " + progcurrent.Name);
+                    System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " *** SUSPEND Actions at " + timetaken.ElapsedMilliseconds + " " + actionprogruncurrent?.Name);
                     restarttick.Start();
                     break;
                 }
@@ -245,7 +250,7 @@ namespace ActionLanguage
             foreach (ActionProgramRun p in progqueue)       // ensure all have a chance to clean up
                 p.Terminated();
 
-            progcurrent = null;
+            actionprogruncurrent = null;
             progqueue.Clear();
             executing = false;
         }
@@ -254,11 +259,11 @@ namespace ActionLanguage
         {
             string s = "";
 
-            if (progcurrent != null)        // if we are running..
+            if (actionprogruncurrent != null)        // if we are running..
             {
-                s += "At " + progcurrent.Location + ": " + progcurrent.GetLastStep().Name;
+                s += "At " + actionprogruncurrent.Location + ": " + actionprogruncurrent.GetLastStep().Name;
 
-                if (!progcurrent.ClosingHandlesAtEnd)       // if we are not a base functions, trace back up
+                if (!actionprogruncurrent.ClosingHandlesAtEnd)       // if we are not a base functions, trace back up
                 {
                     foreach (ActionProgramRun p in progqueue)       // ensure all have a chance to clean up
                     {
@@ -275,7 +280,7 @@ namespace ActionLanguage
 
         public void TerminateToCloseAtEnd()     // halt up to close at end function
         {
-            if ( progcurrent != null && !progcurrent.ClosingHandlesAtEnd )     // if its not a top end function
+            if ( actionprogruncurrent != null && !actionprogruncurrent.ClosingHandlesAtEnd )     // if its not a top end function
             {
                 List<ActionProgramRun> toremove = new List<ActionProgramRun>();
                 foreach (ActionProgramRun p in progqueue)       // ensure all have a chance to clean up
@@ -292,17 +297,17 @@ namespace ActionLanguage
                 }
             }
 
-            progcurrent = null;
+            actionprogruncurrent = null;
             executing = false;
         }
 
         public void TerminateCurrent()
         {
-            if (progcurrent != null)
+            if (actionprogruncurrent != null)
             {
                 //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Terminate program " + progcurrent.Name);
-                progcurrent.Terminated();
-                progcurrent = null;
+                actionprogruncurrent.Terminated();
+                actionprogruncurrent = null;
             }
         }
 
@@ -311,7 +316,7 @@ namespace ActionLanguage
             MSTicks tm = new MSTicks(timeout);
             while( tm.NotTimedOut )
             {
-                if (progcurrent == null)
+                if (actionprogruncurrent == null)
                     break;
 
                 if (doevents)
@@ -329,7 +334,7 @@ namespace ActionLanguage
         private bool logtologline = false;
 
         private List<ActionProgramRun> progqueue = new List<ActionProgramRun>();
-        private ActionProgramRun progcurrent = null;
+        private ActionProgramRun actionprogruncurrent = null;
 
         private ActionCoreController actioncontroller = null;
         private ActionFileList actionfilelist = null;

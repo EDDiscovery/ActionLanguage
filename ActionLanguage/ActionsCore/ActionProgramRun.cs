@@ -18,15 +18,15 @@ using BaseUtils;
 
 namespace ActionLanguage
 {
-    // this is the run time context of a program, holding run time data
+    // this is the run time context of a program, holding run time data, where we are in the program, etc
 
     public class ActionProgramRun : ActionProgram
     {
         // used during execution.. filled in on program objects associated with an execution
-        public ActionCoreController ActionController { get; set; }                     // core controller.
-        public Functions Functions { get; set; }                   // function handler
-        public ActionFile ActionFile { get; set; }                       // what file it came from..
-        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; set; }  // dialogs open..
+        public ActionCoreController ActionController { get; private set; }                     // core controller.
+        public Functions Functions { get; private set; }                   // function handler
+        public ActionFile ActionFile { get; private set; }                       // what file it came from..
+        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; private set; }  // local dialogs open..
         public bool ClosingHandlesAtEnd { get; private set; }
 
         public ActionProgramRun(ActionFile af, // associated file
@@ -266,7 +266,7 @@ namespace ActionLanguage
 
         public void ResumeAfterPause()          // used when async..
         {
-            System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Resume code " + this.Name);
+            //System.Diagnostics.Debug.WriteLine((Environment.TickCount % 10000).ToString("00000") + " Resume code " + this.Name);
             actionrun.ResumeAfterPause();
         }
 
@@ -302,7 +302,7 @@ namespace ActionLanguage
 
         #region vars
 
-        private Variables currentvars;      // set up by ActionRun at invokation so they have the latest globals, see Run line 87 ish
+        private Variables currentvars;      // set up by ActionRun at invokation so they have the latest globals and locals, see Run line 60 ish
         private FunctionPersistentData conditionpersistentdata;
         private Variables inputvars;        // input vars to this program, never changed
         private ActionRun actionrun;        // who is running it..

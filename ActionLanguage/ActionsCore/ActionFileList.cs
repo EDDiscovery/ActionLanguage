@@ -22,6 +22,8 @@ namespace ActionLanguage
 {
     public class ActionFileList
     {
+
+        #region Get Info about files
         public List<string> GetFileNames { get { return (from af in actionfiles select af.Name).ToList(); } }
 
         public IEnumerable<ActionFile> Enumerable { get { return actionfiles; } }
@@ -40,13 +42,69 @@ namespace ActionLanguage
             return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c) && x.Enabled == enablestate) != null select x).ToArray();
         }
 
+        // find a program, either just the name, or filename::program
+        // give a prefered pack to use if no filename given
+        public Tuple<ActionFile, ActionProgram> FindProgram(string fileprogname, ActionFile preferred = null)
+        {
+            ActionProgram ap = null;
 
-        public void CreateSet(string s, string appfolder)
+            string file = null, prog = null;
+            int colon = fileprogname.IndexOf("::");
+            if (colon != -1)
+            {
+                file = fileprogname.Substring(0, colon);
+                prog = fileprogname.Substring(colon + 2);
+            }
+            else
+                prog = fileprogname;
+
+            if (file != null)                             // if file given, only search that
+            {
+                ActionFile f = actionfiles.Find(x => x.Name.Equals(file));
+
+                if (f != null)      // found file..
+                {
+                    ap = f.ProgramList.Get(prog);
+
+                    return (ap != null) ? new Tuple<ActionFile, ActionProgram>(f, ap) : null;
+                }
+            }
+            else
+            {
+                if (preferred != null)          // if no file stated, and we have a preferred
+                {
+                    ap = preferred.ProgramList.Get(prog);   // get in local program list first
+
+                    if (ap != null)
+                        return new Tuple<ActionFile, ActionProgram>(preferred, ap);
+                }
+
+                foreach (ActionFile f in actionfiles)
+                {
+                    ap = f.ProgramList.Get(prog);
+
+                    if (ap != null)         // gotcha
+                        return new Tuple<ActionFile, ActionProgram>(f, ap);
+                }
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Add Files
+
+        public void AddNewFile(string s, string appfolder)
         {
             ActionFile af = new ActionFile(appfolder + "\\\\" + s + ".act", s);
             af.WriteFile();
             actionfiles.Add(af);
         }
+
+        #endregion
+
+        #region Event Lists checking Conditions to run
 
         public class MatchingSets
         {
@@ -55,19 +113,10 @@ namespace ActionLanguage
             public List<Condition> passed;   // list of passed events after condition checked.
         }
 
-        // any with this variable defined?
-        public bool IsActionVarDefined(string flagstart)
-        {
-            foreach (ActionFile af in actionfiles)
-            {
-                if (af.InUseEventList.IsActionVarDefined(flagstart))
-                    return true;
-            }
-            return false;
-        }
+        // given an event name, on enabled files, find conditions in the In Use Event List which has this eventname set
+        // you can screen out events which do not contain the action variable defined by actionvarscontainthisname
 
-        // get actions in system matching eventname
-        public List<MatchingSets> GetMatchingConditions(string eventname, string flagstart = null)        // flag start is compared with start of actiondata
+        public List<MatchingSets> GetMatchingConditions(string eventname, string actionvarscontainthisname = null)        
         {
             List<MatchingSets> apl = new List<MatchingSets>();
 
@@ -75,7 +124,7 @@ namespace ActionLanguage
             {
                 if (af.Enabled)         // only enabled files are checked
                 {
-                    List<Condition> events = af.InUseEventList.GetConditionListByEventName(eventname, flagstart);
+                    List<Condition> events = af.InUseEventList.GetConditionListByEventName(eventname, actionvarscontainthisname);
 
                     if (events != null)     // and if we have matching event..
                     {
@@ -91,8 +140,7 @@ namespace ActionLanguage
         // cls = object from which to get any needed values from, can be null
         // if se is set passed enabled string expansion of arguments in condition of event..
 
-        public int CheckActions(List<ActionFileList.MatchingSets> ale, Object cls, Variables othervars,
-                                            Functions se = null)
+        public int CheckActions(List<ActionFileList.MatchingSets> ale, Object cls, Variables othervars, Functions se = null)
         {
             Variables valuesneeded = new Variables();
 
@@ -148,68 +196,20 @@ namespace ActionLanguage
             }
         }
 
-        public Tuple<ActionFile, ActionProgram> FindProgram(string packname, string progname)
+        // Look at action flag in the conditions list of the events, and see if this flag is set in any
+        public bool IsActionVarDefined(string flagstart)
         {
-            ActionFile f = actionfiles.Find(x => x.Name.Equals(packname));
-
-            if (f != null)
+            foreach (ActionFile af in actionfiles)
             {
-                ActionProgram ap = f.ProgramList.Get(progname);   // get in local program list first
-
-                if (ap != null)
-                    return new Tuple<ActionFile, ActionProgram>(f, ap);
+                if (af.InUseEventList.IsActionVarDefined(flagstart))
+                    return true;
             }
-
-            return null;
+            return false;
         }
 
-        public Tuple<ActionFile, ActionProgram> FindProgram(string req, ActionFile preferred = null)        // find a program 
-        {
-            ActionProgram ap = null;
+        #endregion
 
-            string file = null, prog;
-            int colon = req.IndexOf("::");
-
-            if (colon != -1)
-            {
-                file = req.Substring(0, colon);
-                prog = req.Substring(colon + 2);
-            }
-            else
-                prog = req;
-
-            if (file != null)                             // if file given, only search that
-            {
-                ActionFile f = actionfiles.Find(x => x.Name.Equals(file));
-
-                if (f != null)      // found file..
-                {
-                    ap = f.ProgramList.Get(prog);
-
-                    return (ap != null) ? new Tuple<ActionFile, ActionProgram>(f, ap) : null;
-                }
-            }
-            else
-            {
-                if (preferred != null)          // if no file stated, and we have a preferred
-                {
-                    ap = preferred.ProgramList.Get(prog);   // get in local program list first
-
-                    if (ap != null)
-                        return new Tuple<ActionFile, ActionProgram>(preferred, ap);
-                }
-
-                foreach (ActionFile f in actionfiles)
-                {
-                    ap = f.ProgramList.Get(prog);
-
-                    if (ap != null)         // gotcha
-                        return new Tuple<ActionFile, ActionProgram>(f, ap);
-                }
-            }
-
-            return null;
-        }
+        #region Load
 
         public string LoadAllActionFiles(string appfolder)              // loads or reloads the actions, dep on if present in list
         {
@@ -277,10 +277,12 @@ namespace ActionLanguage
                 af.CloseDown();
         }
 
+        #endregion
 
-        #region special helpers
+        #region Special helpers
 
-        // give back all conditions which match itemname and have a compatible matchtype across all files.. used for key presses/voice input to compile a list of condition data to check for
+        // give back all conditions which match itemname and have a compatible matchtype across all files..
+        // used for key presses/voice input to compile a list of condition data to check for
 
         public List<Tuple<string, ConditionEntry>> ReturnSpecificConditions(string eventname, string itemname, List<ConditionEntry.MatchType> matchtypes)      // given itemname, give me a list of values it is matched against
         {
@@ -301,7 +303,7 @@ namespace ActionLanguage
 
         #endregion
 
-        #region vars
+        #region Vars
 
         private List<ActionFile> actionfiles = new List<ActionFile>();
 

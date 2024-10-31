@@ -13,6 +13,7 @@
  */
 
 using BaseUtils;
+using System;
 
 namespace ActionLanguage
 {
@@ -24,7 +25,7 @@ namespace ActionLanguage
 
         public Variables Globals { get { return globalvariables; } }
 
-        public System.Windows.Forms.Form Form { get { return form; } }
+        public System.Windows.Forms.Form ParentUIForm { get { return parentuiform; } }
 
         public System.Drawing.Icon Icon { get; private set;}
 
@@ -37,7 +38,7 @@ namespace ActionLanguage
         public ActionCoreController(System.Windows.Forms.Form frm, System.Drawing.Icon ic )
         {
             Icon = ic;
-            form = frm;
+            parentuiform = frm;
 
             persistentglobalvariables = new Variables();
             globalvariables = new Variables();
@@ -130,24 +131,49 @@ namespace ActionLanguage
             return actionfiles.CheckForActionFilesChange();
         }
 
+        // find a program, either just the name, or filename::program
+        // give a prefered pack to use if no filename given
+        // and run it with the variables given
+
+        public bool RunProgram(string fileprogname, Variables runvars, bool now = false, ActionFile preferred = null)
+        {
+            Tuple<ActionFile, ActionProgram> found = actionfiles.FindProgram(fileprogname,preferred);
+
+            if (found != null)
+            {
+                actionrun.Run(now, found.Item1, found.Item2, runvars);
+                actionrun.Execute();       // See if needs executing
+                return true;
+            }
+            else
+                return false;
+        }
+
+        // add a callback handler to all action files - allows closing return to be intercepted.
+        public void AddReturnCallBack(Action<ActionFile,string,string> Callback)
+        {
+            foreach (ActionFile x in actionfiles.Enumerable)
+                x.ReportClosingReturn += Callback;
+        }
 
         #region Vars
 
         protected ActionFileList actionfiles;
         protected ActionRun actionrun;
 
-        private Variables programrunglobalvariables;         // program run, lost at power off, set by GLOBAL or internal 
-        private Variables persistentglobalvariables;   // user variables, set by user only, including user setting vars like SpeechVolume
+        private Variables programrunglobalvariables;        // program run, lost at power off, set by GLOBAL or internal 
+        private Variables persistentglobalvariables;        // user variables, set by user only, including user setting vars like SpeechVolume
         private Variables globalvariables;                  // combo of above.
 
         protected Variables PersistentVariables { get { return persistentglobalvariables; } }
+
         protected void LoadPeristentVariables(Variables list)
         {
             persistentglobalvariables = list;
             globalvariables = new Variables(persistentglobalvariables, programrunglobalvariables);
         }
 
-        protected System.Windows.Forms.Form form;
+        protected System.Windows.Forms.Form parentuiform;
 
         #endregion
 

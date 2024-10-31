@@ -79,7 +79,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, ap.Functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.Vars, out errlist, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -118,7 +118,7 @@ namespace ActionLanguage
                     }
 
                     string errlist;
-                    bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, ap.Functions);     // may return null.. and will return errlist
+                    bool? condres = condition.CheckAll(ap.Functions.Vars, out errlist, ap.Functions);     // may return null.. and will return errlist
 
                     if (errlist == null)
                     {
@@ -185,7 +185,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, ap.Functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.Vars, out errlist, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -216,7 +216,7 @@ namespace ActionLanguage
                 }
 
                 string errlist;
-                bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, ap.Functions);     // may return null.. and will return errlist
+                bool? condres = condition.CheckAll(ap.Functions.Vars, out errlist, ap.Functions);     // may return null.. and will return errlist
 
                 if (errlist == null)
                 {
@@ -420,7 +420,7 @@ namespace ActionLanguage
             }
 
             string errlist;
-            bool? condres = condition.CheckAll(ap.Functions.vars, out errlist, ap.Functions);     // may return null.. and will return errlist
+            bool? condres = condition.CheckAll(ap.Functions.Vars, out errlist, ap.Functions);     // may return null.. and will return errlist
 
             if (errlist == null)
             {

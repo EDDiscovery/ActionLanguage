@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2017-2020 EDDiscovery development team
+ * Copyright 2017-2024 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -61,12 +61,12 @@ namespace ActionLanguage
         public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
         public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
         public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
-        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs; // persistent dialogs owned by this file
+        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; private set; } // persistent dialogs owned by this file
         public string FilePath { get; private set; }                          // where it came from
         public string Name { get; private set; }                              // its logical name
         public DateTime WriteTimeUTC { get; private set; }                    // last modified time    
         public bool Enabled { get; private set; }                             // if enabled.
-
+        public Action<ActionFile,string,string> ReportClosingReturn { get; set; }    // hook to get closing return value, the return from the top level function 
         public Encoding FileEncoding {get; private set;}                      // file encoding (auto calc, not saved)
 
         public void ChangeEventList(ConditionLists s)

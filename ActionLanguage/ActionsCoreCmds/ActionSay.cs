@@ -292,7 +292,7 @@ namespace ActionLanguage
                         {
                             // in a thread, invoke on UI thread to complete action, since these objects are owned by that thread
 
-                            ap.ActionController.Form.Invoke((MethodInvoker)delegate
+                            ap.ActionController.ParentUIForm.Invoke((MethodInvoker)delegate
                             {
                                 System.Diagnostics.Debug.Assert(Application.MessageLoop);       // double check!
 

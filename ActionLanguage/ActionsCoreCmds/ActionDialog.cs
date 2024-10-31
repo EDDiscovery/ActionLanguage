@@ -119,7 +119,7 @@ namespace ActionLanguage
                     else
                         ap.ActionFile.Dialogs[exp[0]] = cf;
 
-                    cf.Trigger += Cd_Trigger;
+                    cf.TriggerAdv += Cd_TriggerAdv;
 
                     System.Drawing.Size minsize = new System.Drawing.Size(minw.HasValue ? minw.Value : 10, minh.HasValue ? minh.Value : 10);
                     System.Drawing.Size maxsize = new System.Drawing.Size(maxw.HasValue ? maxw.Value : 50000, maxh.HasValue ? maxh.Value : 50000);
@@ -137,7 +137,7 @@ namespace ActionLanguage
                     }
                     else
                     {
-                        cf.InitCentred(ap.ActionController.Form, minsize, maxsize, createdsize,
+                        cf.InitCentred(ap.ActionController.ParentUIForm, minsize, maxsize, createdsize,
                                         ap.ActionController.Icon,
                                         exp[1],
                                         exp[0], new List<Object>() { ap, IsModalDialog() }, // logical name and tag
@@ -148,7 +148,7 @@ namespace ActionLanguage
                     cf.TopMost = alwaysontop;
 
                     if ( !noshow )
-                        cf.Show(ap.ActionController.Form);
+                        cf.Show(ap.ActionController.ParentUIForm);
 
                     return noshow || !IsModalDialog();       // if no show, continue. If modal, return false, STOP.  Non modal, continue
                 }
@@ -161,7 +161,7 @@ namespace ActionLanguage
             return true;
         }
 
-        static private void Cd_Trigger(string lname, string controlname, Object tag)
+        static private void Cd_TriggerAdv(string lname, string controlname, Object value1, Object value2, Object tag)
         {
             if (controlname == "Close")     // put in backwards compatibility - close is the same as cancel for action programs
                 controlname = "Cancel";
@@ -171,14 +171,36 @@ namespace ActionLanguage
             ActionProgramRun apr = tags[0] as ActionProgramRun;
             bool ismodal = (bool)tags[1];
 
+            string v1 = null, v2 = null;
+            try
+            {
+                if (value1 != null)
+                    v1 = Convert.ToString(value1, System.Globalization.CultureInfo.InvariantCulture);
+                if (value2 != null)
+                    v2 = Convert.ToString(value2, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            catch ( Exception ex)
+            {
+                System.Diagnostics.Trace.WriteLine($"ActionDialog exception converting value {ex}");
+            }
+
             if (ismodal)
             {
                 apr[lname] = controlname;
+                if (v1 != null)
+                    apr[lname + "_Value"] = v1;
+                if (v2 != null)
+                    apr[lname + "_Value2"] = v2;
                 apr.ResumeAfterPause();
             }
             else
             {
-                apr.ActionController.ActionRun(ActionEvent.onNonModalDialog, new BaseUtils.Variables(new string[] { "Dialog", lname, "Control", controlname }));
+                Variables v = new Variables() { ["Dialog"] = lname, ["Control"] = controlname };
+                if (v1 != null)
+                    v[lname + "_Value"] = v1;
+                if (v2 != null)
+                    v[lname + "_Value2"] = v2;
+                apr.ActionController.ActionRun(ActionEvent.onNonModalDialog, v);
             }
         }
     }
@@ -230,7 +252,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("show"))
                     {
-                        cf.Show(ap.ActionController.Form);
+                        cf.Show(ap.ActionController.ParentUIForm);
                     }
                     else if (cmd.Equals("continue"))
                     {
@@ -285,7 +307,7 @@ namespace ActionLanguage
                     {
                         string control = sp.NextQuotedWord(" ,");
                         string value = sp.IsCharMoveOn(',') ? sp.NextQuotedWord() : null;
-                        if (control != null && value != null )
+                        if (control != null && value != null)
                         {
                             if (!cf.AddText(control, value))
                                 ap.ReportError($"DialogControl set cannot addtext {control}");
@@ -297,7 +319,7 @@ namespace ActionLanguage
                     {
                         string controlvar = sp.NextQuotedWord();
 
-                        if ( controlvar.HasChars())
+                        if (controlvar.HasChars())
                         {
                             Variables cv = ap.variables.FilterVars(controlvar + "*");
 
@@ -341,6 +363,127 @@ namespace ActionLanguage
                         else
                             ap.ReportError($"DialogControl addsetrows no control name or set options");
                     }
+                    else if (cmd.Equals("insertcolumns"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        int? pos = sp.NextInt("; ");
+
+                        if (pos.HasValue && sp.IsCharMoveOn(';'))
+                        {
+                            while (sp.IsCharMoveOn('('))
+                            {
+                                string coltype = sp.NextQuotedWordComma();
+                                string headertext = sp.NextQuotedWordComma();
+                                int? fillsize = sp.NextInt(", ");
+                                string sortmode = sp.IsCharMoveOn(',') ? sp.NextQuotedWord(") ") : "Alpha";
+                                if (fillsize.HasValue && sortmode.HasChars() && sp.IsCharMoveOn(')') && (sp.IsEOL || sp.IsCharMoveOn(',')))
+                                {
+                                    if (!cf.InsertColumn(control, pos.Value, coltype, headertext, fillsize.Value, sortmode))
+                                    {
+                                        ap.ReportError($"DialogControl InsertColumns bad parameters");
+                                        break;
+                                    }
+
+                                    pos++;
+                                }
+                                else
+                                    break;
+
+                            }
+                        }
+
+                        if ( !sp.IsEOL)
+                            ap.ReportError($"DialogControl InsertColumns bad parameters");
+                    }
+                    else if (cmd.Equals("removecolumns"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        int? pos = sp.NextIntComma(", ");
+                        int? count = sp.NextInt(", ");
+                        if (pos.HasValue && count.HasValue)
+                        {
+                            if (!cf.RemoveColumns(control, pos.Value, count.Value))
+                                ap.ReportError($"DialogControl RemoveColumns bad parameters");
+                        }
+                    }
+                    else if (cmd.Equals("rightclickmenu"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        List<string> tags = new List<string>();
+                        List<string> text = new List<string>();
+                        while (!sp.IsEOL)
+                        {
+                            string tag = sp.NextQuotedWord(" ,");
+                            string item;
+                            if (tag.HasChars() && sp.IsCharMoveOn(',') && (item = sp.NextQuotedWord(" ,")).HasChars())
+                            {
+                                tags.Add(tag);
+                                text.Add(item);
+                                sp.IsCharMoveOn(',');
+                            }
+                            else
+                            {
+                                ap.ReportError("DialogControl RightClickMenu bad parameters");
+                                return true;
+                            }
+                        }
+
+                        if (!cf.SetRightClickMenu(control, tags.ToArray(), text.ToArray()))
+                            ap.ReportError($"DialogControl RemoveColumns bad parameters on call");
+
+                    }
+                    else if (cmd.Equals("getcolumnssetting"))
+                    {
+                        string control = sp.NextQuotedWord(" ");
+                        object tk = null;
+                        if (control.HasChars() && (tk = cf.GetDGVColumnSettings(control)) != null)
+                        {
+                            string s = Convert.ToString(tk);
+                            ap["ColumnsSetting"] = s;
+                        }
+                        else
+                            ap.ReportError($"DialogControl GetColumnSettings bad parameters");
+                    }
+                    else if (cmd.Equals("setcolumnssetting"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        string setting = sp.NextQuotedWord(" ");
+                        if (control.HasChars() && setting.HasChars() && cf.SetDGVColumnSettings(control, setting))
+                        {
+                        }
+                        else
+                            ap.ReportError($"DialogControl SetColumnSettings bad parameters");
+                    }
+                    else if (cmd.Equals("setdgvsettings"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        bool? cr = sp.NextBoolComma(" ,");
+                        bool? pcw = sp.NextBoolComma(" ,");
+                        bool? rhv = sp.NextBoolComma(" ,");
+                        bool? srs = sp.NextBool(" ");
+                        if (control.HasChars() && cr.HasValue && pcw.HasValue && rhv.HasValue && srs.HasValue 
+                                    && cf.SetDGVSettings(control, cr.Value, pcw.Value, rhv.Value, srs.Value))
+                        {
+                        }
+                        else
+                            ap.ReportError($"DialogControl SetDGVSettings bad parameters");
+                    }
+                    else if (cmd.Equals("setwordwrap"))
+                    {
+                        string control = sp.NextQuotedWord(" ,");
+                        sp.IsCharMoveOn(',');       // optional
+                        bool? ww = sp.NextBool(" ");
+                        if (control.HasChars() && ww.HasValue && cf.SetWordWrap(control, ww.Value))
+                        {
+                        }
+                        else
+                            ap.ReportError($"DialogControl SetDGVWordWrap bad parameters");
+                    }
                     else if (cmd.Equals("clear"))
                     {
                         string control = sp.NextQuotedWord(" ");
@@ -356,7 +499,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("removerows"))
                     {
-                        string control = sp.NextQuotedWord();
+                        string control = sp.NextQuotedWord(" ,");
                         sp.IsCharMoveOn(',');       // optional
 
                         if (control.HasChars())
@@ -380,7 +523,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("enable") || cmd.Equals("visible"))     // verified 10/1/21
                     {
-                        string control = sp.NextQuotedWord();
+                        string control = sp.NextQuotedWord(" ,");
                         sp.IsCharMoveOn(',');       // optional
 
                         if (control.HasChars())
@@ -446,7 +589,7 @@ namespace ActionLanguage
                     }
                     else if (cmd.Equals("controlbounds"))       // verified 10/1/21
                     {
-                        string control = sp.NextQuotedWord();
+                        string control = sp.NextQuotedWord(" ,");
                         sp.IsCharMoveOn(',');       // optional
 
                         if (control.HasChars())
@@ -459,7 +602,8 @@ namespace ActionLanguage
                             bool good;
                             if (x != null && y != null && w != null && h != null)
                             {
-                                good = cf.SetPosition(control, new System.Drawing.Rectangle(x.Value, y.Value, w.Value, h.Value));
+                                good = cf.SetPosition(control, new System.Drawing.Point(x.Value, y.Value));
+                                good &= cf.SetSize(control, new System.Drawing.Size(w.Value, h.Value));
                             }
                             else
                             {
