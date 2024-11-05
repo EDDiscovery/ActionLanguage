@@ -45,7 +45,7 @@ namespace ActionLanguage
             InUseEventList = new ConditionLists();
             FileEventList = new ConditionLists();
             ProgramList = new ActionProgramList();
-            Enabled = true;
+            Enabled = true;                             // default enabled
             InstallationVariables = new Variables();
             FilePath = f;
             Name = n;
@@ -103,11 +103,11 @@ namespace ActionLanguage
             Dialogs.Clear();
         }
 
-        public string ReadFile(string filename, out bool readenable)     // string, empty if no errors
+        // string, empty if no errors.
+        // you can stop as soon as an EVENT or PROGRAM command occurs. This is useful for just reading INSTALL and ENABLE variables
+        public string ReadFile(string filename, bool stopatprogramorevent)     
         {
-            readenable = false;
-
-            Clear(filename, Path.GetFileNameWithoutExtension(filename));
+            Clear(filename, Path.GetFileNameWithoutExtension(filename));    // clear this class
 
             try
             {
@@ -151,11 +151,12 @@ namespace ActionLanguage
                                     Enabled = false;
                                 else
                                     return Name + " " + lineno + " ENABLED is neither true or false" + Environment.NewLine;
-
-                                readenable = true;
                             }
                             else if (line.StartsWith("PROGRAM", StringComparison.InvariantCultureIgnoreCase))
                             {
+                                if (stopatprogramorevent)
+                                    return "";
+
                                 ActionProgram ap = new ActionProgram(null,null,precomments);     
                                 string err = ap.Read(sr, ref lineno, line.Substring(7).Trim()); // Read it, prename it..
 
@@ -184,6 +185,9 @@ namespace ActionLanguage
                             }
                             else if (line.StartsWith("EVENT", StringComparison.InvariantCultureIgnoreCase))
                             {
+                                if (stopatprogramorevent)
+                                    return "";
+
                                 Condition c = new Condition();
                                 string err = c.Read(line.Substring(5).Trim(), true);
                                 if (err.Length > 0)
@@ -407,46 +411,47 @@ namespace ActionLanguage
             return false;
         }
 
-        static public bool SetEnableFlag(string file, bool enable)              // change the enable flag. Read in,write out.
-        {                                                                       // true if managed to change it..
-            try
-            {
-                ActionFile f = new ActionFile();
+        // change the enable flag. Read in
+        // write out updated file if enable has changed
+        // true if it changed (5/11/24)
+        static public bool SetEnableFlag(string file, bool enable)              
+        {
+            ActionFile f = new ActionFile();
 
-                bool readenable;
-                if (f.ReadFile(file, out readenable).Length == 0)        // read it in..
+            string res = f.ReadFile(file, true);    // read only up to EVENT/INSTALL
+
+            if (res.Length == 0 && f.Enabled != enable)  // if read okay, and its not got the same enable..      
+            {
+                ActionFile g = new ActionFile();        
+                res = g.ReadFile(file, false); // read the lot
+                if (res.Length == 0)
                 {
-                    f.Enabled = enable;
-                    f.WriteFile();                                // write it out.
-                  //  System.Diagnostics.Debug.WriteLine("Set Enable " + file + " " + enable );
+                    g.Enabled = enable;         // set and write back whole file
+                    g.WriteFile();
                     return true;
                 }
-            }
-            catch
-            {
             }
 
             return false;
         }
 
-        static public Variables ReadVarsAndEnableFromFile(string file, out bool? enable)
+        // read all the install variables and the enable flag and report on them (5/11/24)
+        static public Variables ReadVarsAndEnableFromFile(string file, out bool enable)
         {
             ActionFile f = new ActionFile();
-            enable = null;
 
-            bool readenable;
-            string res = f.ReadFile(file, out readenable);
+            string res = f.ReadFile(file, true);        // read only up to EVENT/INSTALL
 
             if (res.Length == 0)        // read it in..
             {
-                if (readenable)
-                    enable = f.Enabled;
-                //System.Diagnostics.Debug.WriteLine("Enable vars read " + file + " " + enable);
+                enable = f.Enabled;
+                //System.Diagnostics.Debug.WriteLine($"Enable vars read {file} {enable}");
                 return f.InstallationVariables;
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Error reading pack " + file + ":" + res);
+                System.Diagnostics.Trace.WriteLine("Error reading pack " + file + ":" + res);
+                enable = false;
                 return null;
             }
         }

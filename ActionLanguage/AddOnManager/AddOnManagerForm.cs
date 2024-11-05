@@ -27,6 +27,7 @@ namespace ActionLanguage.Manager
         public Action EditGlobals;
         public Action CreateActionFile;
         public Func<string,bool> CheckActionLoaded;
+        public Action<VersioningManager.DownloadItem> DeleteActionFile;
 
         static public string ActionFileWildCard { get; set; } = "*.act";
         static public string InfFileWildCard { get; set; } = "*.inf";
@@ -34,11 +35,6 @@ namespace ActionLanguage.Manager
         {
             InitializeComponent();
         }
-
-        // folder structure is hardcoded here
-        // <appdatafolder>/temp/ for temp files
-        // 
-
 
         // manageddownloadmode = true = manage downloads, get from git (or use temp folder dependent on downloadgit)
         // else just show actions and allow editing of them
@@ -119,6 +115,7 @@ namespace ActionLanguage.Manager
             if (managedownloadmode && downloadgit)
             {
                 BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(githuburl); // EDDiscovery.Properties.Resources.URLGithubDataDownload
+
                 System.Diagnostics.Debug.WriteLine("Checking github");
 
                 // we don't use .etag and we synchronise the folder removing anything not in github
@@ -141,15 +138,15 @@ namespace ActionLanguage.Manager
             BeginInvoke((MethodInvoker)ReadyToDisplay);
         }
 
-        static public VersioningManager CreateVersionManager(string appfolder, string actionfolder, string addonfilesfolder )
+        static public VersioningManager CreateVersionManager(string approotfolder, string actionfolder, string addonfilesfolder, bool checklocalmodified )
         {
             VersioningManager mgr = new VersioningManager();
 
-            mgr.ReadLocalFiles(appfolder, actionfolder, ActionFileWildCard, "Action File");
+            mgr.ReadLocalFiles(approotfolder, actionfolder, ActionFileWildCard, "Action File", checklocalmodified);
 
             if (addonfilesfolder != null)
             {
-                mgr.ReadLocalFiles(appfolder, addonfilesfolder, InfFileWildCard, "Other Files");
+                mgr.ReadLocalFiles(approotfolder, addonfilesfolder, InfFileWildCard, "Other Files", checklocalmodified);
             }
 
             return mgr;
@@ -159,14 +156,14 @@ namespace ActionLanguage.Manager
         {
             this.Cursor = Cursors.Default;
             
-            mgr = CreateVersionManager(approotfolder, actfolder, otherinstalledfilesfolder);
+            mgr = CreateVersionManager(approotfolder, actfolder, otherinstalledfilesfolder, true);
 
             if (managedownloadmode)
             {
-                mgr.ReadInstallFiles(githuburl, "ActionFiles/V1", downloadactfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
-                mgr.ReadInstallFiles(githuburl, "AddonFiles/V1", downloadaddonfolder, approotfolder, InfFileWildCard, edversion, "Other File", progtype);
+                mgr.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/V1/"), downloadactfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
+                mgr.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/V1/"), downloadaddonfolder, approotfolder, InfFileWildCard, edversion, "Other File", progtype);
 #if DEBUG
-                mgr.ReadInstallFiles(githuburl, "ActionFiles/Debug", downloadactdebugfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
+                mgr.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/Debug/"), downloadactdebugfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
 #endif
             }
 
@@ -418,7 +415,7 @@ namespace ActionLanguage.Manager
                     return;
             }
 
-            if (mgr.InstallFiles(g.di, approotfolder, tempmovefolder))
+            if (mgr.InstallFiles(new System.Threading.CancellationToken(), g.di, githuburl, approotfolder, tempmovefolder))
             {
                 ChangeList[g.di.ItemName] = g.di.LocalPresent ? "++" : "+";
                 ExtendedControls.MessageBoxTheme.Show(this, "Add-on updated");
@@ -443,7 +440,8 @@ namespace ActionLanguage.Manager
 
             if (ExtendedControls.MessageBoxTheme.Show(this, string.Format("Do you really want to delete {0}".T(EDTx.AddOnManagerForm_DeleteWarn), g.di.ItemName), "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
-                VersioningManager.DeleteInstall(g.di, approotfolder, tempmovefolder);
+                DeleteActionFile?.Invoke(g.di);
+                VersioningManager.DeleteInstall(g.di, githuburl, approotfolder, tempmovefolder);
                 ChangeList[g.di.ItemName] = "-";
                 ReadyToDisplay();
             }

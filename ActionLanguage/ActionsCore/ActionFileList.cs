@@ -231,8 +231,7 @@ namespace ActionLanguage
                 else
                     af = actionfiles[indexof];      // overwriting keeps any dynamic data action files have
 
-                bool readenable;
-                string err = af.ReadFile(f.FullName, out readenable);       // re-read it in.  Note it does not kill the fileaveriables
+                string err = af.ReadFile(f.FullName, false);       // re-read it in.  Note it does not kill the fileaveriables
 
                 if (err.Length == 0)
                 {
