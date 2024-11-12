@@ -211,7 +211,8 @@ namespace ActionLanguage
 
         #region Load
 
-        public string LoadAllActionFiles(string appfolder)              // loads or reloads the actions, dep on if present in list
+        // loads or reloads the actions, dep on if already loaded
+        public string LoadAllActionFiles(string appfolder)              
         {
             if (!Directory.Exists(appfolder))
                 Directory.CreateDirectory(appfolder);
@@ -237,12 +238,12 @@ namespace ActionLanguage
                 {
                     if (indexof == -1)
                     {
-                        System.Diagnostics.Trace.WriteLine("Add pack " + af.Name);
+                        System.Diagnostics.Trace.WriteLine($"ActionFileList Loaded pack {af.Name} {af.Enabled}");
                         actionfiles.Add(af);
                     }
                     else
                     {
-                        System.Diagnostics.Trace.WriteLine("Update Pack " + af.Name);
+                        System.Diagnostics.Trace.WriteLine($"ActionFileList Update pack {af.Name} {af.Enabled}");
                     }
                 }
                 else
@@ -251,7 +252,7 @@ namespace ActionLanguage
                     if (indexof != -1)
                     {
                         actionfiles.RemoveAt(indexof);          // remove dead packs
-                        System.Diagnostics.Trace.WriteLine("Delete Pack " + af.Name);
+                        System.Diagnostics.Trace.WriteLine("ActionFileList Delete Pack " + af.Name);
                     }
                 }
             }

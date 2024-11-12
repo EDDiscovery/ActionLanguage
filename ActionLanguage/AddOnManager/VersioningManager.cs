@@ -234,7 +234,7 @@ namespace ActionLanguage.Manager
 
             if ( folderfiles.Count>0)
             {
-                foreach (var x in folderfiles) System.Diagnostics.Debug.WriteLine($"Download file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
+                foreach (var x in folderfiles) System.Diagnostics.Debug.WriteLine($"Install Download folder file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
 
                 bool res = ghc.DownloadFiles(canceltoken, approotfolder, folderfiles, true, true);      // download, don't use etags, and sync folder
                 if (!res)
@@ -248,7 +248,7 @@ namespace ActionLanguage.Manager
 
             if (files.Count > 0)
             {
-                foreach (var x in files) System.Diagnostics.Debug.WriteLine($"Download file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
+                foreach (var x in files) System.Diagnostics.Debug.WriteLine($"Install Download file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
 
                 bool res = ghc.DownloadFiles(canceltoken, approotfolder, files, true);      // download, don't use etags, don't sync folder
                 if (!res)
@@ -283,7 +283,7 @@ namespace ActionLanguage.Manager
             foreach( var file in files)
             {
                 string removefile = Path.Combine(approotfolder, file.Path, file.Name);
-                System.Diagnostics.Debug.WriteLine($"Remove file {removefile}");
+                System.Diagnostics.Debug.WriteLine($"DeInstall Remove file {removefile}");
                 if (!BaseUtils.FileHelpers.DeleteFileNoError(removefile))      // if failed to delete, do it on next restart
                 {
                     // can't delete, tell EDD to delete this next time
@@ -300,11 +300,12 @@ namespace ActionLanguage.Manager
                 if (commands.Length == 2)
                 {
                     string rootpath = Path.Combine(approotfolder, commands[1]);         // delete the folder and all sub content
-                    System.Diagnostics.Debug.WriteLine($"Remove folder {rootpath}");
+                    System.Diagnostics.Debug.WriteLine($"DeInstall Remove folder {rootpath}");
                     FileHelpers.DeleteDirectoryNoError(rootpath,true);
                 }
             }
 
+            System.Diagnostics.Debug.WriteLine($"DeInstall Remove act {item.LocalFilePath} and {item.ItemName + ".sha"}");
             BaseUtils.FileHelpers.DeleteFileNoError(item.LocalFilePath);                // delete the local act
             string shafile = Path.Combine(Path.GetDirectoryName(item.LocalFilePath), item.ItemName + ".sha");
             BaseUtils.FileHelpers.DeleteFileNoError(shafile);
@@ -318,6 +319,7 @@ namespace ActionLanguage.Manager
             {
                 if (ActionLanguage.ActionFile.SetEnableFlag(item.LocalFilePath, enable))     // if enable flag was changed..
                 {
+                    System.Diagnostics.Debug.WriteLine($"Enable/Disable {item.LocalFilePath} modified to {enable}");
                     if (!item.LocalModified)      // if was not local modified, lets set the SHA so it does not appear local modified just because of the enable
                         WriteOrCheckSHAFile(item, item.LocalVars, appfolder, true);
                 }
