@@ -717,7 +717,7 @@ namespace ActionLanguage
                     ap.Goto(ap.PushPos + 1);
                     ap[expmacroname] = values[count++];
                     ap["Index"] = count.ToStringInvariant();
-                    System.Diagnostics.Debug.WriteLine("New value " + ap[expmacroname]);
+                    //System.Diagnostics.Debug.WriteLine("New value " + ap[expmacroname]);
 
                     return true;
                 }
