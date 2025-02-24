@@ -71,6 +71,8 @@ namespace ActionLanguage.Manager
             downloadactdebugfolder = System.IO.Path.Combine(tempdatafolder, "Debug");
             BaseUtils.FileHelpers.CreateDirectoryNoError(downloadactdebugfolder);
 #endif
+            downloadacttestversionsfolder = System.IO.Path.Combine(tempdatafolder, "TestVersions");
+            BaseUtils.FileHelpers.CreateDirectoryNoError(downloadacttestversionsfolder);
 
             SizeF prev = this.AutoScaleDimensions;
 
@@ -133,6 +135,10 @@ namespace ActionLanguage.Manager
                 if (canceldownload.IsCancellationRequested)
                     return;
 #endif
+
+                ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true);
+                if (canceldownload.IsCancellationRequested)
+                    return;
             }
 
             BeginInvoke((MethodInvoker)ReadyToDisplay);
@@ -165,6 +171,7 @@ namespace ActionLanguage.Manager
 #if DEBUG
                 mgr.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/Debug/"), downloadactdebugfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
 #endif
+                mgr.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/TestVersions/"), downloadacttestversionsfolder, approotfolder, ActionFileWildCard, edversion, "Action File", progtype);
             }
 
             mgr.Sort();
@@ -514,6 +521,7 @@ namespace ActionLanguage.Manager
 #if DEBUG
         private string downloadactdebugfolder;
 #endif
+        private string downloadacttestversionsfolder;
         private string approotfolder;
         private string actfolder;
         private string otherinstalledfilesfolder;
