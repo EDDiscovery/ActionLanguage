@@ -28,18 +28,14 @@ namespace ActionLanguage
 
         public IEnumerable<ActionFile> Enumerable { get { return actionfiles; } }
 
+        // get name, name can be null
         // normally pack names are case sensitive, except when we are checking it can be written to a file.. then we would want a case insensitive version
-        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCultureIgnoreCase) { return actionfiles.Find(x => x.Name.Equals(name,c)); }
+        public ActionFile Get(string name, StringComparison c = StringComparison.InvariantCultureIgnoreCase) { return name != null ? actionfiles.Find(x => x.Name.Equals(name,c)) : null; }
 
-        // find all which match any name in []
-        public ActionFile[] Get(string[] name, StringComparison c = StringComparison.InvariantCultureIgnoreCase)
+        // find all which match any name in [] with optional enable state. names can be null
+        public ActionFile[] Get(string[] names, bool? enablestate, StringComparison c = StringComparison.InvariantCultureIgnoreCase)
         {
-            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c)) != null select x).ToArray();
-        }
-
-        public ActionFile[] Get(string[] name, bool enablestate, StringComparison c = StringComparison.InvariantCultureIgnoreCase)
-        {
-            return (from x in actionfiles where Array.Find(name, (n) => n.Equals(x.Name, c) && x.Enabled == enablestate) != null select x).ToArray();
+            return names != null ? actionfiles.Where(x => (!enablestate.HasValue || enablestate.Value == x.Enabled) && Array.Find(names, (n) => n.Equals(x.Name, c)) != null).ToArray() : null;
         }
 
         // find a program, either just the name, or filename::program
