@@ -103,6 +103,8 @@
       <DependentUpon>AddOnManagerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="AddOnManager\EDDiscoveryTranslations.cs" />
+    <Compile Include="AddOnManager\DownloadItem.cs" />
+    <Compile Include="AddOnManager\GitActionFiles.cs" />
     <Compile Include="AddOnManager\VersioningManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

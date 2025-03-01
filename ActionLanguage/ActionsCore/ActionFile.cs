@@ -437,7 +437,7 @@ namespace ActionLanguage
         }
 
         // read all the install variables and the enable flag and report on them (5/11/24)
-        static public Variables ReadVarsAndEnableFromFile(string file, out bool enable)
+        static public bool ReadVarsAndEnableFromFile(string file, out Variables vars, out bool enable)
         {
             ActionFile f = new ActionFile();
 
@@ -446,14 +446,16 @@ namespace ActionLanguage
             if (res.Length == 0)        // read it in..
             {
                 enable = f.Enabled;
+                vars = f.InstallationVariables;
                 //System.Diagnostics.Debug.WriteLine($"Enable vars read {file} {enable}");
-                return f.InstallationVariables;
+                return true;
             }
             else
             {
                 System.Diagnostics.Trace.WriteLine("Error reading pack " + file + ":" + res);
                 enable = false;
-                return null;
+                vars = null;
+                return false;
             }
         }
 
