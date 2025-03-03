@@ -110,30 +110,34 @@ namespace ActionLanguage.Manager
 
         // from downloaded info, copy to local
 
-        public bool DeleteLocalInstallRemote(Form fm, System.Threading.CancellationToken canceltoken, string downloadserver, string approotfolder)
+        public bool Install(Form fm, System.Threading.CancellationToken canceltoken, string downloadserver, string approotfolder)
         {
-            if (LocalPresent)        // if local is there, remove it first
+            if (Install(canceltoken, downloadserver, approotfolder))
             {
-                DeleteInstall(approotfolder);
-            }
-
-            if (InstallFiles(canceltoken, downloadserver, approotfolder))
-            {
-                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " Add-on updated");
+                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " Add-on updated", "Action Pack", MessageBoxButtons.OK, MessageBoxIcon.Information, fontscaling: 1.8f);
                 return true;
             }
             else
-                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to update. Check files for read only status".T(EDTx.AddOnManagerForm_Failed), "Warning".T(EDTx.Warning), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to update. Check files for read only status".T(EDTx.AddOnManagerForm_Failed), "Warning".T(EDTx.Warning), 
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             return false;
         }
 
+        // delete local (if present) and then install new downloaded version
 
-        public bool InstallFiles(System.Threading.CancellationToken canceltoken, string downloadserver, string approotfolder)
+        public bool Install(System.Threading.CancellationToken canceltoken, string downloadserver, string approotfolder)
         {
+            bool overwritefolders = DownloadedVars.Equals("OverwriteFolders", "True");      // if set, overwrite, don't delete/replace folders
+
             BaseUtils.GitHubClass ghc = new BaseUtils.GitHubClass(downloadserver);
 
             var folderfiles = CreateFolderList(canceltoken, DownloadedVars, downloadserver);
+
+            if (LocalPresent)        // if local is there, remove it first. But if overwritefolders
+            {
+                Remove(approotfolder, overwritefolders ? folderfiles : null);
+            }
 
             if (folderfiles.Count > 0)
             {
@@ -191,11 +195,15 @@ namespace ActionLanguage.Manager
             return true;
         }
 
-        public bool DeleteInstall(Form fm, string approotfolder)
+        public bool Remove(Form fm, string approotfolder)
         {
             if (LocalPresent)        // if local is there, remove it
             {
-                if (!DeleteInstall(approotfolder))
+                if (Remove(approotfolder))
+                {
+                    ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " Add-on removed", "Action Pack", MessageBoxButtons.OK, MessageBoxIcon.Information, fontscaling: 1.8f);
+                }
+                else
                 {
                     ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to delete. Check files for read only status", "Warning".T(EDTx.Warning), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
@@ -205,8 +213,9 @@ namespace ActionLanguage.Manager
             return true;
         }
 
-
-        public bool DeleteInstall(string approotfolder)
+        // delete the install, act, all OtherFiles, and optionally folders
+        // don't delete remote folders mentioned because they are installed and OverwriteFolders=True
+        public bool Remove(string approotfolder, List<RemoteFile> remotefolders = null )
         {
             System.Diagnostics.Debug.Assert(LocalPresent);
 
@@ -226,13 +235,20 @@ namespace ActionLanguage.Manager
             foreach (var v in vars)
             {
                 string[] commands = LocalVars[v].Split(';');
-
                 if (commands.Length == 2)
                 {
                     string rootpath = Path.Combine(approotfolder, commands[1]);         // delete the folder and all sub content
-                    System.Diagnostics.Debug.WriteLine($"DeInstall Remove folder {rootpath}");
-                    if ( !FileHelpers.DeleteDirectoryNoError(rootpath, true))
-                        return false;
+
+                    if (remotefolders?.Find(x => x.Path.EqualsIIC(commands[1])) == null)    // if remotefolders is set, and we can't find it, then delete
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DeInstall Remove folder {rootpath}");
+                        if (!FileHelpers.DeleteDirectoryNoError(rootpath, true))
+                            return false;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"DeInstall Do not remove folder due to overwrite flag {rootpath}");
+                    }
                 }
             }
 
@@ -338,7 +354,6 @@ namespace ActionLanguage.Manager
 
         static private bool ComplexFileSet(Variables vars)
         {
-            return true;
             var fileset = CreateFileList(vars);
             if (fileset.Where(x => !x.Name.EndsWith(".mp3")).Count() > 0)       // any files other than .mp3 in the filelist is complex
                 return true;

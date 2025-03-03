@@ -59,12 +59,16 @@ namespace ActionLanguage.Manager
 
         public void ReadDownloadedFolder(string githuburl, int[] edversion, string progtype)
         {
+            System.Diagnostics.Debug.WriteLine("GitActionFiles Reading download folder");
+
             VersioningManager.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/V1/"), downloadactfolder, AppRootFolder, ActionFileWildCard, edversion, "Action File", progtype);
             VersioningManager.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/V1/"), downloadaddonfolder, AppRootFolder, InfFileWildCard, edversion, "Other File", progtype);
 #if DEBUG
             VersioningManager.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/Debug/"), downloadactdebugfolder, AppRootFolder, ActionFileWildCard, edversion, "Action File", progtype);
 #endif
             VersioningManager.ReadInstallFiles(BaseUtils.GitHubClass.GetDownloadURI(githuburl, "master", "ActionFiles/TestVersions/"), downloadacttestversionsfolder, AppRootFolder, ActionFileWildCard, edversion, "Action File", progtype);
+
+            System.Diagnostics.Debug.WriteLine("GitActionFiles Reading download finished");
         }
 
         // in a task, download from github, and callback when complete
@@ -78,23 +82,42 @@ namespace ActionLanguage.Manager
 
                 // we don't use .etag and we synchronise the folder removing anything not in github
 
+                //System.Threading.Thread.Sleep(5000);
+
                 ghc.DownloadFolder(canceldownload.Token, downloadactfolder, "ActionFiles/V1", ActionFileWildCard, true, true);
                 if (canceldownload.IsCancellationRequested)
+                {
+                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 1");
                     return;
+                }
+
+                //System.Threading.Thread.Sleep(1000);
 
                 ghc.DownloadFolder(canceldownload.Token, downloadaddonfolder, "AddonFiles/V1", InfFileWildCard, true, true);
                 if (canceldownload.IsCancellationRequested)
+                {
+                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 2");
                     return;
+                }
+
+                //System.Threading.Thread.Sleep(1000);
 #if DEBUG
 
                 ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true);
                 if (canceldownload.IsCancellationRequested)
+                {
+                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 3");
                     return;
+                }
 #endif
+                //System.Threading.Thread.Sleep(1000);
 
                 ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true);
                 if (canceldownload.IsCancellationRequested)
+                {
+                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 4");
                     return;
+                }
 
                 System.Diagnostics.Debug.WriteLine("GitActionFiles Finished checking github");
                 callback.Invoke();

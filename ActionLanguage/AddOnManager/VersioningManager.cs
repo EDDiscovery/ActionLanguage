@@ -139,6 +139,8 @@ namespace ActionLanguage.Manager
 
                         if (InstallDeinstallAtStartupList.TryGetValue(it.ItemName, out string setting))
                             it.State = setting == "-" ? DownloadItem.ItemState.ToBeRemoved : DownloadItem.ItemState.ToBeInstalled;
+
+                        System.Diagnostics.Debug.WriteLine($"VersioningManager read {it.ItemName} : {it.State} : {it.InstallFilePath} : {it.DownloadedURI}");
                     }
                 }
             }

@@ -114,22 +114,32 @@ namespace ActionLanguage.Manager
 
         void AfterDownload()
         {
-            if (canceldownload.IsCancellationRequested)     // if cancelled, stop doing anything, double check
+            System.Diagnostics.Debug.Assert(Application.MessageLoop);
+            System.Diagnostics.Debug.WriteLine("After download running");
+
+            if (canceldownload.IsCancellationRequested)     // if cancelled between thread asking for invoke and here, stop doing anything
+            {
+                System.Diagnostics.Debug.WriteLine("After download thread cancel recognised ending");
                 return;
+            }
 
             this.Cursor = Cursors.Default;
 
             if (managedownloadmode)                     // if in manage mode, we read the downloaded files and process. If not, we just have the local files
+            {
                 gitactionfiles.ReadDownloadedFolder(githuburl, edversion, progtype);
+            }
 
             gitactionfiles.VersioningManager.Sort();
 
+            System.Diagnostics.Debug.WriteLine("After download finished, ready to display");
             ReadyToDisplay();
         }
 
+        // refresh the UI
+
         void ReadyToDisplay()
         {
-            
             panelVScroll.RemoveAllControls();       // blank
             panelVScroll.SuspendLayout();
 
@@ -410,7 +420,7 @@ namespace ActionLanguage.Manager
                 if ( localpresent)        // if local is there, inform its being removed
                     DeleteActionFile?.Invoke(gd.di);
 
-                if ( gd.di.DeleteLocalInstallRemote(this, new System.Threading.CancellationToken(), githuburl, gitactionfiles.AppRootFolder)) // if succeeded, make a note
+                if ( gd.di.Install(this, new System.Threading.CancellationToken(), githuburl, gitactionfiles.AppRootFolder)) // if succeeded, make a note
                     InstalledDeinstallNow[gd.di.ItemName] = localpresent ? "++" : "+";
             }
 
@@ -433,7 +443,7 @@ namespace ActionLanguage.Manager
                 else
                 {
                     DeleteActionFile?.Invoke(gd.di);
-                    if ( gd.di.DeleteInstall(this, gitactionfiles.AppRootFolder) )
+                    if ( gd.di.Remove(this, gitactionfiles.AppRootFolder) )
                         InstalledDeinstallNow[gd.di.ItemName] = "-";
                 }
 
