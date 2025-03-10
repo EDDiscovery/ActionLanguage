@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ActionLanguage.Manager
@@ -42,7 +43,6 @@ namespace ActionLanguage.Manager
 
         // manageddownloadmode = true = manage downloads, get from git (or use temp folder dependent on downloadgit)
         // else just show actions and allow editing of them
-
         public void Init(string progtype, 
                         bool managedownloadmode,        // if in manage download, or just edit
                         bool downloadgit,       // if to go to github for data
@@ -145,7 +145,7 @@ namespace ActionLanguage.Manager
 
             //                       0      1       2       3       4       5       6       7       8
             //                      type    i/info  ver     shtdes  state   actbut  delbut  enachk
-            int[] tabs = new int[] { 0,     80,     280,    360,    560,    660,    760,    820,    880};
+            int[] tabs = new int[] { 0,     80,     280,    360,    560,    760,    860,    920,    1080};
 
             var theme = ExtendedControls.Theme.Current;
 
@@ -211,8 +211,16 @@ namespace ActionLanguage.Manager
                     text = "Newer EDD required".T(EDTx.AddOnManagerForm_Newer);
                 else if (di.State == DownloadItem.ItemState.NotPresent)
                 {
-                    allowdownload = true;
-                    text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
+                    // double check we don't have incompatibilities
+                    var notcompatiblelist = di.NotCompatibleWithList().Where(x => gitactionfiles.VersioningManager.DownloadItems.Find(y => y.ItemName == x)?.LocalPresent ?? false);
+
+                    if (notcompatiblelist.Count() > 0)
+                        text = "Incompatible " + string.Join(",", notcompatiblelist);
+                    else
+                    {
+                        allowdownload = true;
+                        text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
+                    }
                 }
                 else if (di.State == DownloadItem.ItemState.UpToDate)
                 {
@@ -409,6 +417,27 @@ namespace ActionLanguage.Manager
 
             if ( gd.di.IsComplexInstall() || (gd.di.LocalPresent && gd.di.IsComplexDelete()))
             {
+                // get list of remove others, where X is found and has Local Present flag (a profusion of ?)
+                var removeotherslist = gd.di.RemoveOtherPacksList();
+                var removeotherspresent = removeotherslist.Where(x=> gitactionfiles.VersioningManager.Find(x)?.LocalPresent ?? false);
+                if ( removeotherspresent.Count()>0)
+                {
+                    if (ExtendedControls.MessageBoxTheme.Show(this, "This pack will remove the following other packs\r\n\r\n" + string.Join(",", removeotherspresent) + "\r\n\r\nConfirm?", "Warning".T(EDTx.Warning), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel)
+                        return;
+
+                    foreach (var pack in removeotherspresent)
+                    {
+                        foreach( Control ctrl in panelVScroll.Controls)
+                        {
+                            Group g = ctrl.Tag as Group;
+                            if ( g!= null && g.di.ItemName == pack)
+                                g.di.State = DownloadItem.ItemState.ToBeRemoved;
+                        }
+
+                        InstallDeinstallAtStartupList[pack] = "-";      // remove it!
+                    }
+                }
+
                 ExtendedControls.MessageBoxTheme.Show(this, "Add-on will be installed at next restart", "Information".T(EDTx.Information), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 gd.di.State = DownloadItem.ItemState.ToBeInstalled;
                 InstallDeinstallAtStartupList[gd.di.ItemName] = gd.di.LocalPresent ? "++" : "+";
@@ -510,15 +539,13 @@ namespace ActionLanguage.Manager
             public ExtendedControls.ExtCheckBox enabled;
         }
 
-        private List<Group> groups = new List<Group>();
-
         private const int panelheightmargin = 1;
         private const int labelheightmargin = 6;
         private const int panelleftmargin = 3;
 
         private GitActionFiles gitactionfiles;
-        private string githuburl;
 
+        private string githuburl;
         private bool managedownloadmode;
         private bool downloadgit;
         private int[] edversion;

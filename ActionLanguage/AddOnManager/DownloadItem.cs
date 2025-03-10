@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2017-2024 EDDiscovery development team
+ * Copyright 2017-2025 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -134,7 +134,7 @@ namespace ActionLanguage.Manager
 
             var folderfiles = CreateFolderList(canceltoken, DownloadedVars, downloadserver);
 
-            if (LocalPresent)        // if local is there, remove it first. But if overwritefolders
+            if (LocalPresent)        // if local is there, remove it first. If overwritefolders is present, then don't delete these folders.
             {
                 Remove(approotfolder, overwritefolders ? folderfiles : null);
             }
@@ -358,7 +358,21 @@ namespace ActionLanguage.Manager
             if (fileset.Where(x => !x.Name.EndsWith(".mp3")).Count() > 0)       // any files other than .mp3 in the filelist is complex
                 return true;
             var varfolders = vars.NameEnumuerable.Where(x => x.StartsWith("DownloadFolder"));
-            return varfolders.Count() > 0;
+            if (varfolders.Count() > 0)
+                return true;
+            return vars.NameEnumuerable.Where(x => x.StartsWith("RemoveOther")).Count() > 0;
+        }
+
+        // Protect against local only. List of RemoveOther
+        public List<string> RemoveOtherPacksList()
+        {
+            return DownloadedVars.NameEnumuerable.Where(x => x.StartsWith("RemoveOther")).Select(x => DownloadedVars[x]).ToList();
+        }
+
+        // Protect against local only. List of NotCompatibleWith
+        public List<string> NotCompatibleWithList()
+        {
+            return DownloadedVars.NameEnumuerable.Where(x => x.StartsWith("NotCompatibleWith")).Select(x => DownloadedVars[x]).ToList();
         }
 
         // go to github and read folder trees from the variables list
