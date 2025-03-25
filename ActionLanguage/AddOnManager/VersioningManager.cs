@@ -118,7 +118,7 @@ namespace ActionLanguage.Manager
 
                                 InstallFilePath = localfilepath,          // set these so it knows where to install..
 
-                                State = DownloadItem.ItemState.NotPresent,
+                                State = DownloadItem.ItemState.DownloadServerOnly,
                             };
 
                             DownloadItems.Add(it);

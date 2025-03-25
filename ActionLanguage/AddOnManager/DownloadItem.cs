@@ -31,14 +31,18 @@ namespace ActionLanguage.Manager
         public enum ItemState
         {
             None,
-            LocalOnly,
-            EDOutOfDate,
-            NotPresent,
-            UpToDate,
-            OutOfDate,
-            EDTooOld,
-            ToBeInstalled,
-            ToBeRemoved,
+            LocalOnly,          // only found locally
+            DownloadServerOnly,         // on download server only
+            UpToDate,           // local and download, up to date
+            OutOfDate,          // local and download, out of date
+
+            EDOutOfDate,        // MinEDVersion produces this
+            EDTooOld,           // MaxEDInstallVersion produces this
+
+            ToBeInstalled,      // complex load to be installed at next boot
+            ToBeRemoved,        // complex load to be removed at next boot
+            
+            Removed,            // after local deleted, not on server
         }
         public ItemState State { get; set; }
 
@@ -47,6 +51,8 @@ namespace ActionLanguage.Manager
         public string ShortDownloadedDescription { get { return DownloadedVars != null && DownloadedVars.Exists("ShortDescription") ? DownloadedVars["ShortDescription"] : ""; } }
         public string LongDownloadedDescription { get { return DownloadedVars != null && DownloadedVars.Exists("LongDescription") ? DownloadedVars["LongDescription"] : ""; } }
 
+
+        public bool DownloadAvailable { get { return DownloadedURI != null; } }     // download is available
         public string DownloadedURI { get; set; }           // where the ACT came from, in download form
         public string DownloadedTemporaryFilePath { get; set; }       // where the temporary act file is stored
         public int[] DownloadedVersion { get; set; }
@@ -63,7 +69,6 @@ namespace ActionLanguage.Manager
         public bool? LocalEnable { get; set; }           // null, or set if local has variables and a Enable flag
         public bool LocalNotEditable { get; set; }       // set if NotEditable variable is true
         public bool LocalNotDisableable { get; set; }    // set if NotDisablable variable is true
-
 
        public bool ReadLocalItem(string pathname, string approotfolder, string defaultitemtype)
         {
@@ -266,7 +271,9 @@ namespace ActionLanguage.Manager
             LocalVersion = null;
             LocalEnable = null;
             LocalModified = false;
-            State = DownloadItem.ItemState.NotPresent;
+
+            // if still downloadable, set state, else set to removed and that is that now
+            State = DownloadAvailable ? DownloadItem.ItemState.DownloadServerOnly : DownloadItem.ItemState.Removed;
 
             return true;
         }
@@ -363,13 +370,13 @@ namespace ActionLanguage.Manager
             return vars.NameEnumuerable.Where(x => x.StartsWith("RemoveOther")).Count() > 0;
         }
 
-        // Protect against local only. List of RemoveOther
+        // Protect against local only. List of RemoveOther. DownloadAvailable must be true
         public List<string> RemoveOtherPacksList()
         {
             return DownloadedVars.NameEnumuerable.Where(x => x.StartsWith("RemoveOther")).Select(x => DownloadedVars[x]).ToList();
         }
 
-        // Protect against local only. List of NotCompatibleWith
+        // Protect against local only. List of NotCompatibleWith. DownloadAvailable must be true
         public List<string> NotCompatibleWithList()
         {
             return DownloadedVars.NameEnumuerable.Where(x => x.StartsWith("NotCompatibleWith")).Select(x => DownloadedVars[x]).ToList();

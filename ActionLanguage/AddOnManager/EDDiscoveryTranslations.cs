@@ -16,25 +16,16 @@ namespace ActionLanguage
 {
     internal enum EDTx
     {
+        // from ED
         Warning, // Warning
-        Today, // Today
-        t24h, // 24h
-        t7days, // 7 days
-        All, // All
-        OK, // OK
-        Cancel, // Cancel
-        Delete, // Delete
-        Campaign, // Campaign
-        NoScan, // No Scan
-        GameTime, // Game Time
-        Time, // Time
-        NoData, // No Data
-        None, // None
-        on, // on
-        Off, // Off
-        Unknown, // Unknown
         Information, // Information
-        NoPos, // No Pos
+
+        // here
+
+        ToBeDeleted,
+        ToBeInstalled,
+        Removed,
+        Incompatible,
 
         AddOnManagerForm_buttonExtGlobals,   // Control 'Globals'
 

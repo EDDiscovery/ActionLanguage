@@ -206,16 +206,16 @@ namespace ActionLanguage.Manager
 
                 string text;
                 if (di.State == DownloadItem.ItemState.LocalOnly)
+                {
                     text = "Local".T(EDTx.AddOnManagerForm_LocalOnly);
-                else if (di.State == DownloadItem.ItemState.EDOutOfDate)
-                    text = "Newer EDD required".T(EDTx.AddOnManagerForm_Newer);
-                else if (di.State == DownloadItem.ItemState.NotPresent)
+                }
+                else if (di.State == DownloadItem.ItemState.DownloadServerOnly)
                 {
                     // double check we don't have incompatibilities
                     var notcompatiblelist = di.NotCompatibleWithList().Where(x => gitactionfiles.VersioningManager.DownloadItems.Find(y => y.ItemName == x)?.LocalPresent ?? false);
 
                     if (notcompatiblelist.Count() > 0)
-                        text = "Incompatible " + string.Join(",", notcompatiblelist);
+                        text = "Incompatible".T(EDTx.Incompatible) + " " + string.Join(",", notcompatiblelist);
                     else
                     {
                         allowdownload = true;
@@ -235,16 +235,27 @@ namespace ActionLanguage.Manager
                     allowdownload = true;
                     text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
                 }
+                else if (di.State == DownloadItem.ItemState.EDOutOfDate)
+                {
+                    text = "Newer EDD required".T(EDTx.AddOnManagerForm_Newer);
+                }
                 else if (di.State == DownloadItem.ItemState.EDTooOld)
+                {
                     text = "Too old for EDD".T(EDTx.AddOnManagerForm_Old);
+                }
                 else if (di.State == DownloadItem.ItemState.ToBeInstalled)
                 {
-                    text = "To be installed";
+                    text = "To be installed".T(EDTx.ToBeInstalled); ;
                     enablebuttons = false;
                 }
                 else if (di.State == DownloadItem.ItemState.ToBeRemoved)
                 {
-                    text = "To be deleted";
+                    text = "To be deleted".T(EDTx.ToBeDeleted); ;
+                    enablebuttons = false;
+                }
+                else if (di.State == DownloadItem.ItemState.Removed)
+                {
+                    text = "Removed".T(EDTx.Removed);
                     enablebuttons = false;
                 }
                 else
@@ -266,7 +277,7 @@ namespace ActionLanguage.Manager
                             g.actionbutton = new ExtendedControls.ExtButton();
                             g.actionbutton.Location = new Point(tabs[5], labelheightmargin - 4);      // 8 spacing, allow 8*4 to indent
                             g.actionbutton.Size = new Size(tabs[6] - tabs[5] - 20, 24);
-                            g.actionbutton.Text = di.State == DownloadItem.ItemState.NotPresent ? "Install".T(EDTx.AddOnManagerForm_Install) : 
+                            g.actionbutton.Text = di.State == DownloadItem.ItemState.DownloadServerOnly ? "Install".T(EDTx.AddOnManagerForm_Install) : 
                                                  di.State == DownloadItem.ItemState.OutOfDate ? "Update".T(EDTx.AddOnManagerForm_Update) : "Refresh";       // Refresh can only be in debug mode
                             g.actionbutton.Click += Actionbutton_Click;
                             g.actionbutton.Tag = g;
