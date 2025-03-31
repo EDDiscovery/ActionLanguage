@@ -94,7 +94,6 @@
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
             this.panel_close.Padding = new System.Windows.Forms.Padding(6);
-            this.panel_close.PanelDisabledScaling = 0.25F;
             this.panel_close.Selectable = false;
             this.panel_close.Size = new System.Drawing.Size(24, 24);
             this.panel_close.TabIndex = 27;
@@ -116,7 +115,6 @@
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
             this.panel_minimize.Padding = new System.Windows.Forms.Padding(6);
-            this.panel_minimize.PanelDisabledScaling = 0.25F;
             this.panel_minimize.Selectable = false;
             this.panel_minimize.Size = new System.Drawing.Size(24, 24);
             this.panel_minimize.TabIndex = 26;
@@ -165,13 +163,10 @@
             this.comboBoxCustomEditProg.DataSource = null;
             this.comboBoxCustomEditProg.DisableBackgroundDisabledShadingGradient = false;
             this.comboBoxCustomEditProg.DisplayMember = "";
-            this.comboBoxCustomEditProg.DropDownBackgroundColor = System.Drawing.Color.Gray;
             this.comboBoxCustomEditProg.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.comboBoxCustomEditProg.Location = new System.Drawing.Point(78, 3);
             this.comboBoxCustomEditProg.MouseOverBackgroundColor = System.Drawing.Color.Silver;
             this.comboBoxCustomEditProg.Name = "comboBoxCustomEditProg";
-            this.comboBoxCustomEditProg.ScrollBarButtonColor = System.Drawing.Color.LightGray;
-            this.comboBoxCustomEditProg.ScrollBarColor = System.Drawing.Color.LightGray;
             this.comboBoxCustomEditProg.SelectedIndex = -1;
             this.comboBoxCustomEditProg.SelectedItem = null;
             this.comboBoxCustomEditProg.SelectedValue = null;
