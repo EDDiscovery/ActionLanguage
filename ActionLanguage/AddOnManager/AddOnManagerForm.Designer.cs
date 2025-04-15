@@ -89,7 +89,6 @@ namespace ActionLanguage.Manager
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(1002, 0);
-            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -112,7 +111,6 @@ namespace ActionLanguage.Manager
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(972, 0);
-            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
@@ -181,7 +179,6 @@ namespace ActionLanguage.Manager
             this.vScrollBarCustom1.AlwaysHideScrollBar = false;
             this.vScrollBarCustom1.ArrowBorderColor = System.Drawing.Color.LightBlue;
             this.vScrollBarCustom1.ArrowButtonColor = System.Drawing.Color.LightGray;
-            this.vScrollBarCustom1.ArrowColorScaling = 0.5F;
             this.vScrollBarCustom1.ArrowDownDrawAngle = 270F;
             this.vScrollBarCustom1.ArrowUpDrawAngle = 90F;
             this.vScrollBarCustom1.BorderColor = System.Drawing.Color.White;
@@ -200,7 +197,6 @@ namespace ActionLanguage.Manager
             this.vScrollBarCustom1.TabIndex = 0;
             this.vScrollBarCustom1.ThumbBorderColor = System.Drawing.Color.Yellow;
             this.vScrollBarCustom1.ThumbButtonColor = System.Drawing.Color.DarkBlue;
-            this.vScrollBarCustom1.ThumbColorScaling = 0.5F;
             this.vScrollBarCustom1.ThumbDrawAngle = 0F;
             this.vScrollBarCustom1.Value = -347;
             this.vScrollBarCustom1.ValueLimited = -347;
@@ -208,7 +204,6 @@ namespace ActionLanguage.Manager
             // richTextBoxScrollDescription
             // 
             this.richTextBoxScrollDescription.BorderColor = System.Drawing.Color.Transparent;
-            this.richTextBoxScrollDescription.BorderColorScaling = 0.5F;
             this.richTextBoxScrollDescription.DetectUrls = true;
             this.richTextBoxScrollDescription.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxScrollDescription.HideScrollBar = true;
@@ -218,17 +213,6 @@ namespace ActionLanguage.Manager
             this.richTextBoxScrollDescription.Rtf = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 " +
     "Microsoft Sans Serif;}}\r\n{\\*\\generator Riched20 10.0.19041}\\viewkind4\\uc1 \r\n\\par" +
     "d\\f0\\fs17\\par\r\n}\r\n";
-            this.richTextBoxScrollDescription.ScrollBarArrowBorderColor = System.Drawing.Color.LightBlue;
-            this.richTextBoxScrollDescription.ScrollBarArrowButtonColor = System.Drawing.Color.LightGray;
-            this.richTextBoxScrollDescription.ScrollBarBackColor = System.Drawing.SystemColors.Control;
-            this.richTextBoxScrollDescription.ScrollBarBorderColor = System.Drawing.Color.White;
-            this.richTextBoxScrollDescription.ScrollBarFlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.richTextBoxScrollDescription.ScrollBarForeColor = System.Drawing.SystemColors.ControlText;
-            this.richTextBoxScrollDescription.ScrollBarMouseOverButtonColor = System.Drawing.Color.Green;
-            this.richTextBoxScrollDescription.ScrollBarMousePressedButtonColor = System.Drawing.Color.Red;
-            this.richTextBoxScrollDescription.ScrollBarSliderColor = System.Drawing.Color.DarkGray;
-            this.richTextBoxScrollDescription.ScrollBarThumbBorderColor = System.Drawing.Color.Yellow;
-            this.richTextBoxScrollDescription.ScrollBarThumbButtonColor = System.Drawing.Color.DarkBlue;
             this.richTextBoxScrollDescription.ShowLineCount = false;
             this.richTextBoxScrollDescription.Size = new System.Drawing.Size(1017, 211);
             this.richTextBoxScrollDescription.TabIndex = 1;

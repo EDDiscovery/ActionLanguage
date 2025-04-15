@@ -89,7 +89,6 @@
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(1045, 0);
-            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -110,7 +109,6 @@
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(1015, 0);
-            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
@@ -159,13 +157,11 @@
             // comboBoxCustomEditProg
             // 
             this.comboBoxCustomEditProg.BorderColor = System.Drawing.Color.White;
-            this.comboBoxCustomEditProg.ButtonColorScaling = 0.5F;
             this.comboBoxCustomEditProg.DataSource = null;
             this.comboBoxCustomEditProg.DisableBackgroundDisabledShadingGradient = false;
             this.comboBoxCustomEditProg.DisplayMember = "";
             this.comboBoxCustomEditProg.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.comboBoxCustomEditProg.Location = new System.Drawing.Point(78, 3);
-            this.comboBoxCustomEditProg.MouseOverBackgroundColor = System.Drawing.Color.Silver;
             this.comboBoxCustomEditProg.Name = "comboBoxCustomEditProg";
             this.comboBoxCustomEditProg.SelectedIndex = -1;
             this.comboBoxCustomEditProg.SelectedItem = null;

@@ -182,7 +182,7 @@ namespace ActionLanguage
 
             if (g.groupnamepanel != null)
             {
-                g.groupnamepanel.BackColor = ExtendedControls.Theme.Current.TextBackColor;
+                g.groupnamepanel.BackColor = ExtendedControls.Theme.Current.TextBlockBackColor;
             }
 
             g.panel.ResumeLayout();

@@ -149,7 +149,6 @@ namespace ActionLanguage
             this.textBoxBorderName.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.None;
             this.textBoxBorderName.BackErrorColor = System.Drawing.Color.Red;
             this.textBoxBorderName.BorderColor = System.Drawing.Color.Transparent;
-            this.textBoxBorderName.BorderColorScaling = 0.5F;
             this.textBoxBorderName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBoxBorderName.ClearOnFirstChar = false;
             this.textBoxBorderName.ControlBackground = System.Drawing.SystemColors.Control;
@@ -210,7 +209,6 @@ namespace ActionLanguage
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(839, 0);
-            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -231,7 +229,6 @@ namespace ActionLanguage
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(809, 0);
-            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
