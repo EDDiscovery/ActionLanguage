@@ -642,8 +642,125 @@ namespace ActionLanguage
 
             return true;
         }
-
     }
+
+    public class ActionDialogEntry : ActionBase
+    {
+        public override bool AllowDirectEditingOfUserData { get { return true; } }    // and allow editing?
+
+        public override bool ConfigurationMenu(Form parent, ActionCoreController cp, List<BaseUtils.TypeHelpers.PropertyNameInfo> eventvars)
+        {
+            List<string> l = FromString(userdata);
+            List<string> r = ExtendedControls.PromptMultiLine.ShowDialog(parent, "Configure MessageBox Dialog", cp.Icon,
+                            new string[] { "DVar", "Name", "Type", "Text",          // 0 offset
+                                            "X","Y", "Width","Height",              // 4
+                                            "ToolTip",                              // 8 tooltip makes it 9 entries
+                                            "Panel", "Dock", "Anchor", "Margin",    // 9,10,11,12
+                                            "Other Params 1","Other Params 2","Other Params 3","Further Params 4",    // 13,14,15,16
+                            },
+                            l?.ToArray(),
+                            new int[] { 24, 24, 24, 50, 24, 24, 24, 24, 50, 24, 24, 24, 24, 50, 50, 50, 50 },
+                            multiline: true, widthboxes: 400, heightscrollarea:-1);
+
+            if (r != null)
+                userdata = r.ToStringCommaList(9, true, false);     // and escape them back, minimum 9 entries to tooltip, escape ctrl, don't quote empty
+
+            return (r != null);
+        }
+
+        public override string VerifyActionCorrect()
+        {
+            return (FromString(userdata) != null) ? null : "DialogEntry command line not in correct format";
+        }
+
+        List<string> FromString(string input)       // returns in raw esacped mode
+        {
+            StringParser sp = new StringParser(input);
+            List<string> s = sp.NextQuotedWordList(replaceescape: true);
+            return (s != null && s.Count >= 9) ? s : null;      // must have up to tooltip
+        }
+
+        public override bool ExecuteAction(ActionProgramRun ap)
+        {
+            List<string> ctrl = FromString(UserData);
+
+            if (ctrl != null)
+            {
+                List<string> exp;
+
+                if (ap.Functions.ExpandStrings(ctrl, out exp) != Functions.ExpandResult.Failed)
+                {
+                    if (exp[0].HasChars() && exp[1].HasChars() && exp[2].HasChars())       
+                    {
+                        string dvar = exp[1] + "," + exp[2] + "," + exp[3].AlwaysQuoteString() +",";       // name,type,text always quoted
+
+                        if (exp.Count >= 10 && exp[9].HasChars())
+                            dvar += "In:" + exp[9].QuoteString() + ",";
+                        if (exp.Count >= 11 && exp[10].HasChars())
+                            dvar += "Dock:" + exp[10] + ",";
+                        if (exp.Count >= 12 && exp[11].HasChars())
+                            dvar += "Anchor:" + exp[11] + ",";
+                        if (exp.Count >= 13 && exp[12].HasChars())
+                            dvar += "Margin:" + exp[12] + ",";
+    
+                        if (TryEvaluate(exp[4], out string x, true) && TryEvaluate(exp[5], out string y, true) && TryEvaluate(exp[6], out string w) && TryEvaluate(exp[7], out string h))
+                        {
+                            dvar += x + "," + y + "," + w + "," + h + "," + exp[8].AlwaysQuoteString();    // x,y,w,h,tooltip always quoted
+
+                            for (int i = 13; i < exp.Count; i++)
+                                dvar += "," + exp[i].QuoteString();     // only quote if contains quote or ends with space
+
+                            int v = 1;
+                            string key = "x";
+                            while(true)
+                            {
+                                key = exp[0] + "_" + v.ToStringInvariant();
+                                if (!ap.variables.Contains(key))
+                                    break;
+                                v++;
+                            }
+
+                            ap[key] = dvar;
+                        }
+                        else
+                            ap.ReportError("DialogEntry x/y/w/h parameters not integer");
+                    }
+                    else
+                        ap.ReportError("DialogEntry parameters 1 to 3 at least one is empty");
+                }
+                else
+                    ap.ReportError(exp[0]);
+            }
+            else
+                ap.ReportError("DialogEntry command line not in correct format");
+
+            return true;
+        }
+
+        private bool TryEvaluate(string s, out string output, bool allowprefix = false)
+        {
+            string prefix = "";
+            if ( allowprefix && (s.StartsWith("+") || s.StartsWith("-") ))
+            {
+                prefix = s.Substring(0, 1);
+                s = s.Substring(1);
+            }
+
+            Eval ev = new Eval(checkend: true, allowfp: false, allowstrings: false);
+
+            if (ev.TryEvaluateLong(s, out long v))
+            {
+                output = prefix + v.ToStringInvariant();
+                return true;
+            }
+            else
+            {
+                output = "";
+                return false;
+            }
+        }
+    }
+
 
     public class ActionDialog : ActionDialogBase        // type of class determines Dialog action using IsModal
     {

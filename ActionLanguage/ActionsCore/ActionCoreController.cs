@@ -52,6 +52,7 @@ namespace ActionLanguage
             ActionBase.AddCommand("Call", typeof(ActionCall), ActionBase.ActionType.Call);
             ActionBase.AddCommand("Dialog", typeof(ActionDialog), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("DialogControl", typeof(ActionDialogControl), ActionBase.ActionType.Cmd);
+            ActionBase.AddCommand("DialogEntry", typeof(ActionDialogEntry), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Do", typeof(ActionDo), ActionBase.ActionType.Do);
             ActionBase.AddCommand("DeleteVariable", typeof(ActionDeleteVariable), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Expr", typeof(ActionExpr), ActionBase.ActionType.Cmd);
