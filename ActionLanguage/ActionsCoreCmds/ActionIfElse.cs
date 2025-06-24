@@ -51,30 +51,38 @@ namespace ActionLanguage
 
         protected bool ExecuteEval(ActionProgramRun ap, string expr, out bool res)
         {
-            Eval ev = new Eval(ap.variables, new BaseFunctionsForEval(), checkend: true, allowfp: true, allowstrings: true);
-            Object ret = ev.Evaluate(expr);
             res = false;
 
-            if (ev.InError)
+            // first expand the string to remove any % macros
+            if (ap.Functions.ExpandString(expr, out string expanded) != Functions.ExpandResult.Failed)
             {
-                ap.ReportError(ev.ToString(System.Globalization.CultureInfo.InvariantCulture));
-                return false;
-            }
-            else if (ret is long)
-            {
-                res = ((long)ret) != 0;
-                return true;
-            }
-            else if (ret is double)
-            {
-                res = ((double)ret) != 0;
-                return true;
+                // then use the full evaluator on it allowing fp/strings
+
+                Eval ev = new Eval(ap.variables, new BaseFunctionsForEval(), checkend: true, allowfp: true, allowstrings: true);
+                Object ret = ev.Evaluate(expanded);
+                res = false;
+
+                if (ev.InError)
+                {
+                    ap.ReportError(ev.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                }
+                else if (ret is long)           // only long or double is a good result
+                {
+                    res = ((long)ret) != 0;
+                    return true;
+                }
+                else if (ret is double)
+                {
+                    res = ((double)ret) != 0;
+                    return true;
+                }
+                else
+                    ap.ReportError("Evaluation resulted in a string result - must be a number");
             }
             else
-            {
-                ap.ReportError("Evaluation resulted in a string result - must be a number");
-                return false;
-            }
+                ap.ReportError(expanded);
+
+            return false;
         }
 
         public override bool ConfigurationMenu(Form parent, ActionCoreController cp, List<BaseUtils.TypeHelpers.PropertyNameInfo> eventvars) //standard one used for most
