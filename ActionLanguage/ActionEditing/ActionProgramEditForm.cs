@@ -253,9 +253,9 @@ namespace ActionLanguage
                 if (act != null)
                 {
                     System.Diagnostics.Debug.Assert(Object.ReferenceEquals(g.checkit, act));
-                    g.left.Enabled = act.calcAllowLeft;
-                    g.right.Enabled = act.calcAllowRight;
-                    indentlevel = act.calcDisplayLevel;
+                    g.left.Enabled = act.CalcAllowLeft;
+                    g.right.Enabled = act.CalcAllowRight;
+                    indentlevel = act.CalcDisplayLevel;
                     whitespace = act.Whitespace;
                     lineno = act.LineNumber;
                     g.prog.Visible = (act.Type == ActionBase.ActionType.Call) && (EditProgram != null);
@@ -296,7 +296,7 @@ namespace ActionLanguage
                 if ( lineno > 0 )
                     tt1 += " Ln " + lineno;
                 if ( act != null )
-                    tt1 += " SL " + act.calcStructLevel + " LU" + act.LevelUp ;
+                    tt1 += " SL " + act.CalcStructLevel + " LU" + act.LevelUp ;
 
                 toolTip1.SetToolTip(g.stepname, tt1);
                 toolTip1.SetToolTip(g.stepname.GetInternalSystemControl, tt1);

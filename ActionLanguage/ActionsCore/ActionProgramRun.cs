@@ -189,9 +189,9 @@ namespace ActionLanguage
             }
         }
 
-        // true is reported on an error, or we need to get the next action.
-
-        public bool LevelUp(int up, ActionBase action)      // action may be null at end of program
+        // report true to waste the current statement and continue onto the next
+        // action may be null at end of program
+        public bool LevelUp(int up, ActionBase action)      
         {
             while (up-- > 0)
             {
@@ -208,12 +208,10 @@ namespace ActionLanguage
                         if (action.LevelUp == 1)                // only 1, otherwise its incorrectly nested
                         {
                             ActionWhile w = action as ActionWhile;
-                            if (w.ExecuteEndDo(this))    // if this indicates (due to true) we need to fetch next instruction
-                            {
-                                return true;
-                            }
-                            else
-                                RemoveLevel();      // else, just remove level.. 
+                            if (!w.ExecuteEndDo(this))      // if this indicates (due to false) the do..while is over
+                                RemoveLevel();              // So remove the level
+
+                            return true;                    // waste the statement
                         }
                         else
                         {

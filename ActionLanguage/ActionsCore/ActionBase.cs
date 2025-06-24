@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace ActionLanguage
 {
-    [System.Diagnostics.DebuggerDisplay("Action {actionname} {actiontype} {levelup} {userdata}")]
+    [System.Diagnostics.DebuggerDisplay("Action {levelup} : {actionname} {actiontype} {userdata}")]
     public class ActionBase
     {
         public enum ActionType { Cmd, Call, Return,         // NOT auto
@@ -57,11 +57,10 @@ namespace ActionLanguage
         public int Whitespace { get { return whitespace; } set { whitespace = value; } }
 
         public int LineNumber { get; set; }             // NOT stored, calculated line number.. calculated on read and editing
-
-        public int calcDisplayLevel { get; set; }       // NOT stored, for editing purposes, what is the display level?
-        public int calcStructLevel { get; set; }        // NOT stored, for editing purposes, what is the structure level?
-        public bool calcAllowRight { get; set; }        // NOT stored
-        public bool calcAllowLeft { get; set; }         // NOT stored
+        public int CalcDisplayLevel { get; set; }       // NOT stored, for editing purposes, what is the display level?
+        public int CalcStructLevel { get; set; }        // NOT stored, for editing purposes, what is the structure level?
+        public bool CalcAllowRight { get; set; }        // NOT stored
+        public bool CalcAllowLeft { get; set; }         // NOT stored
 
         public virtual bool AllowDirectEditingOfUserData { get { return false; } }    // and allow editing?
 

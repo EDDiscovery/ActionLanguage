@@ -102,6 +102,7 @@ namespace ActionLanguage
 
         #region Event Lists checking Conditions to run
 
+        [System.Diagnostics.DebuggerDisplay("{af.Name} {cl.Count} {passed.Count}")]
         public class MatchingSets
         {
             public ActionFile af;            // file it came from

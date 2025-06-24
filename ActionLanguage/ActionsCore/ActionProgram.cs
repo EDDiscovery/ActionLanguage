@@ -101,9 +101,10 @@ namespace ActionLanguage
                 programsteps.RemoveAt(step);
         }
 
-        #region Read
+        #region Read and create program
 
-        public string Read(System.IO.TextReader sr, ref int lineno, string prenamed = "")         // read from stream. At this lineno, plus it may already be named
+        // read from stream. At this lineno, plus it may already be named
+        public string Read(System.IO.TextReader sr, ref int lineno, string prenamed = "")         
         {
             string err = "";
 
@@ -151,33 +152,38 @@ namespace ActionLanguage
                     {
                         comment = line.Substring(commentpos + 2).Trim();
                         line = line.Substring(0, commentpos).TrimEnd();
-                        //System.Diagnostics.Debug.WriteLine("Line <" + line + "> <" + comment + ">");
                     }
 
                     if (cmd.Equals("PROGRAM", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if ( Name.Length == 0 ) // should not be named at this point.. otherwise a block failure
+                        if (Name.Length == 0) // should not be named at this point.. otherwise a block failure
                             Name = line;
                         else
                             err += lineno + " " + Name + " Duplicate PROGRAM line" + Environment.NewLine;
                     }
                     else if (cmd.Equals("END", StringComparison.InvariantCultureIgnoreCase) && line.Equals("PROGRAM", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         break;
+                    }
                     else
                     {
                         ActionBase a = ActionBase.CreateAction(cmd, line, comment);
                         string vmsg;
 
                         if (a == null)
+                        {
                             err += lineno + " " + Name + " Unrecognised command " + cmd + Environment.NewLine;
+                        }
                         else if ((vmsg = a.VerifyActionCorrect()) != null)
+                        {
                             err += lineno + " " + Name + ":" + vmsg + Environment.NewLine + " " + completeline.Trim() + Environment.NewLine;
+                        }
                         else
                         {
-                            //System.Diagnostics.Debug.WriteLine(indentpos + ":" + structlevel + ": Cmd " + cmd + " : " + line);
-
-                            if (indentpos == -1)
+                            if (indentpos == -1)        // starting condition, no idea on indent, set, with structlevel = 0
+                            {
                                 indentpos = curindent;
+                            }
                             else if (curindent > indentpos)        // more indented, up one structure
                             {
                                 structlevel++;
@@ -185,34 +191,46 @@ namespace ActionLanguage
                             }
                             else if (curindent < indentpos)   // deindented
                             {
-                                int tolevel = -1;
-                                for (int i = indents.Count - 1; i >= 0; i--)            // search up and find the entry with the indent..
+                                int statementatlowerlevel = -1;
+                                for (int i = indents.Count - 1; i >= 0; i--)            // search up and find the entry with the indent below current
                                 {
                                     if (indents[i] <= curindent)
                                     {
-                                        tolevel = i;
+                                        statementatlowerlevel = i;
                                         break;
                                     }
                                 }
 
-                                if (tolevel >= 0)       // if found, we have a statement to hook to..
-                                {                               // while in DO loop, or Else/Elseif in IF 
-                                    if ((a.Type == ActionBase.ActionType.While && programsteps[tolevel].Type == ActionBase.ActionType.Do) ||
-                                        ((a.Type == ActionBase.ActionType.Else || a.Type == ActionBase.ActionType.ElseIf) && programsteps[tolevel].Type == ActionBase.ActionType.If))
+                                if (statementatlowerlevel >= 0)       // if found, we have a statement to hook to..
+                                {
+                                    // while in DO loop
+
+                                    if ((a.Type == ActionBase.ActionType.While && programsteps[statementatlowerlevel].Type == ActionBase.ActionType.Do))
                                     {
-                                        int reallevel = level[tolevel] + 1;     // else, while are dedented, but they really are on level+1
-                                        a.LevelUp = structlevel - reallevel;
-                                        structlevel = reallevel;
-                                        indentpos = indents[tolevel] + 4;       // and our indent should continue 4 in, so we don't match against this when we do indent
+                                        int reallevel = level[statementatlowerlevel];        // we indicate its at the same level as the while
+                                        a.LevelUp = structlevel - reallevel;                 // which causes a backup, and causes the LevelUp procedure to kick in
+                                        structlevel = reallevel;                             // for next go, we are now at this level
+                                        indentpos = indents[statementatlowerlevel];          // and our indent is now at the while level
+                                    }
+
+                                    // or Else/Elseif in IF 
+                                    else if ((a.Type == ActionBase.ActionType.Else || a.Type == ActionBase.ActionType.ElseIf) && programsteps[statementatlowerlevel].Type == ActionBase.ActionType.If)
+                                    {
+                                        int reallevel = level[statementatlowerlevel] + 1;     // else are dedented, but they really are on 1 level above the if
+                                        a.LevelUp = structlevel - reallevel;                  // if we backed up
+                                        structlevel = reallevel;                              // now at this level
+                                        indentpos = indents[statementatlowerlevel] + 4;       // and our indent should continue 4 in, so we don't match against this when we do indent
                                     }
                                     else
                                     {
-                                        a.LevelUp = structlevel - level[tolevel];
-                                        structlevel = level[tolevel];   // if found, we are at that.. except..
-                                        indentpos = indents[tolevel]; // and back to this level
+                                        a.LevelUp = structlevel - level[statementatlowerlevel];
+                                        structlevel = level[statementatlowerlevel];   // if found, we are at that.. except..
+                                        indentpos = indents[statementatlowerlevel]; // and back to this level
                                     }
                                 }
                             }
+
+                            // System.Diagnostics.Debug.WriteLine($"{curindent} : ip {indentpos} sl {structlevel} lu {a.LevelUp} : Cmd {cmd} : {line}");
 
                             a.LineNumber = lineno;
 
@@ -235,8 +253,120 @@ namespace ActionLanguage
                 programsteps[programsteps.Count - 1].Whitespace = 0;        // last cannot have whitespace..
 
             ProgramClass = Classify();
+
+            err += CalculateLevels();       // this will moan if there is any errors
+
+           // string s = ToString(true); BaseUtils.FileHelpers.TryWriteToFile(@"c:\code\prog.act", s);
+
             return err;
         }
+
+        // go thru the program, and calc some values for editing purposes. Also look for errors
+        public string CalculateLevels()         
+        {
+            string errlist = "";
+
+            int structlevel = 0;
+            int[] structcount = new int[50];
+            ActionBase.ActionType[] structtype = new ActionBase.ActionType[50];
+
+            System.Globalization.CultureInfo ct = System.Globalization.CultureInfo.InvariantCulture;
+            int step = 1;
+            bool lastwaswhileafterdo = false;
+
+            int lineno = 1;
+
+            foreach (ActionBase act in programsteps)
+            {
+                if (act != null)
+                {
+                    act.CalcAllowRight = act.CalcAllowLeft = false;
+                    bool indo = structtype[structlevel] == ActionBase.ActionType.Do;        // if in a DO..WHILE, and we are a WHILE, we don't indent.
+
+                    if (act.LevelUp > 0)            // if backing up (do..while the while also backs up)
+                    {
+                        if (structcount[structlevel] == 0)        // if we had nothing on this level, its wrong
+                            errlist += "Step " + step.ToString(ct) + " no statements at indented level after " + structtype[structlevel].ToString() + " statement" + Environment.NewLine;
+
+                        if (act.LevelUp > structlevel)            // ensure its not too big.. this may happen due to copying
+                            act.LevelUp = structlevel;
+
+                        structlevel -= act.LevelUp;                 // back up
+                        act.CalcAllowRight = act.LevelUp > 1 || !lastwaswhileafterdo;      // normally we can go right, but can't if its directly after do..while and only 1 level of detent
+                    }
+
+                    lastwaswhileafterdo = false;        // records if last entry was while after do
+
+                    structcount[structlevel]++;         // 1 more on this level
+
+                    if (structlevel > 0 && structcount[structlevel] > 1)        // second further on can be moved back..
+                        act.CalcAllowLeft = true;
+
+                    act.CalcStructLevel = act.CalcDisplayLevel = structlevel;
+
+                    if (act.Type == ActionBase.ActionType.ElseIf)
+                    {
+                        if (structtype[structlevel] == ActionBase.ActionType.Else)
+                            errlist += "Step " + step.ToString(ct) + " ElseIf after Else found" + Environment.NewLine;
+                        else if (structtype[structlevel] != ActionBase.ActionType.If && structtype[structlevel] != ActionBase.ActionType.ElseIf)
+                            errlist += "Step " + step.ToString(ct) + " ElseIf without IF found" + Environment.NewLine;
+                    }
+                    else if (act.Type == ActionBase.ActionType.Else)
+                    {
+                        if (structtype[structlevel] == ActionBase.ActionType.Else)
+                            errlist += "Step " + step.ToString(ct) + " Else after Else found" + Environment.NewLine;
+                        else if (structtype[structlevel] != ActionBase.ActionType.If && structtype[structlevel] != ActionBase.ActionType.ElseIf)
+                            errlist += "Step " + step.ToString(ct) + " Else without IF found" + Environment.NewLine;
+                    }
+
+                    if (act.Type == ActionBase.ActionType.ElseIf || act.Type == ActionBase.ActionType.Else)
+                    {
+                        structtype[structlevel] = act.Type;
+
+                        if (structlevel == 1)
+                            act.CalcAllowLeft = false;         // can't move an ELSE back to level 0
+
+                        if (structlevel > 0)      // display else artifically indented.. display only
+                            act.CalcDisplayLevel--;
+
+                        structcount[structlevel] = 0;   // restart count so we don't allow a left on next one..
+                    }
+                    else if (act.Type == ActionBase.ActionType.While && indo)     // do..while
+                    {
+                        lastwaswhileafterdo = true;     // be careful backing up
+                    }
+                    else if (act.Type == ActionBase.ActionType.If || (act.Type == ActionBase.ActionType.While && !indo) ||
+                                act.Type == ActionBase.ActionType.Do || act.Type == ActionBase.ActionType.Loop || act.Type == ActionBase.ActionType.ForEach)
+                    {
+                        structlevel++;
+                        structcount[structlevel] = 0;
+                        structtype[structlevel] = act.Type;
+                    }
+
+                    string vmsg = act.VerifyActionCorrect();
+                    if (vmsg != null)
+                        errlist += "Step " + step.ToString(ct) + " " + vmsg + Environment.NewLine;
+
+                    act.LineNumber = lineno;
+                    lineno += act.Whitespace;
+                }
+                else
+                {
+                    errlist += "Step " + step.ToString(ct) + " not defined" + Environment.NewLine;
+                }
+
+                step++;
+                lineno++;
+            }
+
+            if (structlevel > 0 && structcount[structlevel] == 0)
+            {
+                errlist += "At End of program, no statements present after " + structtype[structlevel].ToString() + " statement" + Environment.NewLine;
+            }
+
+            return errlist;
+        }
+
 
         public string ReadFile(string file)               // Read from File the program
         {
@@ -254,13 +384,17 @@ namespace ActionLanguage
             }
         }
 
-
         #endregion
 
         #region Write
 
         public override string ToString()
         {
+            return ToString(false);
+        }
+
+        public string ToString(bool debug)
+        { 
             CalculateLevels();
 
             StringBuilder sb = new StringBuilder(256);
@@ -272,7 +406,11 @@ namespace ActionLanguage
             {
                 if (act != null)    // don't include ones not set..
                 {
-                    string output = new String(' ', act.calcDisplayLevel * 4) + act.Name + " " + act.UserData;
+                    string output = "";
+                    if (debug)
+                        output = $"{act.LineNumber} - s{act.CalcStructLevel} - d{act.CalcDisplayLevel} -lu{act.LevelUp} {(act.CalcAllowLeft?"<" : " ")} {(act.CalcAllowRight?">" : " ")} : ";
+                 
+                    output += new String(' ', act.CalcDisplayLevel * 4) + act.Name + " " + act.UserData;
 
                     if (act.Comment.Length > 0)
                         output += new string(' ', output.Length < 64 ? (64 - output.Length) : 4) + "// " + act.Comment;
@@ -312,120 +450,6 @@ namespace ActionLanguage
 
         #endregion
 
-        #region Calculate Level data
-
-        public string CalculateLevels()         // go thru the program, and calc some values for editing purposes. Also look for errors
-        {
-            string errlist = "";
-
-            int structlevel = 0;
-            int[] structcount = new int[50];
-            ActionBase.ActionType[] structtype = new ActionBase.ActionType[50];
-
-            System.Globalization.CultureInfo ct = System.Globalization.CultureInfo.InvariantCulture;
-            int step = 1;
-            bool lastwaswhileafterdo = false;
-
-            int lineno = 1;
-
-            foreach (ActionBase act in programsteps)
-            {
-                if (act != null)
-                {
-                    act.calcAllowRight = act.calcAllowLeft = false;
-                    bool indo = structtype[structlevel] == ActionBase.ActionType.Do;        // if in a DO..WHILE, and we are a WHILE, we don't indent.
-
-                    if (indo && lastwaswhileafterdo && act.LevelUp == 0)        // force back down if after do/while
-                        act.LevelUp = 1;
-
-                    if (act.LevelUp > 0)            // if backing up
-                    {
-                        if ( structcount[structlevel] == 0 )        // if we had nothing on this level, its wrong
-                            errlist += "Step " + step.ToString(ct) + " no statements at indented level after " + structtype[structlevel].ToString() + " statement" + Environment.NewLine;
-
-                        if (act.LevelUp > structlevel)            // ensure its not too big.. this may happen due to copying
-                            act.LevelUp = structlevel;
-
-                        structlevel -= act.LevelUp;                 // back up
-                        act.calcAllowRight = act.LevelUp>1 || !lastwaswhileafterdo;      // normally we can go right, but can't if its directly after do..while and only 1 level of detent
-                    }
-
-                    lastwaswhileafterdo = false;        // records if last entry was while after do
-
-                    structcount[structlevel]++;         // 1 more on this level
-
-                    if (structlevel > 0 && structcount[structlevel] > 1)        // second further on can be moved back..
-                        act.calcAllowLeft = true;
-
-                    act.calcStructLevel = act.calcDisplayLevel = structlevel;
-                    
-                    if (act.Type == ActionBase.ActionType.ElseIf)
-                    {
-                        if (structtype[structlevel] == ActionBase.ActionType.Else)
-                            errlist += "Step " + step.ToString(ct) + " ElseIf after Else found" + Environment.NewLine;
-                        else if (structtype[structlevel] != ActionBase.ActionType.If && structtype[structlevel] != ActionBase.ActionType.ElseIf)
-                            errlist += "Step " + step.ToString(ct) + " ElseIf without IF found" + Environment.NewLine;
-                    }
-                    else if (act.Type == ActionBase.ActionType.Else)
-                    {
-                        if (structtype[structlevel] == ActionBase.ActionType.Else)
-                            errlist += "Step " + step.ToString(ct) + " Else after Else found" + Environment.NewLine;
-                        else if (structtype[structlevel] != ActionBase.ActionType.If && structtype[structlevel] != ActionBase.ActionType.ElseIf)
-                            errlist += "Step " + step.ToString(ct) + " Else without IF found" + Environment.NewLine;
-                    }
-
-                    if (act.Type == ActionBase.ActionType.ElseIf || act.Type == ActionBase.ActionType.Else)
-                    {
-                        structtype[structlevel] = act.Type;
-
-                        if (structlevel == 1)
-                            act.calcAllowLeft = false;         // can't move an ELSE back to level 0
-
-                        if (structlevel > 0)      // display else artifically indented.. display only
-                            act.calcDisplayLevel--;
-
-                        structcount[structlevel] = 0;   // restart count so we don't allow a left on next one..
-                    }
-                    else if ( act.Type == ActionBase.ActionType.While && indo )     // do..while
-                    {
-                        if (structlevel > 0)      // display else artifically indented.. display only
-                            act.calcDisplayLevel--;
-
-                        lastwaswhileafterdo = true;     // be careful backing up
-                    }
-                    else if (act.Type == ActionBase.ActionType.If || (act.Type == ActionBase.ActionType.While && !indo) ||
-                                act.Type == ActionBase.ActionType.Do || act.Type == ActionBase.ActionType.Loop || act.Type == ActionBase.ActionType.ForEach )
-                    {
-                        structlevel++;
-                        structcount[structlevel] = 0;
-                        structtype[structlevel] = act.Type;
-                    }
-
-                    string vmsg = act.VerifyActionCorrect();
-                    if (vmsg != null)
-                        errlist += "Step " + step.ToString(ct) + " " + vmsg + Environment.NewLine;
-
-                    act.LineNumber = lineno;
-                    lineno += act.Whitespace;
-                }
-                else
-                {
-                    errlist += "Step " + step.ToString(ct) + " not defined" + Environment.NewLine;
-                }
-
-                step++;
-                lineno++;
-            }
-
-            if ( structlevel > 0 && structcount[structlevel] == 0 )
-            {
-                errlist += "At End of program, no statements present after " + structtype[structlevel].ToString() + " statement" + Environment.NewLine;
-            }
-
-            return errlist;
-        }
-
-        #endregion
 
         #region Editor
 

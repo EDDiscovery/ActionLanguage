@@ -89,7 +89,9 @@ namespace ActionLanguage
                 string res;
 
                 if (operations[key].Contains("$"))
+                {
                     res = av[key];
+                }
                 else if (ap.Functions.ExpandString(av[key], out res) == Functions.ExpandResult.Failed)       //Expand out.. and if no errors
                 {
                     ap.ReportError(res);
@@ -103,9 +105,8 @@ namespace ActionLanguage
                 }
                 else
                 {
-                    Eval ev = new Eval(res, checkend: true, allowfp: true, allowstrings: false);
-
-                    Object ret = ev.Evaluate();
+                    Eval ev = new Eval(ap.variables, new BaseFunctionsForEval(), checkend: true, allowfp: true, allowstrings: true);
+                    Object ret = ev.Evaluate(res);
 
                     if (ev.InError)
                     {

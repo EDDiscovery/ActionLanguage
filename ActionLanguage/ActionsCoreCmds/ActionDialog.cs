@@ -703,7 +703,8 @@ namespace ActionLanguage
                         if (exp.Count >= 13 && exp[12].HasChars())
                             dvar += "Margin:" + exp[12] + ",";
     
-                        if (TryEvaluate(exp[4], out string x, true) && TryEvaluate(exp[5], out string y, true) && TryEvaluate(exp[6], out string w) && TryEvaluate(exp[7], out string h))
+                        if (TryEvaluate(ap, exp[4], out string x, true) && TryEvaluate(ap, exp[5], out string y, true) && 
+                                        TryEvaluate(ap, exp[6], out string w) && TryEvaluate(ap, exp[7], out string h))
                         {
                             dvar += x + "," + y + "," + w + "," + h + "," + exp[8].AlwaysQuoteString();    // x,y,w,h,tooltip always quoted
 
@@ -737,7 +738,7 @@ namespace ActionLanguage
             return true;
         }
 
-        private bool TryEvaluate(string s, out string output, bool allowprefix = false)
+        private bool TryEvaluate(ActionProgramRun ap, string s, out string output, bool allowprefix = false)
         {
             string prefix = "";
             if ( allowprefix && (s.StartsWith("+") || s.StartsWith("-") ))
@@ -746,7 +747,7 @@ namespace ActionLanguage
                 s = s.Substring(1);
             }
 
-            Eval ev = new Eval(checkend: true, allowfp: false, allowstrings: false);
+            Eval ev = new Eval(ap.variables, new BaseFunctionsForEval(), checkend: true, allowfp: false, allowstrings: false);
 
             if (ev.TryEvaluateLong(s, out long v))
             {

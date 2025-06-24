@@ -78,7 +78,9 @@
     <Compile Include="ActionsCoreCmds\ActionSet.cs" />
     <Compile Include="ActionsCoreCmds\ActionEvents.cs" />
     <Compile Include="ActionsCoreCmds\ActionSleep.cs" />
-    <Compile Include="ActionsCoreCmds\ActionStructures.cs" />
+    <Compile Include="ActionsCoreCmds\ActionIfElse.cs" />
+    <Compile Include="ActionsCoreCmds\ActionWhileLoopForeach.cs" />
+    <Compile Include="ActionsCoreCmds\ActionCallBreak.cs" />
     <Compile Include="ActionsCoreCmds\ActionDialog.cs" />
     <Compile Include="ActionsCoreCmds\ActionUserInteraction.cs" />
     <Compile Include="ActionsCore\ActionBase.cs" />

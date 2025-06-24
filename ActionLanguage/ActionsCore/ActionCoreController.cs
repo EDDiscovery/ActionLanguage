@@ -57,14 +57,17 @@ namespace ActionLanguage
             ActionBase.AddCommand("DeleteVariable", typeof(ActionDeleteVariable), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Expr", typeof(ActionExpr), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Else", typeof(ActionElse), ActionBase.ActionType.Else);
+            ActionBase.AddCommand("ElseIf.E", typeof(ActionElseIfe), ActionBase.ActionType.ElseIf);
             ActionBase.AddCommand("ElseIf", typeof(ActionElseIf), ActionBase.ActionType.ElseIf);
             ActionBase.AddCommand("End", typeof(ActionEnd), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("ErrorIf", typeof(ActionErrorIf), ActionBase.ActionType.Cmd);
+            ActionBase.AddCommand("ErrorIf.E", typeof(ActionErrorIfe), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Events", typeof(ActionEvents), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("ForEach", typeof(ActionForEach), ActionBase.ActionType.ForEach);
             ActionBase.AddCommand("FileDialog", typeof(ActionFileDialog), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("GlobalLet", typeof(ActionGlobalLet), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Global", typeof(ActionGlobal), ActionBase.ActionType.Cmd);
+            ActionBase.AddCommand("If.E", typeof(ActionIfe), ActionBase.ActionType.If);
             ActionBase.AddCommand("If", typeof(ActionIf), ActionBase.ActionType.If);
             ActionBase.AddCommand("InputBox", typeof(ActionInputBox), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("InfoBox", typeof(ActionInfoBox), ActionBase.ActionType.Cmd);
@@ -84,7 +87,9 @@ namespace ActionLanguage
             ActionBase.AddCommand("Static", typeof(ActionStatic), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("Sleep", typeof(ActionSleep), ActionBase.ActionType.Cmd);
             ActionBase.AddCommand("While", typeof(ActionWhile), ActionBase.ActionType.While);
+            ActionBase.AddCommand("While.E", typeof(ActionWhilee), ActionBase.ActionType.While);
             ActionBase.AddCommand("//", typeof(ActionFullLineComment), ActionBase.ActionType.Cmd);
+            ActionBase.AddCommand("Else If.E", typeof(ActionElseIfe), ActionBase.ActionType.ElseIf);
             ActionBase.AddCommand("Else If", typeof(ActionElseIf), ActionBase.ActionType.ElseIf);
         }
 
