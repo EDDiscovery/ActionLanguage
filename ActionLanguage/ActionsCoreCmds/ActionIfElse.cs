@@ -58,13 +58,12 @@ namespace ActionLanguage
             {
                 // then use the full evaluator on it allowing fp/strings
 
-                Eval ev = new Eval(ap.variables, new BaseFunctionsForEval(), checkend: true, allowfp: true, allowstrings: true);
-                Object ret = ev.Evaluate(expanded);
+                Object ret = Eval.EvalBF(expanded,ap.variables);
                 res = false;
 
-                if (ev.InError)
+                if (ret is StringParser.ConvertError ce)
                 {
-                    ap.ReportError(ev.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    ap.ReportError(ce.ErrorValue);
                 }
                 else if (ret is long)           // only long or double is a good result
                 {
