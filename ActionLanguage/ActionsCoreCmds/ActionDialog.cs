@@ -656,14 +656,17 @@ namespace ActionLanguage
                                             "X","Y", "Width","Height",              // 4
                                             "ToolTip",                              // 8 tooltip makes it 9 entries
                                             "Panel", "Dock", "Anchor", "Margin",    // 9,10,11,12
-                                            "Other Params 1","Other Params 2","Other Params 3","Further Params 4",    // 13,14,15,16
+                                            "Other Params",    // 13    (14 total)
                             },
                             l?.ToArray(),
-                            new int[] { 24, 24, 24, 50, 24, 24, 24, 24, 50, 24, 24, 24, 24, 50, 50, 50, 50 },
+                            new int[] { 24, 24, 24, 50, 
+                                        24, 24, 24, 24, 
+                                        50, 24, 24, 24, 
+                                        24, 60 },
                             multiline: true, widthboxes: 400, heightscrollarea:-1);
 
             if (r != null)
-                userdata = r.ToStringCommaList(9, true, false);     // and escape them back, minimum 9 entries to tooltip, escape ctrl, don't quote empty
+                userdata = r.ToStringCommaList(9, true, false, max: 13) + (r[13].HasChars() ? "," + r[13] : "");     // and escape them back, minimum 9 entries to tooltip, escape ctrl, don't quote empty
 
             return (r != null);
         }
@@ -676,7 +679,11 @@ namespace ActionLanguage
         List<string> FromString(string input)       // returns in raw esacped mode
         {
             StringParser sp = new StringParser(input);
-            List<string> s = sp.NextQuotedWordList(replaceescape: true);
+            List<string> s = sp.NextQuotedWordList(replaceescape: true,max:13);     // the last one is a free form text
+
+            if ( s!= null && sp.IsCharMoveOn(','))      // if any more, add as a single extra thing
+                s.Add(sp.LineLeft);
+
             return (s != null && s.Count >= 9) ? s : null;      // must have up to tooltip
         }
 
@@ -708,8 +715,8 @@ namespace ActionLanguage
                         {
                             dvar += x + "," + y + "," + w + "," + h + "," + exp[8].AlwaysQuoteString();    // x,y,w,h,tooltip always quoted
 
-                            for (int i = 13; i < exp.Count; i++)
-                                dvar += "," + exp[i].QuoteString();     // only quote if contains quote or ends with space
+                            if (exp.Count == 14)
+                                dvar += "," + exp[13];
 
                             int v = 1;
                             string key = "x";
@@ -720,6 +727,8 @@ namespace ActionLanguage
                                     break;
                                 v++;
                             }
+
+                            System.Diagnostics.Debug.WriteLine($"DialogEntry create {key} : {dvar}");
 
                             ap[key] = dvar;
                         }
