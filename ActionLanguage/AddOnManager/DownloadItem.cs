@@ -71,32 +71,28 @@ namespace ActionLanguage.Manager
         public bool LocalNotDisableable { get; set; }    // set if NotDisablable variable is true
 
        public bool ReadLocalItem(string pathname, string approotfolder, string defaultitemtype)
-        {
-            if (ActionFile.ReadVarsAndEnableFromFile(pathname, out Variables v, out bool enable))
+       {
+            // read file, vars and enable, stop at PROGRAM
+
+            if (ActionFile.ReadVarsAndEnableFromFile(pathname, out Variables localinstallvars, out bool enable))
             {
-                ItemName = Path.GetFileNameWithoutExtension(pathname);
-                ItemType = defaultitemtype;
+                int[] version = null;
 
-                LocalPresent = true;
-                LocalVars = v;
-                LocalEnable = enable;
-                InstallFilePath = pathname;
-                State = ItemState.LocalOnly;
-
-                System.Diagnostics.Debug.WriteLine($"Local File {InstallFilePath} Enabled {LocalEnable}");
-
-                if (LocalVars != null)       // If we read local vars.. there may not be any there
+                // If we read local vars (there is always a LocalVars but be paranoid) and there must be a version now, and it must decode..
+                if ((localinstallvars?.Contains("Version") ?? false) && (version = localinstallvars["Version"].VersionFromString()) != null)
                 {
-                    if (LocalVars.Exists("Version"))
-                    {
-                        LocalVersion = LocalVars["Version"].VersionFromString();
-                        LocalModified = WriteOrCheckSHAFile(approotfolder, false) == false;
-                    }
-                    else
-                    {
-                        LocalVersion = new int[] { 0, 0, 0, 0 };
-                        LocalModified = true;
-                    }
+                    ItemName = Path.GetFileNameWithoutExtension(pathname);
+                    ItemType = defaultitemtype;
+
+                    LocalPresent = true;
+                    LocalVars = localinstallvars;
+                    LocalEnable = enable;
+                    LocalVersion = version;
+                    InstallFilePath = pathname;
+                    State = ItemState.LocalOnly;
+
+                    System.Diagnostics.Debug.WriteLine($"Local File {InstallFilePath} Version {LocalVersion} Enabled {LocalEnable}");
+                    LocalModified = WriteOrCheckSHAFile(approotfolder, false) == false;
 
                     if (LocalVars.Exists("ItemType"))
                         ItemType = LocalVars["ItemType"];     // allow file to override name
@@ -105,7 +101,9 @@ namespace ActionLanguage.Manager
                     LocalNotDisableable = LocalVars.Equals("NotDisableable", "True");
                 }
                 else
-                    LocalNotEditable = LocalNotDisableable = false;
+                {
+                    System.Diagnostics.Debug.WriteLine($"Local File {pathname} Missing Version !!!");
+                }
 
                 return true;
             }
