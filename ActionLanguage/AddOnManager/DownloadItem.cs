@@ -55,7 +55,7 @@ namespace ActionLanguage.Manager
         public bool DownloadAvailable { get { return DownloadedURI != null; } }     // download is available
         public string DownloadedURI { get; set; }           // where the ACT came from, in download form
         public string DownloadedTemporaryFilePath { get; set; }       // where the temporary act file is stored
-        public int[] DownloadedVersion { get; set; }
+        public Version DownloadedVersion { get; set; }
         public Variables DownloadedVars { get; set; }
 
         // Local
@@ -63,7 +63,7 @@ namespace ActionLanguage.Manager
         public string ShortLocalDescription { get { return LocalVars != null && LocalVars.Exists("ShortDescription") ? LocalVars["ShortDescription"] : ""; } }
 
         public bool LocalPresent { get; set; }           // if scanned locally
-        public int[] LocalVersion { get; set; }          // may be null if file does not have version
+        public Version LocalVersion { get; set; }        // if local file exists, the version. Null otherwise
         public bool LocalModified { get; set; }          // if local file exists, sha comparison
         public Variables LocalVars { get; set; }         // null, or set if local has variables
         public bool? LocalEnable { get; set; }           // null, or set if local has variables and a Enable flag
@@ -76,7 +76,7 @@ namespace ActionLanguage.Manager
 
             if (ActionFile.ReadVarsAndEnableFromFile(pathname, out Variables localinstallvars, out bool enable))
             {
-                int[] version = null;
+                Version version;
 
                 // If we read local vars (there is always a LocalVars but be paranoid) and there must be a version now, and it must decode..
                 if ((localinstallvars?.Contains("Version") ?? false) && (version = localinstallvars["Version"].VersionFromString()) != null)

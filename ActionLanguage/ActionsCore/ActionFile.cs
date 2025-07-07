@@ -60,7 +60,7 @@ namespace ActionLanguage
         public ConditionLists InUseEventList { get; private set; }            // this is the one active after load - action of reading the file, or changing the event list, synchronises this back to FileEventList
         public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
         public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
-        public int[] Version { get { if (InstallationVariables.TryGet("Version", out string v)) { return v.VersionFromString(); } else return null; } }     // return Version from installation vars, or null
+        public Version Version() { return InstallationVariables.GetString("Version").VersionFromString(); }     // may be null...
         public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
         public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; private set; } // persistent dialogs owned by this file
         public string FilePath { get; private set; }                          // where it came from

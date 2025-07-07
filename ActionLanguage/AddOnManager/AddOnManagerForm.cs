@@ -46,7 +46,7 @@ namespace ActionLanguage.Manager
         public void Init(string progtype, 
                         bool managedownloadmode,        // if in manage download, or just edit
                         bool downloadgit,       // if to go to github for data
-                        Icon ic, int[] version, 
+                        Icon ic, Version version, 
                         string approotfolder,  // root folder
                         string actfolder,       // where act's are stored
                         string otherinstalledfilesfolder,       // where other ones are stored, null if not supported
@@ -190,7 +190,7 @@ namespace ActionLanguage.Manager
                 g.version = new Label();
                 g.version.Location = new Point(tabs[2], labelheightmargin);      // 8 spacing, allow 8*4 to indent
                 g.version.Size = new Size(tabs[3] - tabs[2], 24);
-                g.version.Text = (di.LocalVersion != null) ? di.LocalVersion.ToString(".") : "N/A";
+                g.version.Text = di.LocalPresent ? di.LocalVersion.ToString() : "N/A";
                 g.panel.Controls.Add(g.version);
 
                 g.shortdesc = new ExtendedControls.ExtLabelAutoHeight();
@@ -219,7 +219,7 @@ namespace ActionLanguage.Manager
                     else
                     {
                         allowdownload = true;
-                        text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
+                        text = "Version".T(EDTx.AddOnManagerForm_Version) + " " + di.DownloadedVersion.ToString() + ((di.LocalModified) ? "*" : "");
                     }
                 }
                 else if (di.State == DownloadItem.ItemState.UpToDate)
@@ -233,7 +233,7 @@ namespace ActionLanguage.Manager
                 else if (di.State == DownloadItem.ItemState.OutOfDate)
                 {
                     allowdownload = true;
-                    text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.DownloadedVersion.ToString(".") + ((di.LocalModified) ? "*" : "");
+                    text = "New version".T(EDTx.AddOnManagerForm_Newversion) + " " + di.DownloadedVersion.ToString() + ((di.LocalModified) ? "*" : "");
                 }
                 else if (di.State == DownloadItem.ItemState.EDOutOfDate)
                 {
@@ -559,7 +559,7 @@ namespace ActionLanguage.Manager
         private string githuburl;
         private bool managedownloadmode;
         private bool downloadgit;
-        private int[] edversion;
+        private Version edversion;
         private string progtype;
 
         private System.Threading.CancellationTokenSource canceldownload = new System.Threading.CancellationTokenSource();

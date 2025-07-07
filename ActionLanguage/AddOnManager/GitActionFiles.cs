@@ -57,7 +57,7 @@ namespace ActionLanguage.Manager
             VersioningManager.ReadLocalFiles(AppRootFolder, folder, otherfilewildcard, type);
         }
 
-        public void ReadDownloadedFolder(string githuburl, int[] edversion, string progtype)
+        public void ReadDownloadedFolder(string githuburl, Version edversion, string progtype)
         {
             System.Diagnostics.Debug.WriteLine("GitActionFiles Reading download folder");
 

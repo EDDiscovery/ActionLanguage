@@ -64,7 +64,7 @@ namespace ActionLanguage.Manager
                                         string downloadfolder, // where the downloads have been stored
                                         string approotfolder, // root of install
                                         string wildcardfilename, // what files to consider in the download folder
-                                        int[] edversion , 
+                                        System.Version edversion , 
                                         string defaultitemtype,
                                         string progtype)      // program name, which can screen out downloaded files if it has ProgType variable defined
         {
@@ -78,7 +78,7 @@ namespace ActionLanguage.Manager
 
                 if (ActionLanguage.ActionFile.ReadVarsAndEnableFromFile(f.FullName, out Variables cv, out bool _))
                 {
-                    int[] version;
+                    System.Version version;
 
                     bool allowedpack = !cv.Exists("ProgType") || cv["ProgType"].Contains(progtype);    // if no progtype, or we have progtype and its got a field with it in
 
@@ -102,7 +102,7 @@ namespace ActionLanguage.Manager
                             it.DownloadedTemporaryFilePath = f.FullName;
                             it.DownloadedVars = cv;
                             it.DownloadedVersion = version;
-                            it.State = (it.DownloadedVersion.CompareVersion(it.LocalVersion) > 0) ? DownloadItem.ItemState.OutOfDate : DownloadItem.ItemState.UpToDate;
+                            it.State = it.DownloadedVersion > it.LocalVersion ? DownloadItem.ItemState.OutOfDate : DownloadItem.ItemState.UpToDate;
                         }
                         else
                         {
@@ -124,18 +124,17 @@ namespace ActionLanguage.Manager
                             DownloadItems.Add(it);
                         }
 
-                        int[] minedversion = cv["MinEDVersion"].VersionFromString();        // may be null if robert has screwed up the vnumber
+                        // getstring can be null if name not there, and versionfromstring can take a null and return null
 
-                        if ( minedversion != null && minedversion.CompareVersion(edversion) > 0)     // if midedversion > edversion can't install
+                        System.Version minedversion = cv.GetString("MinEDVersion").VersionFromString();        // may be null if robert has screwed up the vnumber
+
+                        if ( minedversion != null && minedversion > edversion)     // if midedversion > edversion can't install
                             it.State = DownloadItem.ItemState.EDOutOfDate;
 
-                        if ( cv.Exists("MaxEDInstallVersion"))      
-                        {
-                            int[] maxedinstallversion = cv["MaxEDInstallVersion"].VersionFromString();
+                        System.Version maxedinstallversion = cv.GetString("MaxEDInstallVersion").VersionFromString();
 
-                            if (maxedinstallversion.CompareVersion(edversion) <= 0) // if maxedinstallversion 
-                                it.State = DownloadItem.ItemState.EDTooOld;
-                        }
+                        if (maxedinstallversion != null && maxedinstallversion < edversion) // if maxedinstallversion 
+                            it.State = DownloadItem.ItemState.EDTooOld;
 
                         if (InstallDeinstallAtStartupList.TryGetValue(it.ItemName, out string setting))
                             it.State = setting == "-" ? DownloadItem.ItemState.ToBeRemoved : DownloadItem.ItemState.ToBeInstalled;
