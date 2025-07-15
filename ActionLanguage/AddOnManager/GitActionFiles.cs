@@ -84,7 +84,7 @@ namespace ActionLanguage.Manager
 
                 //System.Threading.Thread.Sleep(5000);
 
-                ghc.DownloadFolder(canceldownload.Token, downloadactfolder, "ActionFiles/V1", ActionFileWildCard, true, true);
+                ghc.DownloadFolder(canceldownload.Token, downloadactfolder, "ActionFiles/V1", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed:true);
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 1");
@@ -93,7 +93,7 @@ namespace ActionLanguage.Manager
 
                 //System.Threading.Thread.Sleep(1000);
 
-                ghc.DownloadFolder(canceldownload.Token, downloadaddonfolder, "AddonFiles/V1", InfFileWildCard, true, true);
+                ghc.DownloadFolder(canceldownload.Token, downloadaddonfolder, "AddonFiles/V1", InfFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 2");
@@ -102,18 +102,19 @@ namespace ActionLanguage.Manager
 
                 //System.Threading.Thread.Sleep(1000);
 #if DEBUG
-                ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true);
+                ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 3");
                     return;
                 }
+
 #else
                 BaseUtils.FileHelpers.DeleteDirectoryNoError(downloadactdebugfolder, true);
 #endif
                 //System.Threading.Thread.Sleep(1000);
 
-                ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true);
+                ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 4");
