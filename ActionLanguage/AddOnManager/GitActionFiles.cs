@@ -43,9 +43,9 @@ namespace ActionLanguage.Manager
                 downloadaddonfolder = System.IO.Path.Combine(tempdatafolder, "addonfiles");
                 FileHelpers.CreateDirectoryNoError(downloadaddonfolder);
 
+                downloadactdebugfolder = System.IO.Path.Combine(tempdatafolder, "Debug");       // always set up
 #if DEBUG
-                downloadactdebugfolder = System.IO.Path.Combine(tempdatafolder, "Debug");
-                FileHelpers.CreateDirectoryNoError(downloadactdebugfolder);
+                FileHelpers.CreateDirectoryNoError(downloadactdebugfolder); // only created if in debug mode
 #endif
                 downloadacttestversionsfolder = System.IO.Path.Combine(tempdatafolder, "TestVersions");
                 FileHelpers.CreateDirectoryNoError(downloadacttestversionsfolder);
@@ -102,13 +102,14 @@ namespace ActionLanguage.Manager
 
                 //System.Threading.Thread.Sleep(1000);
 #if DEBUG
-
                 ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true);
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 3");
                     return;
                 }
+#else
+                BaseUtils.FileHelpers.DeleteDirectoryNoError(downloadactdebugfolder, true);
 #endif
                 //System.Threading.Thread.Sleep(1000);
 
@@ -126,9 +127,7 @@ namespace ActionLanguage.Manager
 
         private string downloadactfolder;
         private string downloadaddonfolder;
-#if DEBUG
         private string downloadactdebugfolder;
-#endif
         private string downloadacttestversionsfolder;
 
     }
