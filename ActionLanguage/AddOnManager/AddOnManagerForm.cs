@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -52,7 +53,9 @@ namespace ActionLanguage.Manager
                         string otherinstalledfilesfolder,       // where other ones are stored, null if not supported
                         string tempdatafolder, // where to download temp files to
                         string githuburl,       // url for github
-                        Dictionary<string,string> installdeinstallatstartup)      // list of installdeinstalls
+                        Dictionary<string,string> installdeinstallatstartup,    // list of installdeinstalls
+                        string prepopulatedzipfolder = null 
+            )
         {
             this.progtype = progtype;
             this.Icon = ic;
@@ -62,7 +65,7 @@ namespace ActionLanguage.Manager
             this.edversion = version;
 
             // make the git class which knows about the structure of git etc
-            gitactionfiles = new GitActionFiles(approotfolder, tempdatafolder);
+            gitactionfiles = new GitActionFiles(approotfolder, tempdatafolder,prepopulatedzipfolder);
 
             // set the stored install/deinstall list
             gitactionfiles.VersioningManager.InstallDeinstallAtStartupList = installdeinstallatstartup;
@@ -97,11 +100,11 @@ namespace ActionLanguage.Manager
 
             if (managedownloadmode && downloadgit)      // if from git, we run a task with the display
             {
-                gitactionfiles.DownloadFromGit(canceldownload, githuburl, () => { BeginInvoke((MethodInvoker)AfterDownload); });
+                gitactionfiles.DownloadFromGit(canceldownload, githuburl, (good) => this.BeginInvoke((MethodInvoker)delegate { AfterDownload(good); }));
             }
             else
             {
-                AfterDownload();
+                AfterDownload(true);
             }
         }
 
@@ -112,28 +115,38 @@ namespace ActionLanguage.Manager
             canceldownload.Cancel();        // on closing, set cancel token, so downloads are aborted if occurring.  This will stop the DownloadFromGit asap and it will stop the callback
         }
 
-        void AfterDownload()
+        // in the UI thread, present.  Good indicates all downloads were good
+        void AfterDownload(bool good)
         {
-            System.Diagnostics.Debug.Assert(Application.MessageLoop);
-            System.Diagnostics.Debug.WriteLine("After download running");
-
-            if (canceldownload.IsCancellationRequested)     // if cancelled between thread asking for invoke and here, stop doing anything
+            if (good)
             {
-                System.Diagnostics.Debug.WriteLine("After download thread cancel recognised ending");
-                return;
+                System.Diagnostics.Debug.Assert(Application.MessageLoop);
+                System.Diagnostics.Debug.WriteLine("After download running");
+
+                if (canceldownload.IsCancellationRequested)     // if cancelled between thread asking for invoke and here, stop doing anything
+                {
+                    System.Diagnostics.Debug.WriteLine("After download thread cancel recognised ending");
+                    return;
+                }
+
+                this.Cursor = Cursors.Default;
+
+                if (managedownloadmode)                     // if in manage mode, we read the downloaded files and process. If not, we just have the local files
+                {
+                    gitactionfiles.ReadDownloadedFolder(githuburl, edversion, progtype);
+                }
+
+                gitactionfiles.VersioningManager.Sort();
+
+                System.Diagnostics.Debug.WriteLine("After download finished, ready to display");
+                ReadyToDisplay();
             }
-
-            this.Cursor = Cursors.Default;
-
-            if (managedownloadmode)                     // if in manage mode, we read the downloaded files and process. If not, we just have the local files
+            else
             {
-                gitactionfiles.ReadDownloadedFolder(githuburl, edversion, progtype);
+                ExtendedControls.MessageBoxTheme.Show("Github download failed - it may be rate limiting you. Wait 1 hour and try again\r\nOr your internet may be down to github\r\nOr github may be down",
+                 "Github failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
             }
-
-            gitactionfiles.VersioningManager.Sort();
-
-            System.Diagnostics.Debug.WriteLine("After download finished, ready to display");
-            ReadyToDisplay();
         }
 
         // refresh the UI

@@ -13,6 +13,8 @@
  */
 
 using System;
+using System.IO;
+using System.Windows.Forms;
 using BaseUtils;
 
 namespace ActionLanguage.Manager
@@ -30,26 +32,53 @@ namespace ActionLanguage.Manager
 
         // create the class with approotfolder.
         // If tempdatafolder is present we can prepare to download from git
-        public GitActionFiles(string approotfolder, string tempdatafolder = null) 
+        // if prepropulatefolder is present we check for an appropriate zip file in that folder and prepop
+        public GitActionFiles(string approotfolder, string tempdatafolder = null, string prepopulatefolder = null) 
         { 
             this.AppRootFolder = approotfolder;
 
             if (tempdatafolder != null)
             {
-
-                downloadactfolder = System.IO.Path.Combine(tempdatafolder, "act");
-                FileHelpers.CreateDirectoryNoError(downloadactfolder);
-
-                downloadaddonfolder = System.IO.Path.Combine(tempdatafolder, "addonfiles");
-                FileHelpers.CreateDirectoryNoError(downloadaddonfolder);
-
-                downloadactdebugfolder = System.IO.Path.Combine(tempdatafolder, "Debug");       // always set up
-#if DEBUG
-                FileHelpers.CreateDirectoryNoError(downloadactdebugfolder); // only created if in debug mode
-#endif
-                downloadacttestversionsfolder = System.IO.Path.Combine(tempdatafolder, "TestVersions");
-                FileHelpers.CreateDirectoryNoError(downloadacttestversionsfolder);
+                downloadactfolder = CreateFolder(tempdatafolder, "act", prepopulatefolder);
+                downloadaddonfolder = CreateFolder(tempdatafolder, "addonfiles", prepopulatefolder);
+                downloadactdebugfolder = CreateFolder(tempdatafolder, "Debug", prepopulatefolder);
+                downloadacttestversionsfolder = CreateFolder(tempdatafolder, "TestVersions", prepopulatefolder);
             }
+        }
+
+        // Create the folder for delivery of the files and check to see if a prepopulated zip file exists with those files in
+        private string CreateFolder(string tempdatafolder, string partialpath, string prepopulatefolder)
+        {
+            string folder = System.IO.Path.Combine(tempdatafolder, partialpath);
+            FileHelpers.CreateDirectoryNoError(folder);
+
+            // we can prepopulate the folder from a zip file called 'default'<partialpath>'files.zip'
+
+            if (prepopulatefolder != null)
+            {
+                string prepropname = System.IO.Path.Combine(prepopulatefolder, "default" + partialpath + "files.zip");
+            
+                // folder should be empty (first time)
+                if (System.IO.File.Exists(prepropname) && Directory.GetFiles(folder).Length == 0)
+                {
+                    try
+                    {
+                        System.IO.Compression.ZipFile.ExtractToDirectory(prepropname, folder);
+
+                        // github downloads using \n, so we need to make sure its \n to keep the SHA happy between these files and the ones on the server
+                        foreach ( var f in Directory.GetFiles(folder) )
+                        {
+                            FileHelpers.ChangeLineEndings(f, f, outlf: "\n");       
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"AddOnManager Zip failed {prepropname} -> {folder} {ex}");
+                    }
+                }
+            }
+
+            return folder;
         }
 
         public void ReadLocalFolder(string folder, string otherfilewildcard, string type)
@@ -71,8 +100,8 @@ namespace ActionLanguage.Manager
             System.Diagnostics.Debug.WriteLine("GitActionFiles Reading download finished");
         }
 
-        // in a task, download from github, and callback when complete
-        public void DownloadFromGit(System.Threading.CancellationTokenSource canceldownload,  string githuburl, Action callback)
+        // in a task, download from github, and callback when complete with good/bad flag
+        public void DownloadFromGit(System.Threading.CancellationTokenSource canceldownload,  string githuburl, Action<bool> callback)
         {
             System.Threading.Tasks.Task.Run(() =>
             {
@@ -84,45 +113,25 @@ namespace ActionLanguage.Manager
 
                 //System.Threading.Thread.Sleep(5000);
 
-                ghc.DownloadFolder(canceldownload.Token, downloadactfolder, "ActionFiles/V1", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed:true);
-                if (canceldownload.IsCancellationRequested)
-                {
-                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 1");
-                    return;
-                }
+                var res = ghc.DownloadFolder(canceldownload.Token, downloadactfolder, "ActionFiles/V1", ActionFileWildCard, true, true);
 
-                //System.Threading.Thread.Sleep(1000);
-
-                ghc.DownloadFolder(canceldownload.Token, downloadaddonfolder, "AddonFiles/V1", InfFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
+#if false       // not in use
+                res = (res != null && !canceldownload.IsCancellationRequested) ? ghc.DownloadFolder(canceldownload.Token, downloadaddonfolder, "AddonFiles/V1", InfFileWildCard, true, true) : null;
+#endif
+#if DEBUG
+                res = (res != null && !canceldownload.IsCancellationRequested) ? ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true) : null;
+#endif
+#if false       // not in use
+                res = (res != null && !canceldownload.IsCancellationRequested) ? ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true, true) : null;
+#endif
                 if (canceldownload.IsCancellationRequested)
                 {
                     System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 2");
-                    return;
-                }
-
-                //System.Threading.Thread.Sleep(1000);
-#if DEBUG
-                ghc.DownloadFolder(canceldownload.Token, downloadactdebugfolder, "ActionFiles/Debug", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
-                if (canceldownload.IsCancellationRequested)
-                {
-                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 3");
-                    return;
-                }
-
-#else
-                BaseUtils.FileHelpers.DeleteDirectoryNoError(downloadactdebugfolder, true);
-#endif
-                //System.Threading.Thread.Sleep(1000);
-
-                ghc.DownloadFolder(canceldownload.Token, downloadacttestversionsfolder, "ActionFiles/TestVersions", ActionFileWildCard, true, true, cleanfolderifdownloademptyorfailed: true);
-                if (canceldownload.IsCancellationRequested)
-                {
-                    System.Diagnostics.Debug.WriteLine("GitActionFiles Exit due to cancel 4");
-                    return;
+                    res = null;
                 }
 
                 System.Diagnostics.Debug.WriteLine("GitActionFiles Finished checking github");
-                callback.Invoke();
+                callback.Invoke(res!=null);
             });
         }
 
