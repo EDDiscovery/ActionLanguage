@@ -99,16 +99,16 @@ namespace ActionLanguage.Manager
 
                     LocalNotEditable = LocalVars.Equals("NotEditable", "True");
                     LocalNotDisableable = LocalVars.Equals("NotDisableable", "True");
+
+                    return true;
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"Local File {pathname} Missing Version !!!");
                 }
-
-                return true;
             }
-            else
-                return false;
+
+            return false;
         }
 
         // from downloaded info, copy to local
