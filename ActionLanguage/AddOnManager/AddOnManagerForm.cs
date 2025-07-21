@@ -116,37 +116,34 @@ namespace ActionLanguage.Manager
         }
 
         // in the UI thread, present.  Good indicates all downloads were good
-        void AfterDownload(bool good)
+        void AfterDownload(bool gooddownload)
         {
-            if (good)
+            System.Diagnostics.Debug.Assert(Application.MessageLoop);
+            System.Diagnostics.Debug.WriteLine("After download running");
+
+            if (!gooddownload || true)
             {
-                System.Diagnostics.Debug.Assert(Application.MessageLoop);
-                System.Diagnostics.Debug.WriteLine("After download running");
-
-                if (canceldownload.IsCancellationRequested)     // if cancelled between thread asking for invoke and here, stop doing anything
-                {
-                    System.Diagnostics.Debug.WriteLine("After download thread cancel recognised ending");
-                    return;
-                }
-
-                this.Cursor = Cursors.Default;
-
-                if (managedownloadmode)                     // if in manage mode, we read the downloaded files and process. If not, we just have the local files
-                {
-                    gitactionfiles.ReadDownloadedFolder(githuburl, edversion, progtype);
-                }
-
-                gitactionfiles.VersioningManager.Sort();
-
-                System.Diagnostics.Debug.WriteLine("After download finished, ready to display");
-                ReadyToDisplay();
-            }
-            else
-            {
-                ExtendedControls.MessageBoxTheme.Show("Github download failed - it may be rate limiting you. Wait 1 hour and try again\r\nOr your internet may be down to github\r\nOr github may be down",
+                ExtendedControls.MessageBoxTheme.Show("Github download failed - it may be rate limiting you. Wait 1 hour and try again\r\nOr your internet may be down to github\r\nOr github may be down\r\nEDDiscovery will present what it already has",
                  "Github failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
             }
+
+            if (canceldownload.IsCancellationRequested)     // if cancelled between thread asking for invoke and here, stop doing anything
+            {
+                System.Diagnostics.Debug.WriteLine("After download thread cancel recognised ending");
+                return;
+            }
+
+            this.Cursor = Cursors.Default;
+
+            if (managedownloadmode)                     // if in manage mode, we read the downloaded files and process. If not, we just have the local files
+            {
+                gitactionfiles.ReadDownloadedFolder(githuburl, edversion, progtype);
+            }
+
+            gitactionfiles.VersioningManager.Sort();
+
+            System.Diagnostics.Debug.WriteLine("After download finished, ready to display");
+            ReadyToDisplay();
         }
 
         // refresh the UI
