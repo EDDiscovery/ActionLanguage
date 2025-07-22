@@ -142,11 +142,15 @@ namespace ActionLanguage.Manager
                 Remove(approotfolder, overwritefolders ? folderfiles : null);
             }
 
+            string tempfolder = Path.GetDirectoryName(DownloadedTemporaryFilePath);
+
             if (folderfiles.Count > 0)
             {
                 foreach (var x in folderfiles) System.Diagnostics.Debug.WriteLine($"Install Download folder file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
 
-                bool res = ghc.DownloadFiles(canceltoken, approotfolder, folderfiles, true, true);      // download, don't use etags, and sync folder
+                // download, don't use etags, and sync folder. Can get files from localbackup
+
+                bool res = ghc.DownloadFiles(canceltoken, approotfolder, folderfiles, true, true, localbackupfolder: tempfolder);      
                 if (!res)
                 {
                     System.Diagnostics.Trace.WriteLine("Install: Download of folders failed");
@@ -160,7 +164,10 @@ namespace ActionLanguage.Manager
             {
                 foreach (var x in files) System.Diagnostics.Debug.WriteLine($"Install Download file {x.DownloadURI} -> {Path.Combine(approotfolder, x.Path, x.Name)}");
 
-                bool res = ghc.DownloadFiles(canceltoken, approotfolder, files, true);      // download, don't use etags, don't sync folder
+                // download, don't use etags, and sync folder. Can get files from localbackup
+
+                bool res = ghc.DownloadFiles(canceltoken, approotfolder, files, true, localbackupfolder:tempfolder);      // download, don't use etags, don't sync folder
+
                 if (!res)
                 {
                     System.Diagnostics.Trace.WriteLine("Install: Download of files failed");

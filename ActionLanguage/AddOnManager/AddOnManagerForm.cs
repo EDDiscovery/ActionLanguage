@@ -123,7 +123,7 @@ namespace ActionLanguage.Manager
 
             if (!gooddownload || true)
             {
-                ExtendedControls.MessageBoxTheme.Show("Github download failed - it may be rate limiting you. Wait 1 hour and try again\r\nOr your internet may be down to github\r\nOr github may be down\r\nEDDiscovery will present what it already has",
+                ExtendedControls.MessageBoxTheme.Show("Github download failed\r\nYour internet may be down\r\nGithub may be rate limiting you (Wait 1 hour and try again)\r\nGithub may be down\r\nEDDiscovery will present what it already has but some action packs won't install without internet",
                  "Github failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
