@@ -121,7 +121,7 @@ namespace ActionLanguage.Manager
             System.Diagnostics.Debug.Assert(Application.MessageLoop);
             System.Diagnostics.Debug.WriteLine("After download running");
 
-            if (!gooddownload || true)
+            if (!gooddownload)
             {
                 ExtendedControls.MessageBoxTheme.Show("Github download failed\r\nYour internet may be down\r\nGithub may be rate limiting you (Wait 1 hour and try again)\r\nGithub may be down\r\nEDDiscovery will present what it already has but some action packs won't install without internet",
                  "Github failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
