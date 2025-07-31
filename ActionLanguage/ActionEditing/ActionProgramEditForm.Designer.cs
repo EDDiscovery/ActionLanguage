@@ -208,7 +208,7 @@ namespace ActionLanguage
             this.labelName.Name = "labelName";
             this.labelName.Size = new System.Drawing.Size(38, 13);
             this.labelName.TabIndex = 23;
-            this.labelName.Text = "Name:";
+            this.labelName.Text = "Name";
             // 
             // panelTop
             // 
