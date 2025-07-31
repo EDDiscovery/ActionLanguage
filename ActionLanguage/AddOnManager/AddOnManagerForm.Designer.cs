@@ -86,9 +86,11 @@ namespace ActionLanguage.Manager
             this.panel_close.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.panel_close.BorderColor = System.Drawing.Color.Orange;
             this.panel_close.BorderWidth = 1;
+            this.panel_close.ButtonDisabledScaling = 0.25F;
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(1002, 0);
+            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -108,9 +110,11 @@ namespace ActionLanguage.Manager
             this.panel_minimize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.panel_minimize.BorderColor = System.Drawing.Color.Orange;
             this.panel_minimize.BorderWidth = 1;
+            this.panel_minimize.ButtonDisabledScaling = 0.25F;
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(972, 0);
+            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
@@ -170,6 +174,7 @@ namespace ActionLanguage.Manager
             this.panelVScroll.FlowControlsLeftToRight = false;
             this.panelVScroll.Location = new System.Drawing.Point(0, 0);
             this.panelVScroll.Name = "panelVScroll";
+            this.panelVScroll.ScrollBarWidth = 48;
             this.panelVScroll.Size = new System.Drawing.Size(1017, 357);
             this.panelVScroll.TabIndex = 2;
             this.panelVScroll.VerticalScrollBarDockRight = true;
@@ -179,24 +184,31 @@ namespace ActionLanguage.Manager
             this.vScrollBarCustom1.AlwaysHideScrollBar = false;
             this.vScrollBarCustom1.ArrowBorderColor = System.Drawing.Color.LightBlue;
             this.vScrollBarCustom1.ArrowButtonColor = System.Drawing.Color.LightGray;
+            this.vScrollBarCustom1.ArrowButtonColor2 = System.Drawing.Color.LightGray;
             this.vScrollBarCustom1.ArrowDownDrawAngle = 270F;
             this.vScrollBarCustom1.ArrowUpDrawAngle = 90F;
             this.vScrollBarCustom1.BorderColor = System.Drawing.Color.White;
             this.vScrollBarCustom1.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.vScrollBarCustom1.HideScrollBar = false;
             this.vScrollBarCustom1.LargeChange = 10;
-            this.vScrollBarCustom1.Location = new System.Drawing.Point(998, 0);
+            this.vScrollBarCustom1.Location = new System.Drawing.Point(969, 0);
             this.vScrollBarCustom1.Maximum = -347;
             this.vScrollBarCustom1.Minimum = 0;
             this.vScrollBarCustom1.MouseOverButtonColor = System.Drawing.Color.Green;
+            this.vScrollBarCustom1.MouseOverButtonColor2 = System.Drawing.Color.Green;
             this.vScrollBarCustom1.MousePressedButtonColor = System.Drawing.Color.Red;
+            this.vScrollBarCustom1.MousePressedButtonColor2 = System.Drawing.Color.Red;
             this.vScrollBarCustom1.Name = "vScrollBarCustom1";
-            this.vScrollBarCustom1.Size = new System.Drawing.Size(19, 357);
+            this.vScrollBarCustom1.Size = new System.Drawing.Size(48, 357);
+            this.vScrollBarCustom1.SkinnyStyle = false;
             this.vScrollBarCustom1.SliderColor = System.Drawing.Color.DarkGray;
+            this.vScrollBarCustom1.SliderColor2 = System.Drawing.Color.DarkGray;
+            this.vScrollBarCustom1.SliderDrawAngle = 90F;
             this.vScrollBarCustom1.SmallChange = 1;
             this.vScrollBarCustom1.TabIndex = 0;
             this.vScrollBarCustom1.ThumbBorderColor = System.Drawing.Color.Yellow;
             this.vScrollBarCustom1.ThumbButtonColor = System.Drawing.Color.DarkBlue;
+            this.vScrollBarCustom1.ThumbButtonColor2 = System.Drawing.Color.DarkBlue;
             this.vScrollBarCustom1.ThumbDrawAngle = 0F;
             this.vScrollBarCustom1.Value = -347;
             this.vScrollBarCustom1.ValueLimited = -347;
@@ -204,6 +216,7 @@ namespace ActionLanguage.Manager
             // richTextBoxScrollDescription
             // 
             this.richTextBoxScrollDescription.BorderColor = System.Drawing.Color.Transparent;
+            this.richTextBoxScrollDescription.BorderColor2 = System.Drawing.Color.Transparent;
             this.richTextBoxScrollDescription.DetectUrls = true;
             this.richTextBoxScrollDescription.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBoxScrollDescription.HideScrollBar = true;
@@ -211,7 +224,7 @@ namespace ActionLanguage.Manager
             this.richTextBoxScrollDescription.Name = "richTextBoxScrollDescription";
             this.richTextBoxScrollDescription.ReadOnly = false;
             this.richTextBoxScrollDescription.Rtf = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\nouicompat\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 " +
-    "Microsoft Sans Serif;}}\r\n{\\*\\generator Riched20 10.0.19041}\\viewkind4\\uc1 \r\n\\par" +
+    "Microsoft Sans Serif;}}\r\n{\\*\\generator Riched20 10.0.26100}\\viewkind4\\uc1 \r\n\\par" +
     "d\\f0\\fs17\\par\r\n}\r\n";
             this.richTextBoxScrollDescription.ShowLineCount = false;
             this.richTextBoxScrollDescription.Size = new System.Drawing.Size(1017, 211);
@@ -232,7 +245,12 @@ namespace ActionLanguage.Manager
             // 
             // buttonExtGlobals
             // 
+            this.buttonExtGlobals.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtGlobals.ButtonDisabledScaling = 0.5F;
+            this.buttonExtGlobals.GradientDirection = 90F;
             this.buttonExtGlobals.Location = new System.Drawing.Point(7, 4);
+            this.buttonExtGlobals.MouseOverScaling = 1.3F;
+            this.buttonExtGlobals.MouseSelectedScaling = 1.3F;
             this.buttonExtGlobals.Name = "buttonExtGlobals";
             this.buttonExtGlobals.Size = new System.Drawing.Size(100, 23);
             this.buttonExtGlobals.TabIndex = 7;
@@ -243,11 +261,16 @@ namespace ActionLanguage.Manager
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.BackColor2 = System.Drawing.Color.Red;
+            this.buttonOK.ButtonDisabledScaling = 0.5F;
+            this.buttonOK.GradientDirection = 90F;
             this.buttonOK.Location = new System.Drawing.Point(905, 3);
+            this.buttonOK.MouseOverScaling = 1.3F;
+            this.buttonOK.MouseSelectedScaling = 1.3F;
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(100, 23);
             this.buttonOK.TabIndex = 7;
-            this.buttonOK.Text = "%OK%";
+            this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 

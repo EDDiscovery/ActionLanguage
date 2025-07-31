@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ActionPackEditPackForm));
             this.panelTop = new System.Windows.Forms.Panel();
             this.panel_close = new ExtendedControls.ExtButtonDrawn();
             this.panel_minimize = new ExtendedControls.ExtButtonDrawn();
@@ -86,9 +87,13 @@
             this.panel_close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_close.AutoEllipsis = false;
             this.panel_close.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.panel_close.BorderColor = System.Drawing.Color.Orange;
+            this.panel_close.BorderWidth = 1;
+            this.panel_close.ButtonDisabledScaling = 0.25F;
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(1045, 0);
+            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -106,9 +111,13 @@
             this.panel_minimize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_minimize.AutoEllipsis = false;
             this.panel_minimize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.panel_minimize.BorderColor = System.Drawing.Color.Orange;
+            this.panel_minimize.BorderWidth = 1;
+            this.panel_minimize.ButtonDisabledScaling = 0.25F;
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(1015, 0);
+            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
@@ -145,7 +154,12 @@
             // 
             // buttonInstallationVars
             // 
+            this.buttonInstallationVars.BackColor2 = System.Drawing.Color.Red;
+            this.buttonInstallationVars.ButtonDisabledScaling = 0.5F;
+            this.buttonInstallationVars.GradientDirection = 90F;
             this.buttonInstallationVars.Location = new System.Drawing.Point(246, 3);
+            this.buttonInstallationVars.MouseOverScaling = 1.3F;
+            this.buttonInstallationVars.MouseSelectedScaling = 1.3F;
             this.buttonInstallationVars.Name = "buttonInstallationVars";
             this.buttonInstallationVars.Size = new System.Drawing.Size(135, 23);
             this.buttonInstallationVars.TabIndex = 6;
@@ -156,12 +170,17 @@
             // 
             // comboBoxCustomEditProg
             // 
+            this.comboBoxCustomEditProg.BackColor2 = System.Drawing.Color.Red;
             this.comboBoxCustomEditProg.BorderColor = System.Drawing.Color.White;
+            this.comboBoxCustomEditProg.ControlBackground = System.Drawing.SystemColors.Control;
             this.comboBoxCustomEditProg.DataSource = null;
             this.comboBoxCustomEditProg.DisableBackgroundDisabledShadingGradient = false;
+            this.comboBoxCustomEditProg.DisabledScaling = 0.5F;
             this.comboBoxCustomEditProg.DisplayMember = "";
             this.comboBoxCustomEditProg.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.comboBoxCustomEditProg.GradientDirection = 90F;
             this.comboBoxCustomEditProg.Location = new System.Drawing.Point(78, 3);
+            this.comboBoxCustomEditProg.MouseOverScalingColor = 1.3F;
             this.comboBoxCustomEditProg.Name = "comboBoxCustomEditProg";
             this.comboBoxCustomEditProg.SelectedIndex = -1;
             this.comboBoxCustomEditProg.SelectedItem = null;
@@ -185,22 +204,32 @@
             // buttonCancel
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCancel.BackColor2 = System.Drawing.Color.Red;
+            this.buttonCancel.ButtonDisabledScaling = 0.5F;
+            this.buttonCancel.GradientDirection = 90F;
             this.buttonCancel.Location = new System.Drawing.Point(824, 4);
+            this.buttonCancel.MouseOverScaling = 1.3F;
+            this.buttonCancel.MouseSelectedScaling = 1.3F;
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(100, 23);
             this.buttonCancel.TabIndex = 6;
-            this.buttonCancel.Text = "%Cancel%";
+            this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.BackColor2 = System.Drawing.Color.Red;
+            this.buttonOK.ButtonDisabledScaling = 0.5F;
+            this.buttonOK.GradientDirection = 90F;
             this.buttonOK.Location = new System.Drawing.Point(952, 4);
+            this.buttonOK.MouseOverScaling = 1.3F;
+            this.buttonOK.MouseSelectedScaling = 1.3F;
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(100, 23);
             this.buttonOK.TabIndex = 7;
-            this.buttonOK.Text = "%OK%";
+            this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
@@ -219,9 +248,13 @@
             // 
             this.extPanelVertScrollWithBar.Controls.Add(this.panelVScroll);
             this.extPanelVertScrollWithBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.extPanelVertScrollWithBar.HideScrollBar = false;
+            this.extPanelVertScrollWithBar.LargeChange = 10;
             this.extPanelVertScrollWithBar.Location = new System.Drawing.Point(3, 3);
             this.extPanelVertScrollWithBar.Name = "extPanelVertScrollWithBar";
+            this.extPanelVertScrollWithBar.ScrollValue = 0;
             this.extPanelVertScrollWithBar.Size = new System.Drawing.Size(1060, 502);
+            this.extPanelVertScrollWithBar.SmallChange = 1;
             this.extPanelVertScrollWithBar.TabIndex = 6;
             // 
             // panelVScroll
@@ -230,14 +263,19 @@
             this.panelVScroll.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelVScroll.Location = new System.Drawing.Point(0, 0);
             this.panelVScroll.Name = "panelVScroll";
-            this.panelVScroll.Size = new System.Drawing.Size(1060, 502);
+            this.panelVScroll.Size = new System.Drawing.Size(1012, 502);
             this.panelVScroll.TabIndex = 8;
             this.panelVScroll.Value = 0;
             this.panelVScroll.Resize += new System.EventHandler(this.panelVScroll_Resize);
             // 
             // buttonMore
             // 
+            this.buttonMore.BackColor2 = System.Drawing.Color.Red;
+            this.buttonMore.ButtonDisabledScaling = 0.5F;
+            this.buttonMore.GradientDirection = 90F;
             this.buttonMore.Location = new System.Drawing.Point(6, 6);
+            this.buttonMore.MouseOverScaling = 1.3F;
+            this.buttonMore.MouseSelectedScaling = 1.3F;
             this.buttonMore.Name = "buttonMore";
             this.buttonMore.Size = new System.Drawing.Size(24, 24);
             this.buttonMore.TabIndex = 5;
@@ -366,7 +404,7 @@
             this.expandAllToolStripMenuItem.Text = "Expand All";
             this.expandAllToolStripMenuItem.Click += new System.EventHandler(this.expandAllToolStripMenuItem_Click);
             // 
-            // ActionPackEditPackFormNew
+            // ActionPackEditPackForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -375,7 +413,7 @@
             this.Controls.Add(this.panelTop);
             this.Controls.Add(this.panelOK);
             this.Controls.Add(this.statusStripCustom);
-            this.Name = "ActionPackEditPackFormNew";
+            this.Name = "ActionPackEditPackForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "<code>";
             this.panelTop.ResumeLayout(false);

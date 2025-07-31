@@ -55,8 +55,7 @@ namespace ActionLanguage
             actionfile = file;
             events = evlist;
 
-            var enumlist = new Enum[] { AFIDs.ActionPackEditPackForm_buttonInstallationVars, AFIDs.ActionPackEditPackForm_labelEditProg };
-            BaseUtils.Translator.Instance.TranslateControls(this, enumlist);
+            BaseUtils.TranslatorMkII.Instance.TranslateControls(this);
 
             classtypenames = (from e in events select e.UIClass).ToList().Distinct().ToList();      // here we extract from events relevant data
             eventsperclass = new Dictionary<string, List<string>>();
@@ -454,7 +453,7 @@ namespace ActionLanguage
         private void buttonInstallationVars_Click(object sender, EventArgs e)
         {
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Configuration items for installation - specialist use".TxID(AFIDs.ActionPackEditForm_ci), this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
+            avf.Init("Configuration items for installation - specialist use".Tx(), this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
 
             if (avf.ShowDialog(this) == DialogResult.OK)
             {

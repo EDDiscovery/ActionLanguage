@@ -46,6 +46,7 @@ namespace ActionLanguage
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ActionProgramEditForm));
             this.panelOuter = new System.Windows.Forms.Panel();
+            this.extPanelVertScrollWithBar = new ExtendedControls.ExtPanelVertScrollWithBar();
             this.panelVScroll = new ExtendedControls.ExtPanelVertScroll();
             this.buttonMore = new ExtendedControls.ExtButton();
             this.panelName = new System.Windows.Forms.Panel();
@@ -75,14 +76,13 @@ namespace ActionLanguage
             this.editCommentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.statusStripCustom = new ExtendedControls.ExtStatusStrip();
-            this.extPanelVertScrollWithBar = new ExtendedControls.ExtPanelVertScrollWithBar();
             this.panelOuter.SuspendLayout();
+            this.extPanelVertScrollWithBar.SuspendLayout();
             this.panelVScroll.SuspendLayout();
             this.panelName.SuspendLayout();
             this.panelTop.SuspendLayout();
             this.panelOK.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
-            this.extPanelVertScrollWithBar.SuspendLayout();
             this.SuspendLayout();
             // 
             // panelOuter
@@ -96,13 +96,26 @@ namespace ActionLanguage
             this.panelOuter.Size = new System.Drawing.Size(862, 388);
             this.panelOuter.TabIndex = 9;
             // 
+            // extPanelVertScrollWithBar
+            // 
+            this.extPanelVertScrollWithBar.Controls.Add(this.panelVScroll);
+            this.extPanelVertScrollWithBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.extPanelVertScrollWithBar.HideScrollBar = false;
+            this.extPanelVertScrollWithBar.LargeChange = 10;
+            this.extPanelVertScrollWithBar.Location = new System.Drawing.Point(3, 3);
+            this.extPanelVertScrollWithBar.Name = "extPanelVertScrollWithBar";
+            this.extPanelVertScrollWithBar.ScrollValue = 0;
+            this.extPanelVertScrollWithBar.Size = new System.Drawing.Size(854, 380);
+            this.extPanelVertScrollWithBar.SmallChange = 1;
+            this.extPanelVertScrollWithBar.TabIndex = 6;
+            // 
             // panelVScroll
             // 
             this.panelVScroll.Controls.Add(this.buttonMore);
             this.panelVScroll.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelVScroll.Location = new System.Drawing.Point(0, 0);
             this.panelVScroll.Name = "panelVScroll";
-            this.panelVScroll.Size = new System.Drawing.Size(838, 380);
+            this.panelVScroll.Size = new System.Drawing.Size(806, 380);
             this.panelVScroll.TabIndex = 8;
             this.panelVScroll.Value = 0;
             this.panelVScroll.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelVScroll_MouseDown);
@@ -112,7 +125,12 @@ namespace ActionLanguage
             // 
             // buttonMore
             // 
+            this.buttonMore.BackColor2 = System.Drawing.Color.Red;
+            this.buttonMore.ButtonDisabledScaling = 0.5F;
+            this.buttonMore.GradientDirection = 90F;
             this.buttonMore.Location = new System.Drawing.Point(6, 6);
+            this.buttonMore.MouseOverScaling = 1.3F;
+            this.buttonMore.MouseSelectedScaling = 1.3F;
             this.buttonMore.Name = "buttonMore";
             this.buttonMore.Size = new System.Drawing.Size(22, 22);
             this.buttonMore.TabIndex = 5;
@@ -135,7 +153,12 @@ namespace ActionLanguage
             // buttonExtDelete
             // 
             this.buttonExtDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonExtDelete.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtDelete.ButtonDisabledScaling = 0.5F;
+            this.buttonExtDelete.GradientDirection = 90F;
             this.buttonExtDelete.Location = new System.Drawing.Point(833, 4);
+            this.buttonExtDelete.MouseOverScaling = 1.3F;
+            this.buttonExtDelete.MouseSelectedScaling = 1.3F;
             this.buttonExtDelete.Name = "buttonExtDelete";
             this.buttonExtDelete.Size = new System.Drawing.Size(25, 23);
             this.buttonExtDelete.TabIndex = 25;
@@ -145,10 +168,9 @@ namespace ActionLanguage
             // 
             // textBoxBorderName
             // 
-            this.textBoxBorderName.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.None;
-            this.textBoxBorderName.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.None;
             this.textBoxBorderName.BackErrorColor = System.Drawing.Color.Red;
             this.textBoxBorderName.BorderColor = System.Drawing.Color.Transparent;
+            this.textBoxBorderName.BorderColor2 = System.Drawing.Color.Transparent;
             this.textBoxBorderName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textBoxBorderName.ClearOnFirstChar = false;
             this.textBoxBorderName.ControlBackground = System.Drawing.SystemColors.Control;
@@ -206,9 +228,13 @@ namespace ActionLanguage
             this.panel_close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_close.AutoEllipsis = false;
             this.panel_close.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.panel_close.BorderColor = System.Drawing.Color.Orange;
+            this.panel_close.BorderWidth = 1;
+            this.panel_close.ButtonDisabledScaling = 0.25F;
             this.panel_close.Image = null;
             this.panel_close.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Close;
             this.panel_close.Location = new System.Drawing.Point(839, 0);
+            this.panel_close.MouseOverColor = System.Drawing.Color.White;
             this.panel_close.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_close.MouseSelectedColorEnable = true;
             this.panel_close.Name = "panel_close";
@@ -226,9 +252,13 @@ namespace ActionLanguage
             this.panel_minimize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.panel_minimize.AutoEllipsis = false;
             this.panel_minimize.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.panel_minimize.BorderColor = System.Drawing.Color.Orange;
+            this.panel_minimize.BorderWidth = 1;
+            this.panel_minimize.ButtonDisabledScaling = 0.25F;
             this.panel_minimize.Image = null;
             this.panel_minimize.ImageSelected = ExtendedControls.ExtButtonDrawn.ImageType.Minimize;
             this.panel_minimize.Location = new System.Drawing.Point(809, 0);
+            this.panel_minimize.MouseOverColor = System.Drawing.Color.White;
             this.panel_minimize.MouseSelectedColor = System.Drawing.Color.Green;
             this.panel_minimize.MouseSelectedColorEnable = true;
             this.panel_minimize.Name = "panel_minimize";
@@ -269,7 +299,12 @@ namespace ActionLanguage
             // 
             // extButtonHeader
             // 
+            this.extButtonHeader.BackColor2 = System.Drawing.Color.Red;
+            this.extButtonHeader.ButtonDisabledScaling = 0.5F;
+            this.extButtonHeader.GradientDirection = 90F;
             this.extButtonHeader.Location = new System.Drawing.Point(374, 4);
+            this.extButtonHeader.MouseOverScaling = 1.3F;
+            this.extButtonHeader.MouseSelectedScaling = 1.3F;
             this.extButtonHeader.Name = "extButtonHeader";
             this.extButtonHeader.Size = new System.Drawing.Size(75, 23);
             this.extButtonHeader.TabIndex = 11;
@@ -279,7 +314,12 @@ namespace ActionLanguage
             // 
             // buttonExtDisk
             // 
+            this.buttonExtDisk.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtDisk.ButtonDisabledScaling = 0.5F;
+            this.buttonExtDisk.GradientDirection = 90F;
             this.buttonExtDisk.Location = new System.Drawing.Point(275, 4);
+            this.buttonExtDisk.MouseOverScaling = 1.3F;
+            this.buttonExtDisk.MouseSelectedScaling = 1.3F;
             this.buttonExtDisk.Name = "buttonExtDisk";
             this.buttonExtDisk.Size = new System.Drawing.Size(75, 23);
             this.buttonExtDisk.TabIndex = 11;
@@ -289,7 +329,12 @@ namespace ActionLanguage
             // 
             // buttonExtLoad
             // 
+            this.buttonExtLoad.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtLoad.ButtonDisabledScaling = 0.5F;
+            this.buttonExtLoad.GradientDirection = 90F;
             this.buttonExtLoad.Location = new System.Drawing.Point(170, 4);
+            this.buttonExtLoad.MouseOverScaling = 1.3F;
+            this.buttonExtLoad.MouseSelectedScaling = 1.3F;
             this.buttonExtLoad.Name = "buttonExtLoad";
             this.buttonExtLoad.Size = new System.Drawing.Size(75, 23);
             this.buttonExtLoad.TabIndex = 10;
@@ -299,7 +344,12 @@ namespace ActionLanguage
             // 
             // buttonExtSave
             // 
+            this.buttonExtSave.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtSave.ButtonDisabledScaling = 0.5F;
+            this.buttonExtSave.GradientDirection = 90F;
             this.buttonExtSave.Location = new System.Drawing.Point(88, 4);
+            this.buttonExtSave.MouseOverScaling = 1.3F;
+            this.buttonExtSave.MouseSelectedScaling = 1.3F;
             this.buttonExtSave.Name = "buttonExtSave";
             this.buttonExtSave.Size = new System.Drawing.Size(75, 23);
             this.buttonExtSave.TabIndex = 9;
@@ -309,7 +359,12 @@ namespace ActionLanguage
             // 
             // buttonExtEdit
             // 
+            this.buttonExtEdit.BackColor2 = System.Drawing.Color.Red;
+            this.buttonExtEdit.ButtonDisabledScaling = 0.5F;
+            this.buttonExtEdit.GradientDirection = 90F;
             this.buttonExtEdit.Location = new System.Drawing.Point(6, 4);
+            this.buttonExtEdit.MouseOverScaling = 1.3F;
+            this.buttonExtEdit.MouseSelectedScaling = 1.3F;
             this.buttonExtEdit.Name = "buttonExtEdit";
             this.buttonExtEdit.Size = new System.Drawing.Size(75, 23);
             this.buttonExtEdit.TabIndex = 8;
@@ -320,22 +375,32 @@ namespace ActionLanguage
             // buttonCancel
             // 
             this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonCancel.BackColor2 = System.Drawing.Color.Red;
+            this.buttonCancel.ButtonDisabledScaling = 0.5F;
+            this.buttonCancel.GradientDirection = 90F;
             this.buttonCancel.Location = new System.Drawing.Point(615, 4);
+            this.buttonCancel.MouseOverScaling = 1.3F;
+            this.buttonCancel.MouseSelectedScaling = 1.3F;
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(100, 23);
             this.buttonCancel.TabIndex = 6;
-            this.buttonCancel.Text = "%Cancel%";
+            this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
             // buttonOK
             // 
             this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.BackColor2 = System.Drawing.Color.Red;
+            this.buttonOK.ButtonDisabledScaling = 0.5F;
+            this.buttonOK.GradientDirection = 90F;
             this.buttonOK.Location = new System.Drawing.Point(747, 4);
+            this.buttonOK.MouseOverScaling = 1.3F;
+            this.buttonOK.MouseSelectedScaling = 1.3F;
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(100, 23);
             this.buttonOK.TabIndex = 7;
-            this.buttonOK.Text = "%OK%";
+            this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
             // 
@@ -414,15 +479,6 @@ namespace ActionLanguage
             this.statusStripCustom.TabIndex = 28;
             this.statusStripCustom.Text = "statusStripCustom1";
             // 
-            // extPanelVertScrollWithBar
-            // 
-            this.extPanelVertScrollWithBar.Controls.Add(this.panelVScroll);
-            this.extPanelVertScrollWithBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.extPanelVertScrollWithBar.Location = new System.Drawing.Point(3, 3);
-            this.extPanelVertScrollWithBar.Name = "extPanelVertScrollWithBar";
-            this.extPanelVertScrollWithBar.Size = new System.Drawing.Size(854, 380);
-            this.extPanelVertScrollWithBar.TabIndex = 6;
-            // 
             // ActionProgramEditForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -439,6 +495,7 @@ namespace ActionLanguage
             this.Text = "Action Program";
             this.Shown += new System.EventHandler(this.ActionProgramForm_Shown);
             this.panelOuter.ResumeLayout(false);
+            this.extPanelVertScrollWithBar.ResumeLayout(false);
             this.panelVScroll.ResumeLayout(false);
             this.panelName.ResumeLayout(false);
             this.panelName.PerformLayout();
@@ -446,7 +503,6 @@ namespace ActionLanguage
             this.panelTop.PerformLayout();
             this.panelOK.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
-            this.extPanelVertScrollWithBar.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

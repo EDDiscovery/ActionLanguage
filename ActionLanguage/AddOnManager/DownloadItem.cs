@@ -121,7 +121,7 @@ namespace ActionLanguage.Manager
                 return true;
             }
             else
-                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to update. Check files for read only status".T(EDTx.AddOnManagerForm_Failed), "Warning".T(EDTx.Warning), 
+                ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to update. Check files for read only status".Tx(), "Warning".Tx(), 
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             return false;
@@ -215,7 +215,7 @@ namespace ActionLanguage.Manager
                 }
                 else
                 {
-                    ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to delete. Check files for read only status", "Warning".T(EDTx.Warning), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ExtendedControls.MessageBoxTheme.Show(fm, ItemName + " " + "Add-on failed to delete. Check files for read only status", "Warning".Tx(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }

@@ -257,7 +257,7 @@ namespace ActionLanguage
             Variables cond = new Variables(paras.Text,Variables.FromMode.MultiEntryComma);
 
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Input parameters to pass to program on run".TxID(AFIDs.ActionPackEditForm_ip), this.Icon, cond, showatleastoneentry: true);
+            avf.Init("Input parameters to pass to program on run".Tx(), this.Icon, cond, showatleastoneentry: true);
 
             if (avf.ShowDialog(FindForm()) == DialogResult.OK)
             {
