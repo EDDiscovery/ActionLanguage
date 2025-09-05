@@ -42,12 +42,7 @@ namespace ActionLanguage
             CommandList[s.ToLowerInvariant()] = new CommandEntry(s, t, a);       // = so you can override them
         }
 
-        private string actionname;
-        private ActionType actiontype;
-        protected string userdata;
-        protected int levelup;              // indicates for control structures that this entry is N levels up (ie. to the left).
-        protected int whitespace;           // optional whitespace.. lines
-        protected string comment;
+        public bool IgnoredForLevels { get { return this is ActionFullLineComment; } }
 
         public string Name { get { return actionname; } }
         public string Comment { get { return comment; } set { comment = value; } }
@@ -127,6 +122,15 @@ namespace ActionLanguage
             a.LineNumber = r.LineNumber;
             return a;
         }
-        
+
+
+        private string actionname;
+        private ActionType actiontype;
+        protected string userdata;
+        protected int levelup;              // indicates for control structures that this entry is N levels up (ie. to the left).
+        protected int whitespace;           // optional whitespace.. lines
+        protected string comment;
+
+
     }
 }

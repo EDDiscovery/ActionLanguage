@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright © 2017-2024 EDDiscovery development team
+ * Copyright 2017-2024 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -112,8 +112,7 @@ namespace ActionLanguage
         public string Location { get
             {
                 int lineno = GetLastStep() != null ? GetLastStep().LineNumber : 0;
-
-                return "Step " + nextstepnumber.ToStringInvariant() + " in " + ActionFile.Name + "::" + Name + ":" + lineno.ToStringInvariant();
+                return $"{ActionFile.Name}.{Name}:{lineno.ToStringInvariant()} S{nextstepnumber.ToStringInvariant()}";  // step ordered 1+
             } }
 
         public int ExecLevel { get { return execlevel; } }

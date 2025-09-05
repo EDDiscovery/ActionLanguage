@@ -34,6 +34,7 @@ namespace ActionLanguage
         {
             return true;
         }
+        public int RealCharPos { get; set; }        // set on read to indicate real pos
     }
 
     public class ActionEnd : ActionBase

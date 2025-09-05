@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2017-2024 EDDiscovery development team
+ * Copyright 2017-2025 EDDiscovery development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -19,13 +19,27 @@ using System.Linq;
 using System.Text;
 using BaseUtils;
 
-// A file holds a set of conditions and programs associated with them
-
 namespace ActionLanguage
 {
     [System.Diagnostics.DebuggerDisplay("ActionFile E:{Enabled} {Name} {FilePath} ")]
     public class ActionFile
     {
+        #region Properties and startup
+
+        public ConditionLists FileEventList { get; private set; }             // list read from file
+        public ConditionLists InUseEventList { get; private set; }            // this is the one active after load - action of reading the file, or changing the event list, synchronises this back to FileEventList
+        public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
+        public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
+        public Version Version() { return InstallationVariables.GetString("Version").VersionFromString(); }     // may be null...
+        public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
+        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; private set; } // persistent dialogs owned by this file
+        public string FilePath { get; private set; }                          // where it came from
+        public string Name { get; private set; }                              // its logical name
+        public DateTime WriteTimeUTC { get; private set; }                    // last modified time    
+        public bool Enabled { get; private set; }                             // if enabled.
+        public Action<ActionFile,string,string> ReportClosingReturn { get; set; }    // hook to get closing return value, the return from the top level function 
+        public Encoding FileEncoding {get; private set;}                      // file encoding (auto calc, not saved)
+
         public ActionFile()
         {
             FileVariables = new Variables();       // filevariables are only cleared on creation
@@ -55,20 +69,6 @@ namespace ActionLanguage
             FileVariables["ActionPackFilePath"] = FilePath;
             FileVariables["ActionPackFolder"] = FilePath.HasChars() ? Path.GetDirectoryName(FilePath) : "";
         }
-
-        public ConditionLists FileEventList { get; private set; }             // list read from file
-        public ConditionLists InUseEventList { get; private set; }            // this is the one active after load - action of reading the file, or changing the event list, synchronises this back to FileEventList
-        public ActionProgramList ProgramList { get; private set; }            // programs associated with this pack
-        public Variables InstallationVariables { get; private set; }          // used to pass to the installer various options, such as disable other packs
-        public Version Version() { return InstallationVariables.GetString("Version").VersionFromString(); }     // may be null...
-        public Variables FileVariables { get; private set; }                  // variables defined using the static.. private to this program.  Not persistent. 
-        public Dictionary<string, ExtendedControls.IConfigurableDialog> Dialogs { get; private set; } // persistent dialogs owned by this file
-        public string FilePath { get; private set; }                          // where it came from
-        public string Name { get; private set; }                              // its logical name
-        public DateTime WriteTimeUTC { get; private set; }                    // last modified time    
-        public bool Enabled { get; private set; }                             // if enabled.
-        public Action<ActionFile,string,string> ReportClosingReturn { get; set; }    // hook to get closing return value, the return from the top level function 
-        public Encoding FileEncoding {get; private set;}                      // file encoding (auto calc, not saved)
 
         public void ChangeEventList(ConditionLists s)
         {
@@ -103,6 +103,10 @@ namespace ActionLanguage
 
             Dialogs.Clear();
         }
+
+        #endregion
+
+        #region Reading and creating a file
 
         // string, empty if no errors.
         // you can stop as soon as an EVENT or PROGRAM command occurs. This is useful for just reading INSTALL and ENABLE variables
@@ -142,6 +146,8 @@ namespace ActionLanguage
                         {
                             lineno++;       // on line of read..
 
+                            //System.Diagnostics.Debug.WriteLine($"{filename} {lineno} : {line}");
+
                             line = line.Trim();
                             if (line.StartsWith("ENABLED", StringComparison.InvariantCultureIgnoreCase))
                             {
@@ -158,11 +164,13 @@ namespace ActionLanguage
                                 if (stopatprogramorevent)
                                     return "";
 
-                                ActionProgram ap = new ActionProgram(null,null,precomments);     
+                                ActionProgram ap = new ActionProgram(null, null, precomments);
                                 string err = ap.Read(sr, ref lineno, line.Substring(7).Trim()); // Read it, prename it..
 
                                 if (err.Length > 0)
-                                    return Name + " " + err;
+                                    return err;
+
+                                //System.Diagnostics.Debug.WriteLine($"Loaded program {ap.Name}\r\n{ap.ToString(true)}");
 
                                 ProgramList.Add(ap);
 
@@ -180,7 +188,7 @@ namespace ActionLanguage
                                 string err = ap.ReadFile(incfilename);
 
                                 if (err.Length > 0)
-                                    return Name + " " + err;
+                                    return err;
 
                                 ProgramList.Add(ap);
                             }
@@ -225,7 +233,7 @@ namespace ActionLanguage
                                 {
                                     inautocomments = !inautocomments;
                                 }
-                                else if (!inautocomments)   // if not, its a comment on the below item
+                                else if (!inautocomments)   // if not, its a comment on the below item, store in precomments and apply to the next item
                                 {
                                     precomments = (precomments == null ? line : precomments + line) + Environment.NewLine;
                                 }
@@ -259,12 +267,15 @@ namespace ActionLanguage
             }
         }
 
-        const string automarker = "//*************************************************************";
+        #endregion
+
+        #region Writing back file
+
         public bool WriteFile()
         {
             try
             {
-                var utc8nobom = new UTF8Encoding(false); System.Diagnostics.Trace.WriteLine("File " + FilePath + " written in " + FileEncoding.BodyName + " is utf8 no bom " + Equals(utc8nobom,FileEncoding));
+                //var utc8nobom = new UTF8Encoding(false); System.Diagnostics.Trace.WriteLine("File " + FilePath + " written in " + FileEncoding.BodyName + " is utf8 no bom " + Equals(utc8nobom,FileEncoding));
 
                 using (StreamWriter sr = new StreamWriter(FilePath, false, FileEncoding))
                 {
@@ -275,11 +286,14 @@ namespace ActionLanguage
                     sr.WriteLine("ENABLED " + Enabled);
                     sr.WriteLine();
 
+                    // write any installation vars first
                     if (InstallationVariables.Count > 0)
                     {
                         sr.WriteLine(InstallationVariables.ToString(prefix: "INSTALL ", separ: Environment.NewLine));
                         sr.WriteLine();
                     }
+
+                    // then the event list
 
                     if (FileEventList.Count > 0)
                     {
@@ -288,21 +302,23 @@ namespace ActionLanguage
                         for (int i = 0; i < FileEventList.Count; i++)
                         {
                             string evgroup = FileEventList[i].GroupName;
+                            
+                            // swap group..
                             if ( evgroup != currenteventgroup )
                             {
                                 if (currenteventgroup != null)
                                 {
-                                    if (FileEventList[i].Tag != null)
+                                    if (FileEventList[i].Tag != null)           // the tag holds pre comments to the group
                                         sr.WriteLine(Environment.NewLine + (string)FileEventList[i].Tag);
                                     else
-                                        sr.WriteLine("");
+                                        sr.WriteLine();
                                 }
                                 else
                                 {
                                     if (FileEventList[i].Tag != null)
                                         sr.WriteLine((string)FileEventList[i].Tag);
                                     else
-                                        sr.WriteLine("");
+                                        sr.WriteLine();
                                 }
 
                                 currenteventgroup = evgroup;
@@ -320,15 +336,19 @@ namespace ActionLanguage
                         sr.WriteLine();
                     }
 
+                    // write out the programs
+
                     if (ProgramList.Count > 0)
                     {
                         for (int i = 0; i < ProgramList.Count; i++)
                         {
                             ActionProgram f = ProgramList.Get(i);
 
-                            List<string> elv = new List<string>() { "// Events: " };
+                            // auto gen header ..
+                            List<string> eventlistcomments = new List<string>() { "// Events: " };
                             int totonline = 0;
 
+                            // look thru event list and see if its attached to this program, if so, add to event list
                             for (int ic = 0; ic < FileEventList.Count; ic++)
                             {
                                 Condition c = FileEventList[ic];
@@ -344,20 +364,21 @@ namespace ActionLanguage
                                     if (c.ActionVars.Count > 0)
                                         e += "(" + c.ActionVars.ToString() + ")";
 
-                                    if (elv.Last().Length > 120)
+                                    if (eventlistcomments.Last().Length > 120)
                                     {
-                                        elv.Add("// Events: ");
+                                        eventlistcomments.Add("// Events: ");
                                         totonline = 0;
                                     }
 
-                                    elv[elv.Count - 1] += (totonline > 0 ? ", " : "") + e;
+                                    eventlistcomments[eventlistcomments.Count - 1] += (totonline > 0 ? ", " : "") + e;
                                     totonline++;
                                 }
                             }
 
-                            if (elv[0] == "// Events: ")
-                                elv[0] += "None";
+                            if (eventlistcomments[0] == "// Events: ")
+                                eventlistcomments[0] += "None";
 
+                            // if we have a manual header, then write that out, looking out for an Events line which then gets replaced by the  event list above
                             if (f.HeaderText.HasChars())
                             {
                                 string[] lines = f.HeaderText.Split(Environment.NewLine);
@@ -368,7 +389,7 @@ namespace ActionLanguage
                                     {
                                         if (!doneevents)
                                         {
-                                            sr.WriteLine(string.Join(Environment.NewLine, elv));
+                                            sr.WriteLine(string.Join(Environment.NewLine, eventlistcomments));
                                             doneevents = true;
                                         }
                                     }
@@ -378,12 +399,14 @@ namespace ActionLanguage
                             }
                             else
                             {
+                                // no manual header, write out the automarker plus events
                                 sr.WriteLine(automarker);
                                 sr.WriteLine("// " + f.Name);
-                                sr.WriteLine(string.Join(Environment.NewLine,elv));
+                                sr.WriteLine(string.Join(Environment.NewLine,eventlistcomments));
                                 sr.WriteLine(automarker);
                             }
 
+                            // now finally write the program, as long as not stored in a sub file
                             if (f.StoredInSubFile != null)
                             {
                                 string full = f.StoredInSubFile;        // try and simplify the path here..
@@ -411,6 +434,10 @@ namespace ActionLanguage
 
             return false;
         }
+
+        #endregion
+
+        #region Misc
 
         // change the enable flag. Read in
         // write out updated file if enable has changed
@@ -458,6 +485,10 @@ namespace ActionLanguage
                 return false;
             }
         }
+
+        #endregion
+
+        const string automarker = "//*************************************************************";
 
     }
 }

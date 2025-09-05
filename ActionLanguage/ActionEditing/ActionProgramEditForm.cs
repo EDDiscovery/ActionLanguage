@@ -232,7 +232,7 @@ namespace ActionLanguage
         {
             int curpos = panelVScroll.BeingPosition();      // we are going to restablish the whole co-ords again, so reset.
 
-            string errlist = curprog.CalculateLevels();
+            string errlist = curprog.CheckProgram();
 
             int panelwidth = Math.Max(panelVScroll.Width, 10);
             int voff = panelheightmargin;
@@ -489,7 +489,7 @@ namespace ActionLanguage
             if (groups.Count == 0)
                 errorlist += "No action steps have been defined" + Environment.NewLine;
             else
-                errorlist += curprog.CalculateLevels();
+                errorlist += curprog.CheckProgram();
 
             return errorlist;
         }
