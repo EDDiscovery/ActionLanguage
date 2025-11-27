@@ -43,13 +43,58 @@ namespace ActionLanguage
                 string cmd;
                 while ((cmd = p.NextWordLCInvariant(" ")) != null)
                 {
-                    if (cmd.Equals("dumpvars"))
+                    bool staticvars = cmd.Equals("dumpstaticvars"), globalvars = cmd.Equals("dumpglobalvars"), localvars = cmd.Equals("dumplocalvars");
+
+                    if (cmd.Equals("dumpvars") ||  staticvars || globalvars || localvars) 
+                    {
+                        string varname = p.NextQuotedWord();
+                        List<string> excludewildcards = new List<string>();
+
+                        while ( varname?.StartsWith("-") == true)
+                        {
+                            excludewildcards.Add(varname.Substring(1));
+                            varname = p.NextQuotedWord();
+                        }
+
+                        if (varname != null && varname.Length > 0)
+                        {
+                            Variables vars = globalvars ? ap.ActionController.Globals : staticvars ? ap.ActionFile.FileVariables : ap.variables;
+
+                            Variables filtered = vars.FilterVars(varname);  // produces a new set
+
+                            if ( localvars )
+                            {
+                                foreach (var name in ap.ActionController.Globals.NameEnumuerable)
+                                    filtered.Delete(name);
+                                foreach (var name in ap.ActionFile.FileVariables.NameEnumuerable)
+                                    filtered.Delete(name);
+                            }
+
+                            foreach( var excl in  excludewildcards )
+                            {
+                                filtered.DeleteWildcard(excl);
+                            }
+
+                            foreach (string key in filtered.NameEnumuerable)
+                            {
+                                ap.ActionController.LogLine(key + "=" + filtered[key]);
+                            }
+                        }
+                        else
+                        {
+                            ap.ReportError("Missing variable wildcard after Pragma Dump*Vars");
+                            return true;
+                        }
+                    }
+                    else if (cmd.Equals("dumpstaticvars"))
                     {
                         string rest = p.NextQuotedWord();
 
                         if (rest != null && rest.Length > 0)
                         {
                             Variables filtered = ap.variables.FilterVars(rest);
+                            var globale = ap.ActionController.Globals;
+
                             foreach (string key in filtered.NameEnumuerable)
                             {
                                 ap.ActionController.LogLine(key + "=" + filtered[key]);
