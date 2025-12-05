@@ -46,6 +46,9 @@ namespace ActionLanguage
         static string mixsound = "MixSound";
         static string queuelimit = "QueueLimit";
         static string paravar = "Para";
+        static string tonekey = "Tone";
+        static string toneduration = "Duration";
+        static string cancelspeech = "CancelSpeech";
 
         static public bool FromString(string s, out string saying, out Variables vars)
         {
@@ -172,9 +175,9 @@ namespace ActionLanguage
                     string finish = vars.GetString(finishname, checklen: true);
                     string voice = (vars.Exists(voicename) && vars[voicename].Length > 0) ? vars[voicename] : (ap.VarExist(globalvarspeechvoice) ? ap[globalvarspeechvoice] : "Default");
 
-                    int vol = vars.GetInt(volumename, -999);
-                    if (vol == -999)
-                        vol = ap.variables.GetInt(globalvarspeechvolume, 60);
+                    int volume = vars.GetInt(volumename, -999);
+                    if (volume == -999)
+                        volume = ap.variables.GetInt(globalvarspeechvolume, 60);
 
                     int rate = vars.GetInt(ratename, -999);
                     if (rate == -999)
@@ -193,12 +196,6 @@ namespace ActionLanguage
 
                     Variables globalsettings = ap.VarExist(globalvarspeecheffects) ? new Variables(ap[globalvarspeecheffects], Variables.FromMode.MultiEntryComma) : null;
 
-                    // work out the settings. local vars could have NoEffect (so none) or MergeEffect (Global then vars)
-                    // or if no local vars use 
-                    // apply the NoEffects, MergeEffects and NoGlobalEffect flags as well as the effect variables
-
-                    SoundEffectSettings ses = SoundEffectSettings.Create(globalsettings, vars);        
-
                     if (queuelimitms > 0)
                     {
                         int queue = ap.ActionController.AudioQueueSpeech.InQueuems();
@@ -211,129 +208,171 @@ namespace ActionLanguage
                         }
                     }
 
-                    string expsay;
-                    if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
+                    SoundEffectSettings ses = SoundEffectSettings.Create(globalsettings, vars);
+
+                    int tonefreq = vars.GetInt(tonekey, 0);
+                    int duration = vars.GetInt(toneduration, 0);
+
+                    if (vars.GetInt(cancelspeech,0)>0)
                     {
-                        System.Diagnostics.Debug.WriteLine($"{Environment.TickCount} Say wait {wait}, vol {vol}, rate {rate}, queue {queuelimitms}, priority {priority}, culture {culture}, literal {literal}, dontspeak {dontspeak} , prefix {prefixsoundpath}, postfix {postfixsoundpath}, mix {mixsoundpath} starte {start}, finishe {finish} , voice {voice}");
-                        System.Diagnostics.Debug.WriteLine($"  text `{expsay}`");
-                        //System.Diagnostics.Debug.WriteLine($"..Say variables: {vars.ToString(separ: Environment.NewLine, prefix:"  ")}");
-                        //System.Diagnostics.Debug.WriteLine($"..Say effect variables: {ses?.Values.ToString(separ: Environment.NewLine, prefix:"  ")}");
+                        tonefreq = 1;
+                        duration = 1;
+                        volume = 0;
+                    }
 
-                        Random rnd = FunctionHandlers.GetRandom();
+                    if (tonefreq > 0)
+                    {
+                        var audio = ap.ActionController.AudioQueueSpeech.Tone(tonefreq, 100, duration);
 
-                        if (!literal)
+                        if (audio != null)      // just double checking nothing fails above
                         {
-                            expsay = expsay.PickOneOfGroups(rnd);       // expand grouping if not literal
-                        }
-
-                        ap["SaySaid"] = expsay;
-
-                        if (ctrl.Contains("Global"))
-                        {
-                            ap.ActionController.SetPeristentGlobal("GlobalSaySaid", expsay);
-                        }
-
-                        if (ctrl.Contains("Print") && expsay.HasChars())
-                        {
-                            ap.ActionController.LogLine("Say: " + expsay);
-                        }
-
-                        if (ctrl.Contains("Mute"))
-                        {
-                            return true;
-                        }
-
-                        if (ctrl.Contains("DontSpeak"))
-                        {
-                            expsay = "";
-                        }
-
-                        if (dontspeak)
-                            expsay = "";
-
-                        AudioQueue.AudioSample mix = null, prefix = null, postfix = null;
-
-                        if (mixsoundpath != null)
-                        {
-                            mix = ap.ActionController.AudioQueueSpeech.Generate(mixsoundpath);
-
-                            if (mix == null)
+                            if (start != null)
                             {
-                                ap.ReportError("Say could not create mix audio, check audio file format is supported and effects settings");
-                                return true;
-                            }
-                        }
-
-                        if (prefixsoundpath != null)
-                        {
-                            prefix = ap.ActionController.AudioQueueSpeech.Generate(prefixsoundpath);
-
-                            if (prefix == null)
-                            {
-                                ap.ReportError("Say could not create prefix audio, check audio file format is supported and effects settings");
-                                return true;
+                                audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
+                                audio.sampleStartEvent += Audio_sampleEvent;
                             }
 
-                        }
-
-                        if (postfixsoundpath != null)
-                        {
-                            postfix = ap.ActionController.AudioQueueSpeech.Generate(postfixsoundpath);
-
-                            if (postfix == null)
+                            if (wait || finish != null)       // if waiting, or finish call
                             {
-                                ap.ReportError("Say could not create postfix audio, check audio file format is supported and effects settings");
-                                return true;
+                                audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
+                                audio.sampleOverEvent += Audio_sampleEvent;
                             }
+
+                            ap.ActionController.AudioQueueSpeech.Submit(audio, volume, priority);
                         }
 
-                        // we entrust it to a Speach Queue (New Dec 20) as the synth takes an inordinate time to generate speech, it then calls back
-
-                        ap.ActionController.SpeechSynthesizer.SpeakQueue(expsay, culture, voice, rate, (memstream) =>
-                        {
-                            // in a thread, invoke on UI thread to complete action, since these objects are owned by that thread
-
-                            ap.ActionController.ParentUIForm.Invoke((MethodInvoker)delegate
-                            {
-                                System.Diagnostics.Debug.Assert(Application.MessageLoop);       // double check!
-
-                                AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(memstream, ses, true);
-
-                                if (audio != null)
-                                {
-                                    if (mix != null)
-                                        audio = ap.ActionController.AudioQueueSpeech.Mix(audio, mix);     // audio in MIX format
-
-                                    if (audio != null && prefix != null)
-                                        audio = ap.ActionController.AudioQueueSpeech.Append(prefix, audio);        // audio in AUDIO format.
-
-                                    if (audio != null && postfix != null)
-                                        audio = ap.ActionController.AudioQueueSpeech.Append(audio, postfix);         // Audio in P format
-
-                                    if (audio != null)      // just double checking nothing fails above
-                                    {
-                                        if (start != null)
-                                        {
-                                            audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
-                                            audio.sampleStartEvent += Audio_sampleEvent;
-                                        }
-
-                                        if (wait || finish != null)       // if waiting, or finish call
-                                        {
-                                            audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
-                                            audio.sampleOverEvent += Audio_sampleEvent;
-                                        }
-
-                                        ap.ActionController.AudioQueueSpeech.Submit(audio, vol, priority);
-                                    }
-                                }
-                            });
-                        });
-
-                        return !wait;
+                        return true;
                     }
                     else
-                        ap.ReportError(expsay);
+                    {
+                        // work out the settings. local vars could have NoEffect (so none) or MergeEffect (Global then vars)
+                        // or if no local vars use 
+                        // apply the NoEffects, MergeEffects and NoGlobalEffect flags as well as the effect variables
+
+                        string expsay;
+                        if (ap.Functions.ExpandString(say, out expsay) != Functions.ExpandResult.Failed)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"{Environment.TickCount} Say wait {wait}, vol {volume}, rate {rate}, queue {queuelimitms}, priority {priority}, culture {culture}, literal {literal}, dontspeak {dontspeak} , prefix {prefixsoundpath}, postfix {postfixsoundpath}, mix {mixsoundpath} starte {start}, finishe {finish} , voice {voice}");
+                            System.Diagnostics.Debug.WriteLine($"  text `{expsay}`");
+                            //System.Diagnostics.Debug.WriteLine($"..Say variables: {vars.ToString(separ: Environment.NewLine, prefix:"  ")}");
+                            //System.Diagnostics.Debug.WriteLine($"..Say effect variables: {ses?.Values.ToString(separ: Environment.NewLine, prefix:"  ")}");
+
+                            Random rnd = FunctionHandlers.GetRandom();
+
+                            if (!literal)
+                            {
+                                expsay = expsay.PickOneOfGroups(rnd);       // expand grouping if not literal
+                            }
+
+                            ap["SaySaid"] = expsay;
+
+                            if (ctrl.Contains("Global"))
+                            {
+                                ap.ActionController.SetPeristentGlobal("GlobalSaySaid", expsay);
+                            }
+
+                            if (ctrl.Contains("Print") && expsay.HasChars())
+                            {
+                                ap.ActionController.LogLine("Say: " + expsay);
+                            }
+
+                            if (ctrl.Contains("Mute"))
+                            {
+                                return true;
+                            }
+
+                            if (ctrl.Contains("DontSpeak"))
+                            {
+                                expsay = "";
+                            }
+
+                            if (dontspeak)
+                                expsay = "";
+
+                            AudioQueue.AudioSample mix = null, prefix = null, postfix = null;
+
+                            if (mixsoundpath != null)
+                            {
+                                mix = ap.ActionController.AudioQueueSpeech.Generate(mixsoundpath);
+
+                                if (mix == null)
+                                {
+                                    ap.ReportError("Say could not create mix audio, check audio file format is supported and effects settings");
+                                    return true;
+                                }
+                            }
+
+                            if (prefixsoundpath != null)
+                            {
+                                prefix = ap.ActionController.AudioQueueSpeech.Generate(prefixsoundpath);
+
+                                if (prefix == null)
+                                {
+                                    ap.ReportError("Say could not create prefix audio, check audio file format is supported and effects settings");
+                                    return true;
+                                }
+
+                            }
+
+                            if (postfixsoundpath != null)
+                            {
+                                postfix = ap.ActionController.AudioQueueSpeech.Generate(postfixsoundpath);
+
+                                if (postfix == null)
+                                {
+                                    ap.ReportError("Say could not create postfix audio, check audio file format is supported and effects settings");
+                                    return true;
+                                }
+                            }
+
+                            // we entrust it to a Speach Queue (New Dec 20) as the synth takes an inordinate time to generate speech, it then calls back
+
+                            ap.ActionController.SpeechSynthesizer.SpeakQueue(expsay, culture, voice, rate, (memstream) =>
+                            {
+                                // in a thread, invoke on UI thread to complete action, since these objects are owned by that thread
+
+                                ap.ActionController.ParentUIForm.Invoke((MethodInvoker)delegate
+                                {
+                                    System.Diagnostics.Debug.Assert(Application.MessageLoop);       // double check!
+
+                                    AudioQueue.AudioSample audio = ap.ActionController.AudioQueueSpeech.Generate(memstream, ses, true);
+
+                                    if (audio != null)
+                                    {
+                                        if (mix != null)
+                                            audio = ap.ActionController.AudioQueueSpeech.Mix(audio, mix);     // audio in MIX format
+
+                                        if (audio != null && prefix != null)
+                                            audio = ap.ActionController.AudioQueueSpeech.Append(prefix, audio);        // audio in AUDIO format.
+
+                                        if (audio != null && postfix != null)
+                                            audio = ap.ActionController.AudioQueueSpeech.Append(audio, postfix);         // Audio in P format
+
+                                        if (audio != null)      // just double checking nothing fails above
+                                        {
+                                            if (start != null)
+                                            {
+                                                audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
+                                                audio.sampleStartEvent += Audio_sampleEvent;
+                                            }
+
+                                            if (wait || finish != null)       // if waiting, or finish call
+                                            {
+                                                audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
+                                                audio.sampleOverEvent += Audio_sampleEvent;
+                                            }
+
+                                            ap.ActionController.AudioQueueSpeech.Submit(audio, volume, priority);
+                                        }
+                                    }
+                                });
+                            });
+
+                            return !wait;
+                        }
+                        else
+                            ap.ReportError(expsay);
+                    }
                 }
                 else
                     ap.ReportError(errlist);
