@@ -228,14 +228,14 @@ namespace ActionLanguage
                         {
                             if (start != null)
                             {
-                                audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
-                                audio.sampleStartEvent += Audio_sampleEvent;
+                                audio.SampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
+                                audio.StartEvent += Audio_sampleEvent;
                             }
 
                             if (wait || finish != null)       // if waiting, or finish call
                             {
-                                audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
-                                audio.sampleOverEvent += Audio_sampleEvent;
+                                audio.SampleEndTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
+                                audio.EndEvent += Audio_sampleEvent;
                             }
 
                             ap.ActionController.AudioQueueSpeech.Submit(audio, volume, priority);
@@ -352,14 +352,14 @@ namespace ActionLanguage
                                         {
                                             if (start != null)
                                             {
-                                                audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
-                                                audio.sampleStartEvent += Audio_sampleEvent;
+                                                audio.SampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onSayStarted };
+                                                audio.StartEvent += Audio_sampleEvent;
                                             }
 
                                             if (wait || finish != null)       // if waiting, or finish call
                                             {
-                                                audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
-                                                audio.sampleOverEvent += Audio_sampleEvent;
+                                                audio.SampleEndTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onSayFinished };
+                                                audio.EndEvent += Audio_sampleEvent;
                                             }
 
                                             ap.ActionController.AudioQueueSpeech.Submit(audio, volume, priority);

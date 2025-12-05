@@ -183,14 +183,14 @@ namespace ActionLanguage
                             {
                                 if (start != null && start.Length > 0)
                                 {
-                                    audio.sampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onPlayStarted };
-                                    audio.sampleStartEvent += Audio_sampleEvent;
+                                    audio.SampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onPlayStarted };
+                                    audio.StartEvent += Audio_sampleEvent;
 
                                 }
                                 if (wait || (finish != null && finish.Length > 0))       // if waiting, or finish call
                                 {
-                                    audio.sampleOverTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onPlayFinished };
-                                    audio.sampleOverEvent += Audio_sampleEvent;
+                                    audio.SampleEndTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onPlayFinished };
+                                    audio.EndEvent += Audio_sampleEvent;
                                 }
 
                                 ap.ActionController.AudioQueueWave.Submit(audio, vol, priority);
