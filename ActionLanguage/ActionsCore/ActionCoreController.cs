@@ -19,7 +19,8 @@ namespace ActionLanguage
 {
     public class ActionCoreController
     {
-        virtual public AudioExtensions.AudioQueue AudioQueueWave { get; }
+        virtual public AudioExtensions.AudioQueue AudioQueueWave1 { get; }
+        virtual public AudioExtensions.AudioQueue AudioQueueWave2 { get; }
         virtual public AudioExtensions.AudioQueue AudioQueueSpeech { get; }
         virtual public AudioExtensions.SpeechSynthesizer SpeechSynthesizer { get; }
 

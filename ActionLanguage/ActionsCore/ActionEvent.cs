@@ -67,6 +67,18 @@ namespace ActionLanguage
                     new BaseUtils.TypeHelpers.PropertyNameInfo("EventName", "Event name associated with the say end event", BaseUtils.ConditionEntry.MatchType.Equals, "Event Variable"),
                 }
                 ),
+            new ActionEvent("onPlay2Started","ProgramEvent",  "Audio",
+                new List<BaseUtils.TypeHelpers.PropertyNameInfo>()
+                {
+                    new BaseUtils.TypeHelpers.PropertyNameInfo("EventName", "Event name associated with the play2 start event", BaseUtils.ConditionEntry.MatchType.Equals, "Event Variable"),
+                }
+                ),
+            new ActionEvent("onPlay2Finished","ProgramEvent",  "Audio",
+                new List<BaseUtils.TypeHelpers.PropertyNameInfo>()
+                {
+                    new BaseUtils.TypeHelpers.PropertyNameInfo("EventName", "Event name associated with the play2 finish event", BaseUtils.ConditionEntry.MatchType.Equals, "Event Variable"),
+                }
+                ),
         };
 
         public static ActionEvent onStartup { get { return events[0]; } }
@@ -76,6 +88,8 @@ namespace ActionLanguage
         public static ActionEvent onPlayFinished { get { return events[4]; } }
         public static ActionEvent onSayStarted { get { return events[5]; } }
         public static ActionEvent onSayFinished { get { return events[6]; } }
+        public static ActionEvent onPlay2Started { get { return events[7]; } }
+        public static ActionEvent onPlay2Finished { get { return events[8]; } }
     }
 
 }

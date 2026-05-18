@@ -43,6 +43,8 @@ namespace ActionLanguage
         static string enveloperelease = "Release";
         static string sustainvolume = "SustainVolume";
 
+        protected bool play2 = false;
+
         public bool FromString(string s, out string path, out Variables vars)
         {
             vars = new Variables();
@@ -80,14 +82,14 @@ namespace ActionLanguage
             return FromString(userdata, out path, out vars) ? null : "Play command line not in correct format";
         }
 
-        public override bool ConfigurationMenu(Form parent, ActionCoreController cp , List<BaseUtils.TypeHelpers.PropertyNameInfo> eventvars)
+        public override bool ConfigurationMenu(Form parent, ActionCoreController cp, List<BaseUtils.TypeHelpers.PropertyNameInfo> eventvars)
         {
             string path;
             Variables vars;
             FromString(userdata, out path, out vars);
 
             ExtendedAudioForms.WaveConfigureDialog cfg = new ExtendedAudioForms.WaveConfigureDialog();
-            cfg.Init(false,true, cp.AudioQueueWave, null, cp.Icon,
+            cfg.Init(false, true, cp.AudioQueueWave1, null, cp.Icon,
                         path,
                         vars.Exists(waitname),
                         AudioQueue.GetPriority(vars.GetString(priorityname, "Normal")),
@@ -126,7 +128,7 @@ namespace ActionLanguage
             if (FromString(userdata, out pathunexpanded, out statementvars))
             {
                 string errlist = null;
-                Variables vars = ap.Functions.ExpandVars(statementvars,out errlist);
+                Variables vars = ap.Functions.ExpandVars(statementvars, out errlist);
 
                 if (errlist == null)
                 {
@@ -158,42 +160,44 @@ namespace ActionLanguage
 
                             AudioQueue.AudioSample audio = null;
 
-                            if ( path == tonekey)
+                            var audioq = play2 ? ap.ActionController.AudioQueueWave2 : ap.ActionController.AudioQueueWave1;
+
+                            if (path == tonekey)
                             {
                                 double freq = vars.GetDouble(tonefrequency, 512);
                                 double lengthms = vars.GetDouble(toneduration, 1000);
-                                audio = ap.ActionController.AudioQueueWave.Tone(freq, 100.0, lengthms);
+                                audio = audioq.Tone(freq, 100.0, lengthms);
                             }
                             else
-                                audio = ap.ActionController.AudioQueueWave.Generate(path, ses);
+                                audio = audioq.Generate(path, ses);
 
                             double attack = vars.GetDouble(envelopeattack, -1);
-                            if ( attack>=0 && audio != null )
+                            if (attack >= 0 && audio != null)
                             {
                                 double decay = vars.GetDouble(envelopedecay, 0);
                                 double sustain = vars.GetDouble(envelopesustain, 1E12);
                                 double release = vars.GetDouble(enveloperelease, 1000);
-                                double svolume = vars.GetDouble(sustainvolume,decay==0 ? 100 : 50);
+                                double svolume = vars.GetDouble(sustainvolume, decay == 0 ? 100 : 50);
 
-                               // System.Diagnostics.Debug.WriteLine($"ADSR {attack} {decay} {sustain} {release} {svolume}");
-                                audio = ap.ActionController.AudioQueueWave.Envelope(audio, attack, decay, sustain, release, 100.0, svolume);
+                                // System.Diagnostics.Debug.WriteLine($"ADSR {attack} {decay} {sustain} {release} {svolume}");
+                                audio = audioq.Envelope(audio, attack, decay, sustain, release, 100.0, svolume);
                             }
 
                             if (audio != null)
                             {
                                 if (start != null && start.Length > 0)
                                 {
-                                    audio.SampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = ActionEvent.onPlayStarted };
+                                    audio.SampleStartTag = new AudioEvent { apr = ap, eventname = start, ev = play2 ? ActionEvent.onPlay2Started : ActionEvent.onPlayStarted };
                                     audio.StartEvent += Audio_sampleEvent;
 
                                 }
                                 if (wait || (finish != null && finish.Length > 0))       // if waiting, or finish call
                                 {
-                                    audio.SampleEndTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = ActionEvent.onPlayFinished };
+                                    audio.SampleEndTag = new AudioEvent() { apr = ap, wait = wait, eventname = finish, ev = play2 ? ActionEvent.onPlay2Finished : ActionEvent.onPlayFinished };
                                     audio.EndEvent += Audio_sampleEvent;
                                 }
 
-                                ap.ActionController.AudioQueueWave.Submit(audio, vol, priority);
+                                audioq.Submit(audio, vol, priority);
                                 return !wait;       //False if wait, meaning terminate and wait for it to complete, true otherwise, continue
                             }
                             else
@@ -218,11 +222,19 @@ namespace ActionLanguage
         {
             AudioEvent af = tag as AudioEvent;
 
-            if (af.eventname != null && af.eventname.Length>0)
+            if (af.eventname != null && af.eventname.Length > 0)
                 af.apr.ActionController.ActionRun(af.ev, new Variables("EventName", af.eventname), now: false);    // queue at end an event
 
             if (af.wait)
                 af.apr.ResumeAfterPause();
+        }
+    }
+
+    public class ActionPlay2 : ActionPlay
+    {
+        public ActionPlay2()
+        {
+            play2 = true;
         }
     }
 }
