@@ -453,7 +453,7 @@ namespace ActionLanguage
         private void buttonInstallationVars_Click(object sender, EventArgs e)
         {
             ExtendedConditionsForms.VariablesForm avf = new ExtendedConditionsForms.VariablesForm();
-            avf.Init("Configuration items for installation - specialist use".Tx(), this.Icon, actionfile.InstallationVariables, showatleastoneentry: false);
+            avf.Init(actionfile.InstallationVariables, "Configuration items for installation - specialist use".Tx(), this.Icon);
 
             if (avf.ShowDialog(this) == DialogResult.OK)
             {
