@@ -112,8 +112,9 @@ namespace ActionLanguage
 
         // given an event name, on enabled files, find conditions in the In Use Event List which has this eventname set
         // you can screen out events which do not contain the action variable defined by actionvarscontainthisname
+        // you can screen out action files which do not have matching variables given in must have
 
-        public List<MatchingSets> GetMatchingConditions(string eventname, string actionvarscontainthisname = null)        
+        public List<MatchingSets> GetMatchingConditions(string eventname, string eventmusthavethisvariable, Variables staticvarmustbepresent)        
         {
             List<MatchingSets> apl = new List<MatchingSets>();
 
@@ -121,7 +122,26 @@ namespace ActionLanguage
             {
                 if (af.Enabled)         // only enabled files are checked
                 {
-                    List<Condition> events = af.InUseEventList.GetConditionListByEventName(eventname, actionvarscontainthisname);
+                    // new system august 26 allows precense of file variables in an action file to enable/disable passing thru of events to it
+                    // used for directinput events 
+
+                    if ( staticvarmustbepresent != null)
+                    {
+                        bool ok = true;
+                        foreach(var vname in staticvarmustbepresent.NameEnumuerable)
+                        {
+                            if ( af.FileVariables.TryGet(vname, out string s) ? !s.EqualsIIC(staticvarmustbepresent[vname]) : true)       // if variable is there, and not the same, Or not there
+                            {
+                                ok = false;
+                                break;
+                            }
+                        }
+                        
+                        if (!ok)        // if bad, skip
+                            continue;
+                    }
+
+                    List<Condition> events = af.InUseEventList.GetConditionListByEventName(eventname, eventmusthavethisvariable);
 
                     if (events != null)     // and if we have matching event..
                     {
