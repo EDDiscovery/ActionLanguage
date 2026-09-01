@@ -124,8 +124,7 @@ namespace ActionLanguage
         public virtual void LogLine(string s)
         { }
 
-        public virtual int ActionRun(ActionEvent ev, Variables additionalvars = null,
-                                string flagstart = null, bool now = false)
+        public virtual int ActionRun(ActionEvent ev, Variables additionalvars, string eventmusthavethisvariable = null, bool now = false)
         { return 0; }
 
         public virtual bool Pragma(string s)    // extend pragmas
