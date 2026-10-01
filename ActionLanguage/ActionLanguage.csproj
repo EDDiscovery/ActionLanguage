@@ -138,6 +138,10 @@
       <Project>{298c11c9-b58f-415c-8458-1cae3c6cab62}</Project>
       <Name>ExtendedForms</Name>
     </ProjectReference>
+    <ProjectReference Include="$(SolutionDir)\ExtendedControls\AudioForms\AudioForms.csproj">
+      <Project>{044e2adf-3dfc-492e-8d77-eef70ab218c1}</Project>
+      <Name>AudioForms</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
