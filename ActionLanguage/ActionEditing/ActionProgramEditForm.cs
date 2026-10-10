@@ -49,6 +49,7 @@ namespace ActionLanguage
             currentvarlist = new List<BaseUtils.TypeHelpers.PropertyNameInfo>(vbs);
 
             BaseUtils.TranslatorMkII.Instance.TranslateControls(this);
+            BaseUtils.TranslatorMkII.Instance.TranslateToolstrip(contextMenuStrip1);
 
             bool winborder = ExtendedControls.Theme.Current.ApplyDialog(this);
 

@@ -56,6 +56,8 @@ namespace ActionLanguage
             events = evlist;
 
             BaseUtils.TranslatorMkII.Instance.TranslateControls(this);
+            BaseUtils.TranslatorMkII.Instance.TranslateToolstrip(contextMenuStripAction);
+            BaseUtils.TranslatorMkII.Instance.TranslateToolstrip(contextMenuStripCollapse);
 
             classtypenames = (from e in events select e.UIClass).ToList().Distinct().ToList();      // here we extract from events relevant data
             eventsperclass = new Dictionary<string, List<string>>();
@@ -160,7 +162,7 @@ namespace ActionLanguage
                 g.groupnamepanel.Controls.Add(g.groupnamelabel);
 
                 g.groupactionscombobox = new ExtendedControls.ExtComboBox();
-                g.groupactionscombobox.Items.AddRange(new string[] { "Select Action", "Disable All", "Enable All", "Delete All"});
+                g.groupactionscombobox.Items.AddRange(new string[] { "Select Action".Tx(), "Disable All".Tx(), "Enable All".Tx(), "Delete All".Tx() });
                 g.groupactionscombobox.Size = new Size(200, 20);
                 g.groupactionscombobox.Tag = g;
                 g.groupactionscombobox.SelectedIndex = 0;

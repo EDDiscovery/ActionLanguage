@@ -477,7 +477,7 @@ namespace ActionLanguage
             this.statusStripCustom.Name = "statusStripCustom";
             this.statusStripCustom.Size = new System.Drawing.Size(862, 22);
             this.statusStripCustom.TabIndex = 28;
-            this.statusStripCustom.Text = "statusStripCustom1";
+            this.statusStripCustom.Text = "";
             // 
             // ActionProgramEditForm
             // 

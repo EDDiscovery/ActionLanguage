@@ -290,7 +290,7 @@
             this.statusStripCustom.Name = "statusStripCustom";
             this.statusStripCustom.Size = new System.Drawing.Size(1068, 22);
             this.statusStripCustom.TabIndex = 28;
-            this.statusStripCustom.Text = "statusStripCustom1";
+            this.statusStripCustom.Text = "";
             // 
             // toolTip
             // 
