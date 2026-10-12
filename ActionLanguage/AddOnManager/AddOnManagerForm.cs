@@ -481,7 +481,7 @@ namespace ActionLanguage.Manager
             ExtendedControls.ExtButton cb = sender as ExtendedControls.ExtButton;
             Group gd = cb.Tag as Group;
 
-            if (ExtendedControls.MessageBoxTheme.Show(this, string.Format("Do you really want to delete {0}".Tx(), gd.di.ItemName), "Warning".Tx(), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+            if (ExtendedControls.MessageBoxTheme.Show(this, "Do you really want to delete".Tx() + " " + gd.di.ItemName, "Warning".Tx(), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
             {
                 if (gd.di.IsComplexDelete() )
                 {
